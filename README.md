@@ -37,8 +37,10 @@ The pipeline is relatively light on software. R package management will probably
   - stringr
 
 **If you are using the UI RCDS cluster:**
-There is a good tutorial for installing r packages here: l[ink to RCDS](https://www.hpc.uidaho.edu/compute/Applications/R.html)
+There is a good tutorial for installing r packages here: [link to RCDS](https://www.hpc.uidaho.edu/compute/Applications/R.html)
 However, you need to make one change to the tutorial: you must load the newest R module (`module load R/4.2.3`). To install dada2, you must first install bioconductor, [follow the instructions on the dada2 website](https://benjjneb.github.io/dada2/dada-installation.html)
+
+**for this pipeline to work on the RCDS cluster, you must install your packages into a specific place: ~/Rpackages. If you install your R packages somewhere else, you _must_ go into the R scripts and change the `lib="~/Rpackages"` line of each `library` command by hand (or with sed).**
 
 ### Before you Begin
 The pipeline assumes all internal R scripts are in the same folder as the shell scripts. 
@@ -67,7 +69,6 @@ The script requires four command line arguments:
 * -t the path to the file containing a list of taxa
 * -g the path to the file containing the gene terms
 * -d the path to the output directory
-* -r the path to your r package library
 
 **Optional Arguments:**
 * -r (retmax) maximum number of search records to return. Default 10. Setting this value very high (>50) may cause problems with the rentrez search and will probably add off-target sequences (wrong gene more likely than wrong organism) to your database. I recommend getting an NCBI API key for large databases, see [the rentrez tutorial](https://cran.r-project.org/web/packages/rentrez/vignettes/rentrez_tutorial.html#rate-limiting-and-api-keys) for more info.
@@ -75,7 +76,7 @@ The script requires four command line arguments:
   
 `bash step_0_make_local_database.sh -n your_name -t /path/to/taxfile -g /path/to/genefile -d /path/to/outputdir -r 10 -c sep -r ~/Rpackages`
 
-## Output
+### Output
 
 In your output directory:
 - A tab-delimited summary file with information about each taxon including the taxid, number of available sequences on NCBI (at any locus), whether sequences are available for any of your target loci, and a yes/no for each locus, called "your_project_database_taxa_summary.txt"
