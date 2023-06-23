@@ -1,7 +1,5 @@
 # Metabarcoding_Pipeline_Waits
-A rough pipeline and tutorial to analyze metabarcoding data using dada2. This explains my system. This project is theoretically able to run on the UIdaho RCDS cluster and on a mac running Monterey. However, it is intended to be an analysis guide for students working on their own projects, rather than a button-press way to receive your output. This is a teaching tool, so it is pretty wordy. Please read through it to understand all the decision points in this analysis.
-
-To use this pipeline on the cluster, you will likely need to alter the Rscripts to include the line .libPaths("~/path/to/your/R/library") after the shebang line, and that path will need to direct the script to a folder containing your installed R packages. To install packages onto the UI RCDS cluster, follow the tutorial [here:](https://www.hpc.uidaho.edu/compute/Applications/R.html)
+A rough pipeline and tutorial to analyze metabarcoding data using dada2. This explains my system. This project is theoretically able to run on the UIdaho RCDS cluster and on a mac running Monterey. It is optimized for cluster use currently. However, it is intended to be an analysis guide for students working on their own projects, rather than a button-press way to receive your output. This is a teaching tool, so it is pretty wordy. Please read through it to understand all the decision points in this analysis.
 
 This pipeline assumes reasonably good resolution of locus data and is designed as a "first pass" at your metabarcoding data, not a finished product. **This pipeline grabs the top BLAST hit for each unique sequence. It does not assess multiple BLAST hits.** There is an optional extension script that will attempt to resolve identically-good BLAST hits. This extension script was built for a specific project where the resolution of the locus was well-understood and there were relatively few possible target taxa. It is extremely naive and basic. If your resolution is low (ie, you have many disparate taxa with perfect or near-perfect matches at your locus), or if you don't understand the resolution of your locus, consider using a Bayesian taxonomic assignment algorithm like the ones found in DADA2 or QIIME instead.
 
@@ -32,6 +30,7 @@ The pipeline is relatively light on software. R package management will probably
 - Packages required:
   - optparse
   - tidyverse
+  - lubridate
   - rentrez
   - dada2
   - stringr
