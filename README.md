@@ -25,7 +25,6 @@ Data is often demultiplexed by the sequencing service company at no (or minor) c
 
 The pipeline is relatively light on software. R package management will probably be the most intensive thing.
 
-- Python 3 is needed to run many programs. It is usually installed when needed (ie, cutadapt), but having a python install on your Mac is a good thing, especially now that there is no Python 2 installed natively on new Macs.
 - Command-Line BLAST [Installation Instructions Here](https://www.ncbi.nlm.nih.gov/books/NBK279690/)
 - NCBItax2lin: [see here](https://github.com/zyxue/ncbitax2lin) used to add taxonomic information to the local reference database. Requires pip to install.
 - gnu-sed (gsed) [Installation Instructions Here](https://formulae.brew.sh/formula/gnu-sed). Most computing clusters use this as the default, but it needs to be installed on a mac. It can be easily installed with [homebrew](https://brew.sh/)
@@ -37,6 +36,10 @@ The pipeline is relatively light on software. R package management will probably
   - dada2
   - stringr
 
+**If you are using the UI RCDS cluster:**
+There is a good tutorial for installing r packages here: l[ink to RCDS](https://www.hpc.uidaho.edu/compute/Applications/R.html)
+However, you need to make one change to the tutorial: you must load the newest R module (`module load R/4.2.3`). To install dada2, you must first install bioconductor, [follow the instructions on the dada2 website](https://benjjneb.github.io/dada2/dada-installation.html)
+
 ### Before you Begin
 The pipeline assumes all internal R scripts are in the same folder as the shell scripts. 
 
@@ -46,13 +49,12 @@ We recommend a local reference database to improve the accuracy of detections. F
 
 ## Things to Consider
 - This script assumes a relatively small reference library, <500 taxa at <5 genes. This script is rate limited to avoid overloading the NCBI API, but can still run into odd errors when internet connections are unstable, and doesn't always play nicely with VPNs. If you're getting weird errors like "unexpected EOF" or "http 400", try disconnecting any VPNs or checking firewalls. I am generally unable to help you troubleshoot these issues.
-- We recommend that you include common contaminants in your database for better error detection. At minimum, we recommend *Homo sapiens* for any genes that might amplify vertebrates and *Cyprinus carpio* for all projects. As of mid-2023, the *Cyprinus carpio* genome is full of Illumina adapters and therefore if you have a lot of primer dimer in your reads, or if you fail to trim your adapters, you will have many hits to this species. I assume it will get a new genome at some point, so this may not be true forever. 
+- We recommend that you include common contaminants in your database for better error detection. At minimum, we recommend *Homo sapiens* for any genes that might amplify vertebrates and *Cyprinus carpio* for all projects. As of mid-2023, the *Cyprinus carpio* genome is full of Illumina adapters, so if you have a lot of primer dimer in your reads, or if you fail to trim your adapters, you will have many hits to this species. I assume it will get a new genome at some point, so this may not be true forever. 
 - This script can search at any taxonomic level. For species, include the binomial name. For subspecies, check NCBI for the correct name of the subspecies you're interested in, or use taxids. For genera and above, use the single-word taxon name.
-- There is an extension to the R script that can check for sequences within a genus for any species that has no available relevant seq in genbank, to add congeners and therefore accuracy to the database. By default, it is commented out. To use it, simply remove the comment character (#) inside the query_rentrez.R script, starting at the section labeled "search no-hits by genus" and going to the end of the file.
-- This script doesn't check for the wrong organism in the search results. This is because in most cases, multiple taxa returned from a search are subspecies, or because the search term was for a genus or higher taxonomic rank. However, there is a version of this script called step_0_make_local_database_by_taxid.sh that you can use instead if you are worried about sister taxa slipping into your search results. The input for that script is a taxfile containing a list of taxids, which you are responsible for supplying. In theory, you can use [this NCBI tool](https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi) to look up taxids. **The taxid version of this script only accepts species/subspecies as input, not genera or any higher taxonomic rank, and will check to ensure that only the target taxid is included in the output files.**
+- There is an extension to the R script that can check for sequences within a genus for any species that has no available relevant sequences in genbank, to add congeners and therefore accuracy to the database. By default, it is commented out. To use it, simply remove the comment character (#) inside the query_rentrez.R script, starting at the section labeled "search no-hits by genus" and going to the end of the file. **note: currently, this will not work.**
+- This script doesn't check for the wrong organism in the search results. This allows the script to search for organisms at any taxonomic rank. However, there is a version of this script called step_0_make_local_database_by_taxid.sh that you can use instead if you are worried about sister taxa slipping into your search results. The input for that script is a taxfile containing a list of taxids, which you are responsible for supplying. In theory, you can use [this NCBI tool](https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi) to look up taxids. **The taxid version of this script only accepts species/subspecies as input, not genera or any higher taxonomic rank, and will check to ensure that only the target taxid is included in the output files.** **note: the taxid script isn't ready yet**
 - 
 ### Inputs
-
 - A taxa file containing the scientific names of your target taxa, one per line, with the header "taxname"
 - A tab-delimited file with lists of genes with "gene terms". Each column corresponds to a gene, each row is different ways to describe that gene. This just provides the best search radius. So 12S would include "12S" "12S Ribosomal RNA" "12S Mitochondrial Sequence". The columns can be of different lengths. We recommend 2-3 terms per gene for the most common metabarcoding loci (12S, COI, ITS, 16S)
 
@@ -65,12 +67,13 @@ The script requires four command line arguments:
 * -t the path to the file containing a list of taxa
 * -g the path to the file containing the gene terms
 * -d the path to the output directory
+* -r the path to your r package library
 
 **Optional Arguments:**
 * -r (retmax) maximum number of search records to return. Default 10. Setting this value very high (>50) may cause problems with the rentrez search and will probably add off-target sequences (wrong gene more likely than wrong organism) to your database. I recommend getting an NCBI API key for large databases, see [the rentrez tutorial](https://cran.r-project.org/web/packages/rentrez/vignettes/rentrez_tutorial.html#rate-limiting-and-api-keys) for more info.
 * -c combine: choice of "comb" or "sep" (default). If "comb" is invoked, the fastas from all genes will be combined into a single database. This is not recommended. Sequences from different genes/loci must be processed separately (because they will almost certainly be different lengths)
   
-bash step_0_make_local_database.sh -n your_name -t /path/to/taxfile -g /path/to/genefile -d /path/to/outputdir -r 10 -c sep
+`bash step_0_make_local_database.sh -n your_name -t /path/to/taxfile -g /path/to/genefile -d /path/to/outputdir -r 10 -c sep -r ~/Rpackages`
 
 ## Output
 
@@ -83,6 +86,7 @@ In your output directory:
 
 
 ##End of current content##
+
 
 
 **Step 3: DADA processing and BLAST prep. **
