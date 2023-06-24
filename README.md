@@ -1,4 +1,6 @@
-# Metabarcoding_Pipeline_Waits
+# Waits Lab Metabarcoding Training Pipeline
+Shannon Blair 2023
+
 A rough pipeline and tutorial to analyze metabarcoding data using dada2. This explains my system. This project is theoretically able to run on the UIdaho RCDS cluster and on a mac running Monterey. It is optimized for cluster use currently. However, it is intended to be an analysis guide for students working on their own projects, rather than a button-press way to receive your output. This is a teaching tool, so it is pretty wordy. Please read through it to understand all the decision points in this analysis.
 
 This pipeline assumes reasonably good resolution of locus data and is designed as a "first pass" at your metabarcoding data, not a finished product. **This pipeline grabs the top BLAST hit for each unique sequence. It does not assess multiple BLAST hits.** There is an optional extension script that will attempt to resolve identically-good BLAST hits. This extension script was built for a specific project where the resolution of the locus was well-understood and there were relatively few possible target taxa. It is extremely naive and basic. If your resolution is low (ie, you have many disparate taxa with perfect or near-perfect matches at your locus), or if you don't understand the resolution of your locus, consider using a Bayesian taxonomic assignment algorithm like the ones found in DADA2 or QIIME instead.
@@ -44,7 +46,30 @@ However, you need to make one change to the tutorial: you must load the newest R
 ### Before you Begin
 The pipeline assumes all internal R scripts are in the same folder as the shell scripts. 
 
-## Optional Step 0: Build a Local Reference Database
+**A note on organizing your data**
+To maximize pipeline success, we recommend the following directory structure for your project, although there is flexibility:
+
+
+                                  |------"sample_1_gene1_R1.fastq"
+                                  |
+                                  |------"sample_1_gene1_R2.fastq"
+                |-------- gene1-|
+                |                 |------"sample_2_gene1_R1.fastq"
+                |                 |
+                |                 |------"sample_2_gene2_R2.fastq"
+ Your_Project --                                
+                |                  |------"sample_1_gene2_R2.fastq"
+                |-------- gene2 -|
+                |                  |------"sample_2_gene2_R1.fastq"
+                |
+                |--------"taxlist"
+                |--------"genelist"
+                |
+                 -------database
+
+You should avoid spaces and special characters (^,$,%,@,#,!,*) in the names of your files/folders and check for hidden characters like carriage returns (sometimes displayed as ^M or \r) in your filenames. Taxlist is only required if you're building a ref database. genelist is required. You can name your genes/loci/primer sets anything (again, avoiding spaces and special characters), but must provide a single-line, tab-separated list of the terms in a file. If you're building the local reference database, the program will automatically pull these term from the header of your gene search terms list. Your data files must be separated by gene in folders that correspond to the terms in the "genelist" file. This is even true if you only have one marker.
+
+## Step 0: Build a Local Reference Database
 
 We recommend a local reference database to improve the accuracy of detections. Future versions of this pipeline may also include a method to format this library so it can be used with DADA2's taxonomic assignment algorithm. This script uses [rentrez](https://cran.r-project.org/web/packages/rentrez/vignettes/rentrez_tutorial.html), an excellent R package for querying NCBI. However, you can skip this step and use remote BLAST instead. Building a reference library may take several hours, but the actual searches are much faster than remote BLAST.
 
@@ -85,32 +110,20 @@ In your output directory:
 - A searchable local NCBI reference database for each gene. These consists of 10 files, each with the name "your_project_gene_reference.[suffix]".
 
 
-##End of current content##
+#If you already have a reference library:#
+Your reference library needs to be an NCBI blast database (made with makeblastdb). You can use your own fasta file to create it and name it whatever you'd like. However, please note that only reference libraries made using NCBI accession numbers and the -parse_seqids option of makeblastdb will be able to take advantage of the part of this pipeline that assessess equally-good BLAST hits to find a consensus taxon.
 
+If you only have a few extra sequences with no accession numbers (for instance, that you sequenced yourself), there is a somewhat-tedious workaround for this. The fasta header line for that sequence should be edited to have the following format: >unique_identifier species name taxid=unique_value. It should be space-delimited. Then, to the bottom of your NCBItax2lin output file, you can add a row with your unique_value and the relevant taxonomic information. Your unique value and unique_identifier can be anything that doesn't contain spaces or special characters. The format for the taxonomy info in the NCBItax2lin output is visible in the header, and is comma-separated.
 
+## Step 1: Data Quality Analysis
 
-**Step 3: DADA processing and BLAST prep. **
-  ** 3.1 Script:** DADA2_new.R.** I make one of these for each project, because there is too much to change to do it on the command line on the fly. Also, run this interactively. Lots of intermediate graphs.
-                **Input:** folder with uniquely-named F/R files, and the pattern of their names (for me, generally filename_R1.fastq/filename_R2.fastq).
-                **Output**: A comma-separated list of unique ASVs passing filter for each sample (merged F/Rs), along with their read counts. A list of all samples passing a looser filter, one per line. A tab-separated table of read counts retained and lost at each step. A list of sequences that were filtered out based on the read count filter.
-                Notes: This is the big processing script. It simply isn't written to be run in a big lump. Even in the DADA tutorial, you're supposed to look at the output of these things, look at the tracking table, and consider what your data needs in terms of filters. Locally, this script will top out my Macbook Pro if I have more than 6 or 7 plates (600-700 samples). If we want this to be a spoon-fed pipeline, we need to think about cutting it up into smaller chunks with the filtering outputs delineating the ends of each script. Also, this script needs to be "variable-ized", because right now large chunks of the output names need to be changed by hand throughout the script. So we need to set some global variables at the start.
-       ** 3.2 Script: reformat_for_BLAST.sh** This makes a list of all the unique sequences present in at least one sample and formats them as a fasta file for blasting.
-                Input: The \*_seqs.txt output of the DADA2 script. Only works if they're named like that, or you can change the name pattern. The script will grab any file that matches the name pattern, so be careful about what else you put in there.
-                Output: A fasta-formatted file of sequences to blast. The sequences will be named numerically, so they will be >seq_1, >seq_2....>seq_n.
+### Inputs
+- Your demultiplexed, appropriately-named, trimmed, paired-end data files. Each gene should have data files in a separate folder named "gene1" "gene2" etc for each of your genes/loci/primer sets.
+**What does this mean??**
+  -  **demultiplexed** means that your reads have been separated into separate files for each sample.
+  -  **appropriately-named** means that your files are named with the following scheme ${name}${pattern}. For example, "Sample-1_R1.fastq". Here the name would be "Sample-1" and the pattern would be "_R1.fastq". You would then tell the program that your _pattern1_ is "_R1.fastq". Note: When ${pattern} is stripped from your filenames, **all filenames in your data folder must be unique**. DADA2 cannot process duplicated sample names and will assume that sample names are whatever is left when ${pattern} is stripped off the filename, so make sure you don't have any naming anomalies in your data. Pay special attention to your positives and negatives, which is sometimes where these errors occur. The defaults for ${pattern1} and ${pattern2} are "_R1.fastq" and "_R2.fastq".
+  -  **paired-end** As of right now, this pipeline can only handle paired-end data. This means you should have a forward and a reverse read file for each sample.
+-  a "genelist" file, a single-row, tab separated file with gene/locus names that match the containing folders for your data files. If you did local database building, this can be the same genelist you used there.
 
-**Step 4: BLAST**
-       ** 4.1 Script: blast.sh.** I wrote one of these but I don't actually usually use them. It's a single line and it depends on whether you're doing local or remote blast. syntax is blastn -db [database] -query [fasta] -out [results file] -num_alignments=5 -num_descriptions=5 [-remote]. You can change the num_alignments but I recommend >= 1. You can change the number of descriptions, 1 will pull only the top hit. BLAST warns you that it should be >1. Lots of filters you can add but I like to be broad and filter later. Output is a horribly-formatted human-readable results file that has a large header and then lists each query, the top hits, and their alignments.
-
-**Step 5: **
-Make a taxa table. This script needs significant modificants to manage edge cases. If you do local blast, line  A lot of this step is really janky due to how weird the BLAST output results file is and how difficult it is to parse. I am thinking about a total re-work of these scripts but I'm in the very early stages.
-        5.1 Script: add_taxa_to_blast_results.sh
-                Inputs: The fasta that was the input to the BLAST search and the BLAST results file.
-                Output: A tab-separated file with a list of unique sequences, the taxa they blast to (top blast hit), and the identity % of the match. This is the jankiest script because the BLAST results file changes slightly based on the format of the fasta input and whether it's remote or local, and a few other parameters, like the weather, and how BLAST feels that day, and whether you use vim or emacs etc etc. The script is extensively commented but still terrible.
-        5.2 make_taxa_table.sh
-                Inputs: _seqs.txt files for each sample (the output of the DADA2 script), and the blast-results-with-taxonomy file that is the output of step 5.1
-                Outputs: a tab-separated table with columns for replicate, sequence, reads, taxa and identity. Every sequence from every replicate that passed the DADA filters is included in this table, with the read counts. Still finding the best way to handle no-hits but I've got some ideas and it works ok for now.
-
-Step 6: Analyses
-        Step 6.1 I usually open that taxa table in excel and add common names (HR taxa, "human-readable") and other data by hand. I literally do common names by making a unique list of taxa in a new worksheet and just googling. Excel has a nice in-house googling function that I use sometimes (CMD-CTRL-L), but it can't fill cells for you (it just returns the top google hit for the contest of the cell in a sidebar for you to look at). For some stuff I also add additional taxa info, like family (for plants), or prey type (for neil's stuff, bird v mammal v PCRP). If I'm feeling fancy, I add a column for colors for R analysis later. I also add a "sample" column, which is just replicate-agnostic. I usually do some pivot tables with read counts and taxa. Once I feel good about it, I send it off, and usually save a tab-delimited text version for loading into R.
-
+### Usage
 
