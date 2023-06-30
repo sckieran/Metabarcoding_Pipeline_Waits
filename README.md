@@ -57,10 +57,10 @@ To maximize pipeline success, we recommend the following directory structure for
                                   |------"sample_1_gene1_R2.fastq"
                 |-------- gene1-|
                 |                 |------"sample_2_gene1_R1.fastq"
-                \|                 |
-                \|                 |------"sample_2_gene2_R2.fastq"
- Your_Project --|                                
-                \|                  |------"sample_1_gene2_R2.fastq"
+                |                 |
+                |                 |------"sample_2_gene2_R2.fastq"
+ Your_Project --                                
+                |                  |------"sample_1_gene2_R2.fastq"
                 |-------- gene2 -|
                 |                  |------"sample_2_gene2_R1.fastq"
                 |
@@ -153,5 +153,70 @@ The  program takes the following arguments:
 
 `bash step_2_process_reads_in_dada.sh	-n name -g genelist -d directory -p pattern1 -q pattern2 -k num_graphs`
 
+### Outputs
 
-Once it's done running, adjust your filtering_params file accordingly. You're ready for step 3.
+Step 2 will output two PDFs into your_directory/reports/. They will contain k quality plots from dada's plot_quality_profile function. 
+
+
+Once it's done running, adjust your params_file accordingly. You're ready for step 3.
+
+## Step 3: Filtering data, performing ASV selection, blasting ASVs and building taxtables.
+
+Step 3 is a big step. First it will filter your data using the parameters you specify in the params_file. You should have one params_file for each gene (as you should filter your different loci each according to their length and sequencing quality). Your files should be named "params_file_gene1" and "params_file_gene2" for each gene. You can specify the name of "params_file" in the wrapper/command line, as long as the name is followed by "_geneN" for each gene.
+
+Most of the filtering parameters are optional and can be left blank to use dada2 defaults. However, the project directory, relative read abundance cutoff (set to 0 for no RRA filtering), filter directory and multithread options must have some input. Multithread must be TRUE or FALSE (set to TRUE for clusters and macs). **current behavior ignores user-input filtering directory and puts all outs into a directory called "filtered".**
+
+After filtering, the script will output _seqs.txt files that contain the unique ASVs retained for each sample, and their read counts. It will also output a raw ASV table (ASVs as rows and samples as columns, read counts as data) in a directory called `/results_tables/`. Then it will create a fasta file with each unique ASV present in any of your samples. Then, it blasts those sequences against the reference database you made in step 1 and does some calculations about your hit rate. A very low hit rate suggests you should consider filtering your data more stringently, or expanding your reference database.
+
+After that, it will look for a taxonomy file. If you have one already downloaded from NCBI, it will skip trying to install and download. Otherwise, it will attempt to install and download. If you run into permissions issues, simply follow the steps to run ncbi2tax yourself in your database folder and then run step 3 again. It will find it and skip the install step. If you're using your own reference databse, I recommend commenting out most of this stuff because it's unlikely you'll be able to use the taxonomic-informed blast decisions. **currently, this script only works well for reference databases made in step 1 or using makeblastdb's -parse_seqids function with taxids added to each sequence. A script to add taxids to each sequence is coming, and this script is being actively developed to improve its performance with non-pipeline reference databases.**
+
+After adding taxonomy to all hits, it will evaluate equally-identical blast hits and pick the taxonomic rank at which there is agreement. This is a naive (but conservative) way of assessing hits. The raw_blast_out and raw_blast_out_with_tax files will be available in the out directory for you to examine by hand.
+
+It then formats and outputs a taxa table, which includes all ASVs for all samples and reports reads, identity, taxa of best hit, and higher taxonomic information. This is a great table to take into excel to look at pivottables, visualize graphs, etc.
+
+## Inputs
+- Your sequence data files in folders labeled 'gene1'...'geneN'
+- A params_file for each gene, called params_file_gene1...params_file_geneN. You can specify the 'params_file' part of the name.
+
+## Usage
+
+**Command line Usage**
+Fill in the wrapper as with step 2. The name and directory must be the same between the steps.
+
+`sbatch step_3_wrapper.sh`
+
+**Head Node Usage**
+
+The program takes the following arguments:
+* -n  'your_project' mandatory:  must be the same as your step 2 name
+* -g  'genelist' mandatory: same genelist as steps 1 and 2
+* -d  '/path/to/your/project/directory' mandatory: should be the same as steps 1 and 2
+* -m 'params_file' mandatory: just the first part of the file name, program assumes that it ends '_gene1'...'geneN' for each gene in the genelist. Default is "params_file"
+* -p 'pattern1' default: same as in step 2, default is "_R1.fastq"
+* -q 'pattern2' default: same as in step 2, default is "_R2.fastq"
+* -r /path/to/database_files/ default: path/to/dirr/database, folder that contains your reference database (and your NCBI2tax run, if you did that separately).
+* -l ref_database_name default: your_project_gene1_reference
+
+`bash step_3_filter_and_blast.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -l ref_database_name`
+
+## Outputs
+
+- A folder in your project_directory called "gene1_dada_out" for gene1...geneN. Within that:
+    - A folder called "subsampled" containing your subsampled reads for improving error rate estimation time.
+    - A folder called "filtered" containing your filtered reads. Altered based on your input to the params file
+    - A folder called "sample_seqfiles" containing your _seqs.txt file of unique ASVs and read counts for each sample
+    - your_project_gene1_combined_ASVs.fasta, a fasta containing every unique ASV that passed the dada2 filters for any sample, this is the input to blast. Sequences are named seq_1...seq_n.
+    - your_project_gene_raw_blast_out, the raw output of the blastn. Contains every hit, the seq ID, the subject accession number, identity and length. Does not report no hits, which are inferred at a later step.
+    - your_project_gene_raw_blast_out_with_tax, the raw blast output that adds taxonomy to each blast hit
+    - your_project_best_blast_hits.txt a file that has one row for each input sequence (seq_1...seq_n), reporting the best blast hit based on the taxonomic assesment done by this script.
+    - your ncbi taxonomy files
+- A folder in your project_directory called "results_tables", which includes:
+  - a taxa table with every unique ASV reported for every sample, with read count, identity, and taxonomic information
+  - a raw ASV table that has each unique ASV (unfiltered for RRA) and read count per sample. Pre-blast, so no taxa information.
+- A file in the "reports" folder that tracks the different filtering steps taken by DADA2 and the reads per sample at each step. Only includes samples that had >0 reads pass the initial quality filter.
+
+
+From here you can check out a remote blast of your low-ID or no hits, look at trends in your taxa or ASV table, and more.
+
+
+
