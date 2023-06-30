@@ -56,7 +56,7 @@ To maximize pipeline success, we recommend the following directory structure for
 
 You should avoid spaces and special characters (^,$,%,@,#,!,*) in the names of your files/folders and check for hidden characters like carriage returns (sometimes displayed as ^M or \r) in your filenames. Taxlist is only required if you're building a ref database. genelist is required. You can name your genes/loci/primer sets anything (again, avoiding spaces and special characters), but must provide a single-line, tab-separated list of the terms in a file. If you're building the local reference database, the program will automatically pull these term from the header of your gene search terms list. Your data files must be separated by gene in folders that correspond to the terms in the "genelist" file. This is even true if you only have one marker.
 
-## Step 0: Build a Local Reference Database
+## Step 1: Build a Local Reference Database
 
 We recommend a local reference database to improve the accuracy of detections. Future versions of this pipeline may also include a method to format this library so it can be used with DADA2's taxonomic assignment algorithm. This script uses [rentrez](https://cran.r-project.org/web/packages/rentrez/vignettes/rentrez_tutorial.html), an excellent R package for querying NCBI. However, you can skip this step and use remote BLAST instead. Building a reference library may take several hours, but the actual searches are much faster than remote BLAST.
 
@@ -77,7 +77,7 @@ We recommend a local reference database to improve the accuracy of detections. F
 To use this script on the RCDS 44 cluster, edit the step_1_wrapper.sh file to include your relevant project names and paths. To specify your current working directory  as your project directory, you can use $PWD. For example, in the wrapper, `dirr=$PWD` would tell the script to use your current directory as the project directory. Similarly, `genelist=$PWD/genelist` will tell the script to look for a file called "genelist" in your current directory.
 
 Then run
-`sbatch step_3_wrapper.sh`
+`sbatch step_1_wrapper.sh`
 
 Make sure the step_1_wrapper, and the step_1.sh script are both in your directory.
 
