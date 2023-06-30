@@ -51,29 +51,8 @@ The pipeline assumes all internal R scripts are in the same folder as the shell 
 **A note on organizing your data**
 To maximize pipeline success, we recommend the following directory structure for your project, although there is flexibility:
 
+<img width="604" alt="Screen Shot 2023-06-30 at 12 19 09 PM" src="https://github.com/sckieran/Metabarcoding_Pipeline_Waits/assets/53580356/00ef8cab-b8d2-45c7-b2f5-19c08fac0cf7">
 
-                                  |------"sample_1_gene1_R1.fastq"
-                                  |
-                                 _|------"sample_1_gene1_R2.fastq"
-                |-------- gene1-|
-                |               |_|------"sample_2_gene1_R1.fastq"
-                |                 |
-                |                 |------"sample_2_gene1_R2.fastq"
- Your_Project --                                
-                |                 _|------"sample_1_gene2_R2.fastq"
-                |-------- gene2 -|_
-                |                  |------"sample_2_gene2_R1.fastq"
-                |
-                |--------"taxlist"
-                |--------"genelist"
-                |
-                |-------database
-                |
-                |-------scripts
-                |
-                |--------"params_file_gene1"
-                |
-                |--------"params_file_gene2"
 
 You should avoid spaces and special characters (^,$,%,@,#,!,*) in the names of your files/folders and check for hidden characters like carriage returns (sometimes displayed as ^M or \r) in your filenames. Taxlist is only required if you're building a ref database. genelist is required. You can name your genes/loci/primer sets anything (again, avoiding spaces and special characters), but must provide a single-line, tab-separated list of the terms in a file. If you're building the local reference database, the program will automatically pull these term from the header of your gene search terms list. Your data files must be separated by gene in folders that correspond to the terms in the "genelist" file. This is even true if you only have one marker.
 
