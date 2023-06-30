@@ -60,8 +60,7 @@ bash ${dirr}/scripts/step_3_p1_make_filt_parameters.sh ${params}
 
 cat ${dirr}/scripts/filter_dada_part1.R filtline ${dirr}/scripts/filter_dada_part2.R > ${dirr}/scripts/filter_and_process_dada.R
 
-rm filtcomm
-rm filtline
+rm filtcomm filtline
 
 ##this script will randomly subsample 50 of your samples down to the first 100k reads to speed up the error learning process. This is because the Rscript was throwing an unusual error that I think is related to the very large processing needs of learnerrors when it uses very large files.
 #echo "now subsampling your reads to improve error rate calculation speed."
@@ -298,28 +297,9 @@ do
         done
 done
 echo "done with ${gene}. You can find taxa tables and raw ASV tables  in your project directory/reports."
-#rm temp*.txt
-#cut -f1,5  ${prefix}_${gene}_best_blast_hits.txt >temp_asv1
-#for fil in *_seqs.txt
-#do
-#	base=$(echo $fil | awk -F"_F_filt.fastq_seqs.txt" '{print $1}')
-#	echo "$base" > temp_${fil}
-#	while read z;
-#	do
-#		s1=$( echo $z | awk '{print $1}')
-#		if cat ${fil} | grep -q "${s1}"
-#		then
-#			reads=$( grep "${s1}" ${fil} | awk -F"," '{print $2}')
-#			echo "$reads" >> temp_${fil}
-#			else
-#			echo "0" >> temp_${fil}
-#		fi 
-#	done < temp_asv1
-#done
-#paste temp_asv1 temp_*.txt > ${prefix}_${gene}_ASV_table.txt
 
 rm temp*
-mkdir sample_seqfiles
+mkdir -p sample_seqfiles
 mv *_seqs.txt ./sample_seqfiles
 
 
