@@ -57,10 +57,10 @@ To maximize pipeline success, we recommend the following directory structure for
                                   |------"sample_1_gene1_R2.fastq"
                 |-------- gene1-|
                 |                 |------"sample_2_gene1_R1.fastq"
-                |                 |
-                |                 |------"sample_2_gene2_R2.fastq"
+                \|                 |
+                \|                 |------"sample_2_gene2_R2.fastq"
  Your_Project --|                                
-                |                  |------"sample_1_gene2_R2.fastq"
+                \|                  |------"sample_1_gene2_R2.fastq"
                 |-------- gene2 -|
                 |                  |------"sample_2_gene2_R1.fastq"
                 |
@@ -132,7 +132,7 @@ If you only have a few extra sequences with no accession numbers (for instance, 
 - Your demultiplexed, appropriately-named, trimmed, paired-end data files. Each gene should have data files in a separate folder named "gene1" "gene2" etc for each of your genes/loci/primer sets.
 **What does this mean??**
   -  **demultiplexed** means that your reads have been separated into separate files for each sample.
-  -  **appropriately-named** means that your files are named with the following scheme ${name}${pattern}. For example, "Sample-1_R1.fastq". Here the name would be "Sample-1" and the pattern would be "_R1.fastq". You would then tell the program that your _pattern1_ is "_R1.fastq". Note: When ${pattern} is stripped from your filenames, **all filenames in your data folder must be unique**. DADA2 cannot process duplicated sample names and will assume that sample names are whatever is left when ${pattern} is stripped off the filename, so make sure you don't have any naming anomalies in your data. Pay special attention to your positives and negatives, which is sometimes where these errors occur. The defaults for ${pattern1} and ${pattern2} are "_R1.fastq" and "_R2.fastq".
+  -  **appropriately-named** means that your files are named with the following scheme ${name}${pattern}. For example, "Sample-1_R1.fastq". Here the name would be "Sample-1" and the pattern would be "_R1.fastq". You would then tell the program that your _pattern1_ is "_R1.fastq". Note: When ${pattern} is stripped from your filenames, **all filenames in your data folder must be unique**. DADA2 cannot process duplicated sample names and will assume that sample names are whatever is left when ${pattern} is stripped off the filename, so make sure you don't have any naming anomalies in your data. Pay special attention to your positives and negatives, which is sometimes where these errors occur. The defaults for ${pattern1} and ${pattern2} are "_R1.fastq" and "_R2.fastq". If your data are gzipped, you'll need to change this.
   -  **paired-end** As of right now, this pipeline can only handle paired-end data. This means you should have a forward and a reverse read file for each sample.
 -  a "genelist" file, a single-row, tab separated file with gene/locus names that match the containing folders for your data files. If you did local database building, this can be the same genelist you used there.
 
@@ -141,5 +141,17 @@ If you only have a few extra sequences with no accession numbers (for instance, 
 **Running on the cluster**
 Fill out the step_2_wrapper.sh file just like you did for step 1, then run:
 `sbatch step_2_wrapper.sh`
+
+**Running in the head node**
+The  program takes the following arguments:
+* -n a name for your outfiles. Should match step 1 for easiest working.
+* -g the path to the list containing your gene terms.
+* -d the directory that contains your project, probbaly the directory you're running the code from ($PWD)
+* -p the pattern for the end of your R1 files. Default is "_R1.fastq".
+* -q the pattern for th ened of your R2 files. Default is "_R2.fastq".
+* -k the number of samples you want to view quality plots for. Samples will be randomly selected . Default is 24. Increasing this value increaeses computational time.
+
+`bash step_2_process_reads_in_dada.sh	-n name -g genelist -d directory -p pattern1 -q pattern2 -k num_graphs`
+
 
 Once it's done running, adjust your filtering_params file accordingly. You're ready for step 3.
