@@ -10,6 +10,6 @@
 dirr=$PWD/database
 genelist=$PWD/genelist
 taxlist=$PWD/taxlist
-prefix="boco"
+prefix="your_project"
 
 bash step_1_make_local_database.sh -n ${prefix} -d ${dirr} -g ${genelist} -t ${taxlist}
