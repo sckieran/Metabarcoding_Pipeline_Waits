@@ -1,0 +1,15 @@
+project_dir=/path/to/your/directory
+rra_cutoff=0.001 #cutoff for RRA, set to 0 for no read filtering.
+filt_dir=filtered #path to filtered fastas will be /path/to/your/dir/your_gene/filtered/, path to outfiles will be /path/to/your/dir/your_gene_dada_out/
+truncLenF= #truncation length for R1s. change this based on your run length (PE 75, 150 or 300), your overlap (read length - amplicon length) and your quality report output
+truncLenR= #truncation length for R2s. see above
+maxEEF= #expected errors for R1s. Default is 2. See DADA2 tutorial for more detailed filtering instructions: https://benjjneb.github.io/dada2/tutorial_1_8.html
+maxEER= #expected errors for R2s
+truncQ= #truncate read at first base with quality score Q
+rm.phix=TRUE #remove reads that match the phix genome, set to TRUE if you had your sequence spike in PhiX, common for amplicon sequencing to increase complexity
+compress=FALSE #set to TRUE if you want to compress outfiles
+multithread=TRUE  #REQUIRES A VALUE. set to TRUE if you want to multithread, generally true on clusters and macs, false on windows.
+trimLeft= #From dada: Default 0. The number of nucleotides to remove from the start of each read. If both truncLen and trimLeft are provided, filtered reads will have length truncLen-trimLeft.
+trimRight= #From dada: Default 0. The number of nucleotides to remove from the end of each read. If both truncLen and trimRight are provided, truncation will be performed after trimRight is enforced.
+maxLen= #From dada: Default Inf (no maximum). Remove reads with length greater than maxLen. maxLen is enforced before trimming and truncation.
+minLen= #(Optional). Default 20. Remove reads with length less than minLen. minLen is enforced after trimming and truncation.
