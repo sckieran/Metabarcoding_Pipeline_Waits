@@ -12,12 +12,13 @@ This pipeline assumes reasonably good resolution of locus data and is designed a
 ### Inputs
 This pipeline requires the following inputs:
 - Demultiplexed, appropriately-named paired-end metabarcoding data in fastq (or fastq.gz) format, with adapters trimmed. Each gene or primer set should be analyzed separately, and should be in different folders.
-- A tab-separated parameters file containing: a list of genes/loci/primer sets and the expected length of each amplicon.
-- The output of a single run of ncbitax2lin. You can copy paste the commands from [this readme](https://github.com/zyxue/ncbitax2lin), the script assumes a name of "ncbi_lineages_[date_of_utcnow].csv.gz" but is agnostic to the date, and you can provide a name if preferred.
+- A parameters file (see template) with your filtering parameters. You don't need this until step 3, so you can fill it out after you've seen the quality report on your reads. It must be in exactly the format as the template.
+- The output of a single run of ncbitax2lin. This script will attempt to install and run ncbitax2lin if it can't find a taxonomy file. If you are having issues with permissions and install, you can run it yourself by copying the commands from [this readme](https://github.com/zyxue/ncbitax2lin), the script assumes a name of "ncbi_lineages_[date_of_utcnow].csv.gz" but is agnostic to the date, and you can provide a name if preferred.
+- A tab-separated, single-line list of genes/loci you're interested in. If you provide a genelist in step 1, the script will use the header from that list.
 
 Additionally, to run the local database building tool, you need:
 - A taxa file containing the scientific names of your target taxa, one per line, with the header "taxname"
-- A file with lists of common terms for your target genes. One gene per column, as many permutations on the gene as you'd like, one per line (ie, "Cytochrome Oxidase I", "COI", "COX1"). See the example files for a template. The columns should have a header (which you can repeat in the body) that is ta short, human-readable name of the gene that contains no spaces, slashes, quote marks or other special characters. For example, instead of heading your column "Cytochrome Oxidase I", head it "COI".
+- A file with lists of common terms for your target genes. One gene per column, as many permutations on the gene as you'd like, one per line (ie, "Cytochrome Oxidase I", "COI", "COX1"). See the example files for a template. The columns should have a header (which you can repeat in the body) that is ta short, human-readable name of the gene that contains no spaces, slashes, quote marks or other special characters. For example, instead of heading your column "Cytochrome Oxidase I", head it "COI". This file can serve as your "genelist" file for steps 2 and 3 as well.
 
 Data is often demultiplexed by the sequencing service company at no (or minor) cost. However, if your data has not been demultiplexed, we recommend using either [fastq-multx](https://github.com/brwnj/fastq-multx) or the demux-by-name function of [BBMap](https://github.com/BioInfoTools/BBMap). Some demultiplexers (fastq-multx, for instance) do automatic trimming, others do not. The dual-indexed fusion primers often used in metabarcoding may require extra trimming of the overhangs. We recommend using [cutadapt](https://cutadapt.readthedocs.io/en/stable/) to trim. 
 
@@ -28,7 +29,7 @@ The pipeline is relatively light on software. R package management will probably
 - Command-Line BLAST [Installation Instructions Here](https://www.ncbi.nlm.nih.gov/books/NBK279690/)
 - NCBItax2lin: [see here](https://github.com/zyxue/ncbitax2lin) used to add taxonomic information to the local reference database. Requires pip to install.
 - gnu-sed (gsed) [Installation Instructions Here](https://formulae.brew.sh/formula/gnu-sed). Most computing clusters use this as the default, but it needs to be installed on a mac. It can be easily installed with [homebrew](https://brew.sh/)
-- R: This pipeline was optimized for R version 4.1.2 -- Bird Hippie.
+- R: This pipeline was optimized for R version 4.1.2 -- Bird Hippie and has been tested on R version 4.2.3.
 - Packages required:
   - optparse
   - tidyverse
@@ -36,6 +37,7 @@ The pipeline is relatively light on software. R package management will probably
   - rentrez
   - dada2
   - stringr
+  - bioconductor
 
 **If you are using the UI RCDS cluster:**
 There is a good tutorial for installing r packages here: [link to RCDS](https://www.hpc.uidaho.edu/compute/Applications/R.html)
@@ -86,6 +88,15 @@ We recommend a local reference database to improve the accuracy of detections. F
 
 
 ### Usage
+**Cluster Usage**
+To use this script on the RCDS 44 cluster, edit the step_1_wrapper.sh file to include your relevant project names and paths. To specify your current working directory  as your project directory, you can use $PWD. For example, in the wrapper, `dirr=$PWD` would tell the script to use your current directory as the project directory. Similarly, `genelist=$PWD/genelist` will tell the script to look for a file called "genelist" in your current directory.
+
+Then run
+`sbatch step_3_wrapper.sh`
+
+Make sure the step_1_wrapper, and the step_1.sh script are both in your directory.
+
+**to run on a head node**
 
 **Arguments/Options**
 The script requires four command line arguments:
@@ -110,12 +121,12 @@ In your output directory:
 - A searchable local NCBI reference database for each gene. These consists of 10 files, each with the name "your_project_gene_reference.[suffix]".
 
 
-#If you already have a reference library:#
+**If you already have a reference library:**
 Your reference library needs to be an NCBI blast database (made with makeblastdb). You can use your own fasta file to create it and name it whatever you'd like. However, please note that only reference libraries made using NCBI accession numbers and the -parse_seqids option of makeblastdb will be able to take advantage of the part of this pipeline that assessess equally-good BLAST hits to find a consensus taxon.
 
 If you only have a few extra sequences with no accession numbers (for instance, that you sequenced yourself), there is a somewhat-tedious workaround for this. The fasta header line for that sequence should be edited to have the following format: >unique_identifier species name taxid=unique_value. It should be space-delimited. Then, to the bottom of your NCBItax2lin output file, you can add a row with your unique_value and the relevant taxonomic information. Your unique value and unique_identifier can be anything that doesn't contain spaces or special characters. The format for the taxonomy info in the NCBItax2lin output is visible in the header, and is comma-separated.
 
-## Step 1: Data Quality Analysis
+## Step 2: Data Quality Analysis
 
 ### Inputs
 - Your demultiplexed, appropriately-named, trimmed, paired-end data files. Each gene should have data files in a separate folder named "gene1" "gene2" etc for each of your genes/loci/primer sets.
@@ -127,3 +138,8 @@ If you only have a few extra sequences with no accession numbers (for instance, 
 
 ### Usage
 
+**Running on the cluster**
+Fill out the step_2_wrapper.sh file just like you did for step 1, then run:
+`sbatch step_2_wrapper.sh`
+
+Once it's done running, adjust your filtering_params file accordingly. You're ready for step 3.
