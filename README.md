@@ -16,11 +16,11 @@ Sure, that's fine, start the pipeline at step 3 and run the step_4_remote_blast_
 
 **This pipeline is not designed for microbial metagenomics at 16S**. I say this because there is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
 
-## Inputs and Installation
+## Inputs and Preparation
 
 ### Inputs
 This pipeline requires the following inputs:
-- Demultiplexed, appropriately-named paired-end metabarcoding data in fastq (or fastq.gz) format, with adapters trimmed. Each gene or primer set should be analyzed separately, and should be in different folders called gene1, gene2...geneN.
+- Demultiplexed, appropriately-named paired-end metabarcoding data in fastq (or fastq.gz) format, with adapters trimmed. Each gene or primer set should be analyzed separately, and should be in a different folder called gene1, gene2...geneN.
 - A parameters file (see template) with your filtering parameters. You don't need this until step 3, so you can fill it out after you've seen the quality report on your reads. It must be in exactly the format as the template.
 - The output of a single run of ncbitax2lin. This script will attempt to install and run ncbitax2lin if it can't find a taxonomy file. If you are having issues with permissions and install, you can run it yourself by copying the commands from [this readme](https://github.com/zyxue/ncbitax2lin), the script assumes a name of "ncbi_lineages_[date_of_utcnow].csv.gz" but is agnostic to the date, and you can provide a name if preferred.
 - A tab-separated, single-line list of genes/loci you're interested in. If you provide a genelist in step 1, the script will use the header from that list.
@@ -33,12 +33,12 @@ Data is often demultiplexed by the sequencing service company at no (or minor) c
 
 ### Software and Installation
 
-The pipeline is relatively light on software. R package management will probably be the most intensive thing.
-
-- Command-Line BLAST [Installation Instructions Here](https://www.ncbi.nlm.nih.gov/books/NBK279690/)
+You will need
+- Command-line github (pre-installed on UI RCDS Cluster, UCD FARM and Barbera)
+- Command-Line BLAST [Installation Instructions Here](https://www.ncbi.nlm.nih.gov/books/NBK279690/) (pre-installed on UI RCDS Cluster, UCD FARM and Barbera)
 - NCBItax2lin: [see here](https://github.com/zyxue/ncbitax2lin) used to add taxonomic information to the local reference database. Requires pip to install.
-- gnu-sed (gsed) [Installation Instructions Here](https://formulae.brew.sh/formula/gnu-sed). Nearly all unix-based computing clusters use this as the default (including RCDS, FARM and Barbera), but it needs to be installed on a mac and aliased to 'sed'. It can be easily installed with [homebrew](https://brew.sh/)
-- R: This pipeline was optimized for R version 4.1.2 -- Bird Hippie and has been tested on R version 4.2.3.
+- gnu-sed (gsed) [Installation Instructions Here](https://formulae.brew.sh/formula/gnu-sed). Nearly all unix-based computing clusters use this as the default (including UI RCDS, FARM and Barbera), but it needs to be installed on a mac and aliased to 'sed'. It can be easily installed with [homebrew](https://brew.sh/)
+- R: This pipeline was optimized for R version 4.2.3 
 - Packages required:
   - optparse
   - tidyverse
@@ -46,7 +46,7 @@ The pipeline is relatively light on software. R package management will probably
   - rentrez
   - stringr
   - bioconductor
-  - dada2 (see dadad2 installation instructions [here](https://benjjneb.github.io/dada2/dada-installation.html) for bioconductor installation of dada2)
+  - dada2 (see dadad2 installation instructions [here](https://benjjneb.github.io/dada2/dada-installation.html) for bioconductor installation of dada2, may need to remove the "version=" flag to install)
 
 **If you are using the UI RCDS cluster:**
 There is a good tutorial for installing r packages here: [link to RCDS](https://www.hpc.uidaho.edu/compute/Applications/R.html)
@@ -54,8 +54,23 @@ However, you need to make one change to the tutorial: you must load the newest R
 
 **for this pipeline to work on the RCDS cluster, you must install your packages into a specific place: ~/Rpackages. If you install your R packages somewhere else, you _must_ go into the R scripts and change the `lib="~/Rpackages"` line of each `library` command by hand (or with sed).**
 
-### Before you Begin
-The pipeline assumes all internal R scripts are in the same folder as the shell scripts. 
+### Installing the pipeline
+
+**Recommended install on the cluster:**
+1. make a new directory called your_project 
+`mkdir your_project`
+2. move all your data files into folders called gene1,gene2...geneN for each gene/primer set you want to analyze. Move these folders into the your_project directory:
+`mv /gene1/ /path/to/your_project/gene1/`
+3. Navigate into your project directory:
+`cd /path/to/your_project`
+4. load the git module
+`module load git`
+5. clone this repository into your folder
+`git clone https://github.com/sckieran/Metabarcoding_Pipeline_Waits`
+6. move the scripts folder and the steps into the your_project directory
+`mv ./Metabarcoding_Pipeline_Waits/*.sh .
+`mv  ./Metabarcoding_Pipeline_Waits/scripts/ ./scripts/`
+
 
 **A note on organizing your data**
 To maximize pipeline success, we recommend the following directory structure for your project, although there is flexibility:
@@ -69,7 +84,7 @@ You should avoid spaces and special characters (^,$,%,@,#,!,*) in the names of y
 
 We recommend a local reference database to improve the accuracy of detections. Future versions of this pipeline may also include a method to format this library so it can be used with DADA2's taxonomic assignment algorithm. This script uses [rentrez](https://cran.r-project.org/web/packages/rentrez/vignettes/rentrez_tutorial.html), an excellent R package for querying NCBI. 
 
-## Things to Consider
+### Things to Consider
 - This script assumes a relatively small reference library, <500 taxa at <5 genes. This script is rate limited to avoid overloading the NCBI API, but can still run into odd errors when internet connections are unstable, and doesn't always play nicely with VPNs. If you're getting weird errors like "unexpected EOF" or "http 400", try disconnecting any VPNs or checking firewalls. I am generally unable to help you troubleshoot these issues.
 - We recommend that you include common contaminants in your database for better error detection. At minimum, we recommend *Homo sapiens* for any genes that might amplify vertebrates and *Cyprinus carpio* for all projects. As of mid-2023, the *Cyprinus carpio* genome is full of Illumina adapters, so if you have a lot of primer dimer in your reads, or if you fail to trim your adapters, you will have many hits to this species. I assume it will get a new genome at some point, so this may not be true forever. 
 - This script can search at any taxonomic level. For species, include the binomial name. For subspecies, check NCBI for the correct name of the subspecies you're interested in, or use taxids. For genera and above, use the single-word taxon name.
@@ -162,7 +177,18 @@ The script requires four command line arguments:
 ### Usage
 
 **Running on the cluster**
-Fill out the step_3_wrapper.sh file just like you did for step 1, then run:
+Fill out the step_3_wrapper.sh file:
+
+`dirr=$PWD #path to your project directory. If you're running this code from inside your directory (recommended), you can set this to $PWD.
+genelist=$PWD/genelist #path to your genelist, a tab-separated single-line list of genes/primer sets that correspond to your data folders.
+prefix="your_project" #for ease of use, this should match the name you gave in Step 1.
+pattern1="_R1.fastq"
+pattern2="_R2.fastq"
+num_graphs=24 #change this based on how many quality profiles you want to look at. Adding more adds computational time to this script.`
+
+
+then run:
+
 `sbatch step_3_wrapper.sh`
 
 **Running in the head node**
@@ -174,18 +200,17 @@ The  program takes the following arguments:
 * -q the pattern for th ened of your R2 files. Default is "_R2.fastq".
 * -k the number of samples you want to view quality plots for. Samples will be randomly selected . Default is 24. Increasing this value increaeses computational time.
 
-`bash step_3_process_reads_in_dada.sh	-n name -g genelist -d directory -p pattern1 -q pattern2 -k num_graphs`
+`bash step_3_quality_check_reads.sh	-n name -g genelist -d directory -p pattern1 -q pattern2 -k num_graphs`
 
 ### Outputs
 
 Step 3 will output two PDFs into your_directory/reports/. They will contain k quality plots from dada's plot_quality_profile function. 
 
-
-Once it's done running, adjust your params_file accordingly. You're ready for step 3.
+Once it's done running, evaluate the read quality. Look at where the quality drops off the read and consider your amplicon and overlap sizes. Then, adjust your params_file accordingly. You're ready for step 4.
 
 ## Step 4: Filtering data, performing ASV selection, blasting ASVs and building taxtables.
 
-Step 3 is a big step. First it will filter your data using the parameters you specify in the params_file. You should have one params_file for each gene (as you should filter your different loci each according to their length and sequencing quality). Your files should be named "params_file_gene1" and "params_file_gene2" for each gene. You can specify the name of "params_file" in the wrapper/command line, as long as the name is followed by "_geneN" for each gene.
+Step 4 is a big step. First it will filter your data using the parameters you specify in the params_file. You should have one params_file for each gene (as you should filter your different loci each according to their length and sequencing quality). Your files should be named "params_file_gene1" and "params_file_gene2" for each gene. You can specify the name of "params_file" in the wrapper/command line, as long as the name is followed by "_geneN" for each gene.
 
 Most of the filtering parameters are optional and can be left blank to use dada2 defaults. However, the project directory, relative read abundance cutoff (set to 0 for no RRA filtering), filter directory and multithread options must have some input. Multithread must be TRUE or FALSE (set to TRUE for clusters and macs). **current behavior ignores user-input filtering directory and puts all outs into a directory called "filtered".**
 
@@ -197,16 +222,25 @@ After adding taxonomy to all hits, it will evaluate equally-identical blast hits
 
 It then formats and outputs a taxa table, which includes all ASVs for all samples and reports reads, identity, taxa of best hit, and higher taxonomic information. This is a great table to take into excel to look at pivottables, visualize graphs, etc.
 
-## Inputs
+### Inputs
 - Your sequence data files in folders labeled 'gene1'...'geneN'
 - A params_file for each gene, called params_file_gene1...params_file_geneN. You can specify the 'params_file' part of the name.
 
-## Usage
+### Usage
 
 **Command line Usage**
-Fill in the wrapper as with step 2. The name and directory must be the same between the steps.
+Fill in the wrapper as with step 3. The name and directory must be the same between the steps.
 
-`sbatch step_3_wrapper.sh`
+`dir=$PWD #path to the your_project directory. If you are running this code from inside that directory (recommended), you can put $PWD here.
+prefix=your_project
+db_dir=reference_database #name, not path, of database directory (path will be ${dir}/${db_dir}). Default is 'reference_database'
+pattern1="_R1.fastq" #default is _R1.fastq, leave blank for default
+pattern2="_R2.fastq" #default is _R2.fastq, leave blank for default
+genelist=$PWD/genelist #path to genelist
+params_file="params_file" #name of params_file prefix. All parameter filenames should start with this prefix and end with _gene1,_gene2...geneN for each gene/primer set in the genelist. Default is params_file
+localdat= #only put something here if your local database is not named "yourproject_gene_reference", which is the default for steps 1 and 2.`
+
+`sbatch step_4_wrapper.sh`
 
 **Head Node Usage**
 
@@ -217,12 +251,12 @@ The program takes the following arguments:
 * -m 'params_file' mandatory: just the first part of the file name, program assumes that it ends '_gene1'...'geneN' for each gene in the genelist. Default is "params_file"
 * -p 'pattern1' default: same as in step 2, default is "_R1.fastq"
 * -q 'pattern2' default: same as in step 2, default is "_R2.fastq"
-* -r /path/to/database_files/ default: path/to/dirr/database, folder that contains your reference database (and your NCBI2tax run, if you did that separately).
+* -r name, not path to, folder that contains your reference database (and your NCBI2tax run, if you did that separately). Default is "reference_database"
 * -l ref_database_name default: your_project_gene1_reference
 
-`bash step_3_filter_and_blast.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -l ref_database_name`
+`bash step_3_filter_and_blast_local.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -l ref_database_name`
 
-## Outputs
+### Outputs
 
 - A folder in your project_directory called "gene1_dada_out" for gene1...geneN. Within that:
     - A folder called "subsampled" containing your subsampled reads for improving error rate estimation time.
@@ -237,10 +271,57 @@ The program takes the following arguments:
   - a taxa table with every unique ASV reported for every sample, with read count, identity, and taxonomic information
   - a raw ASV table that has each unique ASV (unfiltered for RRA) and read count per sample. Pre-blast, so no taxa information.
 - A file in the "reports" folder that tracks the different filtering steps taken by DADA2 and the reads per sample at each step. Only includes samples that had >0 reads pass the initial quality filter.
+- 
+Yay! You're done! Time to analyze your data in R or excel, affiliate sample names with metadata, and evaluating your parameters. Hooray!
+
+## Alternate Step 4: Filtering data, performing ASV selection, and performing REMOTE BLAST
+Very similar to regular step 4, but ignores any local database and performs remote blast. Remote BLAST is very slow for large #s of sequences, so be prepared to wait. This script is currently being tested, and may be revised to make it easier to BLAST large numbers of sequences.
+
+### Inputs
+- Your sequence data files in folders labeled 'gene1'...'geneN'
+- A params_file for each gene, called params_file_gene1...params_file_geneN. You can specify the 'params_file' part of the name.
+
+### Usage
+
+**Command line Usage**
+Fill in the wrapper as with step 2. The name and directory must be the same between the steps. If you've done an NCBItax2lin run, put the unzipped output in your project directory.
+
+`sbatch step_4_remote_wrapper.sh`
+
+**Head Node Usage**
+
+The program takes the following arguments:
+* -n  'your_project' mandatory:  must be the same as your step 2 name
+* -g  'genelist' mandatory: same genelist as steps 1 and 2
+* -d  '/path/to/your/project/directory' mandatory: should be the same as steps 1 and 2
+* -m 'params_file' mandatory: just the first part of the file name, program assumes that it ends '_gene1'...'geneN' for each gene in the genelist. Default is "params_file"
+* -p 'pattern1' default: same as in step 2, default is "_R1.fastq"
+* -q 'pattern2' default: same as in step 2, default is "_R2.fastq"
+
+`bash step_3_filter_and_blast.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -l ref_database_name`
+
+### Outputs
+
+- A folder in your project_directory called "gene1_dada_out" for gene1...geneN. Within that:
+    - A folder called "subsampled" containing your subsampled reads for improving error rate estimation time.
+    - A folder called "filtered" containing your filtered reads. Altered based on your input to the params file
+    - A folder called "sample_seqfiles" containing your _seqs.txt file of unique ASVs and read counts for each sample
+    - your_project_gene1_combined_ASVs.fasta, a fasta containing every unique ASV that passed the dada2 filters for any sample, this is the input to blast. Sequences are named seq_1...seq_n.
+    - your_project_gene_remote_blast_out, the raw output of the blastn. Contains every hit, the seq ID, the subject accession number, identity and length. Does not report no hits, which are inferred at a later step.
+    - your_project_gene_remote_blast_out_with_tax, the raw blast output that adds taxonomy to each blast hit
+    - your_project_remote_best_blast_hits.txt a file that has one row for each input sequence (seq_1...seq_n), reporting the best blast hit based on the taxonomic assesment done by this script.
+    - your ncbi taxonomy files
+- A folder in your project_directory called "results_tables", which includes:
+  - a taxa table with every unique ASV reported for every sample, with read count, identity, and taxonomic information
+  - a raw ASV table that has each unique ASV (unfiltered for RRA) and read count per sample. Pre-blast, so no taxa information.
+- A file in the "reports" folder that tracks the different filtering steps taken by DADA2 and the reads per sample at each step. Only includes samples that had >0 reads pass the initial quality filter.
+
 
 ## Optional: Step 5: Re-run low % hits with NCBI remote BLAST
 
-From here you can check out a remote blast of your low-ID or no hits, look at trends in your taxa or ASV table, and more.
+If your local database is too small or doesn't contain enough contaminant breadth, it might be useful to remotely blast your worst hits (those with low percent identity). That will help you understand if there's more data you can extract from this dataset. This optional step takes an identity percent threshold cutoff you provide, extracts sequences whose **best** BLAST hit in your local database was lower than your cutoff (not inclusive), and re-runs those samples with local blast.
+
+The outputs are a new taxatable with only the remote hits, a new remote_best_hits.txt file with your best hits, and a file called local_vs_remote_best_hits.txt which compares the identity and taxa of the best hits for each sequence with a best local hit below your cutoff.
 
 
 
