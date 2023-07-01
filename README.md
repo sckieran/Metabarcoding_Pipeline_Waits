@@ -1,9 +1,18 @@
 # Waits Lab Metabarcoding Training Pipeline
 Shannon Blair 2023
 
-A rough pipeline and tutorial to analyze metabarcoding data using dada2. This explains my system. This project is theoretically able to run on the UIdaho RCDS cluster and on a mac running Monterey. It is optimized for cluster use currently. However, it is intended to be an analysis guide for students working on their own projects, rather than a button-press way to receive your output. This is a teaching tool, so it is pretty wordy. Please read through it to understand all the decision points in this analysis.
+A rough pipeline and tutorial to analyze metabarcoding data using dada2 with a limited local reference database. It is intended to be an analysis guide for students working on their own projects.
 
-This pipeline assumes reasonably good resolution of locus data and is designed as a "first pass" at your metabarcoding data, not a finished product. **This pipeline grabs the top BLAST hit for each unique sequence. It does not assess multiple BLAST hits.** There is an optional extension script that will attempt to resolve identically-good BLAST hits. This extension script was built for a specific project where the resolution of the locus was well-understood and there were relatively few possible target taxa. It is extremely naive and basic. If your resolution is low (ie, you have many disparate taxa with perfect or near-perfect matches at your locus), or if you don't understand the resolution of your locus, consider using a Bayesian taxonomic assignment algorithm like the ones found in DADA2 or QIIME instead.
+This pipeline assumes reasonably good resolution of locus data and is designed as a "first pass" at your metabarcoding data, not a finished product. The way this pipeline assesses BLAST hits is both **naive and conservative**. If more than one equally-likely BLAST hit is available (judged by percent identity), it will attempt to assign taxonomy to each hit using the output of ncbitax2lin, then walk up the taxonomy tree until it finds a consensus rank. If no consensus is available at the phylum level, it calls a "no-hit". Therefore **this pipeline only works with reference libraries made using this pipeline.** However, you can use your own FASTAs as input to step 2 of this pipeline if you want to skip querying rentrez, as long as each sequence in that FASTA begins with a header line in the format >[Valid NCBI Accession Number]. 
+
+**What if I want my database to include every organism available for X gene?**
+This pipeline is for limited-taxa reference databases or remote querying of NCBI. It is not designed to manage the curation of a large database that includes, say, all inverts with COI sequences in NCBI. If you want a larger database, consider using another reference database building tool, for instance [RESCRIPt](https://github.com/bokulich-lab/RESCRIPt) or [bcDatabaser](https://bcdatabaser.molecular.eco/). This pipeline is being actively developed to better improve performance with other databases. Any FASTA file that contains unique sequences each with a valid NCBI accession will work in step 2 of the pipeline, but runtimes for step 2 will be very long for huge databases (>1000 taxa).
+
+**What if I have a few of my own in-house sequences I want to add to my database?**
+That's fine, but it will add some tedioius work upfront. First, check if the species you are including have taxIDS assigned in NCBI. All taxa with at least one sequence in the NCBI nucleotide or sra database have a taxid, and you can look it up here: [here](https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi). Put your homebrewed sequences in a file called extras_gene1_sequences.fasta with the header format ">unique_identifier species name taxid=unique_taxid" and put it in your reference_database directory. If your species has a taxID assigned in NCBI, use that as the unique_taxid. Otherwise, you can assign one yourself, I recommend a series of letters and numbers separated by underscores. Do not use a strictly numeric value, you will almost definitely accidentally assign a real taxID to your species. You can assign any unique_identifier to the sequence (to replace the accession number), but it must not include spaces or special characters and each sequence must be uniquely named. Next, also in your reference database directory, install and run ncbitax2lin. Then, unzip and modify the ncbitax2lin file. Add the unique_taxids you assigned to the end of the file and add taxonomic information for each species following the comma-separated format of the ncbitax2lin file (described in the header of the file). This is tedious to do by hand, so we really recommend submitting your homebrew sequences to NCBI if they're long enough!
+
+**What if I want to use remote BLAST to query all of NCBI?**
+Sure, that's fine, start the pipeline at step 3 and run the step_4_remote_blast_option.sh or step_4_remote_wrapper.sh (for head nodes and SLURM clusters, respectively). Expect the BLAST search to take several hours depending on the number of sequences, and make sure you have a good internet connection.
 
 **This pipeline is not designed for microbial metagenomics at 16S**. I say this because there is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
 
@@ -11,7 +20,7 @@ This pipeline assumes reasonably good resolution of locus data and is designed a
 
 ### Inputs
 This pipeline requires the following inputs:
-- Demultiplexed, appropriately-named paired-end metabarcoding data in fastq (or fastq.gz) format, with adapters trimmed. Each gene or primer set should be analyzed separately, and should be in different folders.
+- Demultiplexed, appropriately-named paired-end metabarcoding data in fastq (or fastq.gz) format, with adapters trimmed. Each gene or primer set should be analyzed separately, and should be in different folders called gene1, gene2...geneN.
 - A parameters file (see template) with your filtering parameters. You don't need this until step 3, so you can fill it out after you've seen the quality report on your reads. It must be in exactly the format as the template.
 - The output of a single run of ncbitax2lin. This script will attempt to install and run ncbitax2lin if it can't find a taxonomy file. If you are having issues with permissions and install, you can run it yourself by copying the commands from [this readme](https://github.com/zyxue/ncbitax2lin), the script assumes a name of "ncbi_lineages_[date_of_utcnow].csv.gz" but is agnostic to the date, and you can provide a name if preferred.
 - A tab-separated, single-line list of genes/loci you're interested in. If you provide a genelist in step 1, the script will use the header from that list.
@@ -35,13 +44,13 @@ The pipeline is relatively light on software. R package management will probably
   - tidyverse
   - lubridate
   - rentrez
-  - dada2
   - stringr
   - bioconductor
+  - dada2 (see dadad2 installation instructions [here](https://benjjneb.github.io/dada2/dada-installation.html) for bioconductor installation of dada2)
 
 **If you are using the UI RCDS cluster:**
 There is a good tutorial for installing r packages here: [link to RCDS](https://www.hpc.uidaho.edu/compute/Applications/R.html)
-However, you need to make one change to the tutorial: you must load the newest R module (`module load R/4.2.3`). To install dada2, you must first install bioconductor, [follow the instructions on the dada2 website](https://benjjneb.github.io/dada2/dada-installation.html)
+However, you need to make one change to the tutorial: you must load the newest R module (`module load R/4.2.3`). 
 
 **for this pipeline to work on the RCDS cluster, you must install your packages into a specific place: ~/Rpackages. If you install your R packages somewhere else, you _must_ go into the R scripts and change the `lib="~/Rpackages"` line of each `library` command by hand (or with sed).**
 
@@ -56,16 +65,15 @@ To maximize pipeline success, we recommend the following directory structure for
 
 You should avoid spaces and special characters (^,$,%,@,#,!,*) in the names of your files/folders and check for hidden characters like carriage returns (sometimes displayed as ^M or \r) in your filenames. Taxlist is only required if you're building a ref database. genelist is required. You can name your genes/loci/primer sets anything (again, avoiding spaces and special characters), but must provide a single-line, tab-separated list of the terms in a file. If you're building the local reference database, the program will automatically pull these term from the header of your gene search terms list. Your data files must be separated by gene in folders that correspond to the terms in the "genelist" file. This is even true if you only have one marker.
 
-## Step 1: Build a Local Reference Database
+## Optional: Step 1: Build a Local Reference FASTA File
 
-We recommend a local reference database to improve the accuracy of detections. Future versions of this pipeline may also include a method to format this library so it can be used with DADA2's taxonomic assignment algorithm. This script uses [rentrez](https://cran.r-project.org/web/packages/rentrez/vignettes/rentrez_tutorial.html), an excellent R package for querying NCBI. However, you can skip this step and use remote BLAST instead. Building a reference library may take several hours, but the actual searches are much faster than remote BLAST.
+We recommend a local reference database to improve the accuracy of detections. Future versions of this pipeline may also include a method to format this library so it can be used with DADA2's taxonomic assignment algorithm. This script uses [rentrez](https://cran.r-project.org/web/packages/rentrez/vignettes/rentrez_tutorial.html), an excellent R package for querying NCBI. 
 
 ## Things to Consider
 - This script assumes a relatively small reference library, <500 taxa at <5 genes. This script is rate limited to avoid overloading the NCBI API, but can still run into odd errors when internet connections are unstable, and doesn't always play nicely with VPNs. If you're getting weird errors like "unexpected EOF" or "http 400", try disconnecting any VPNs or checking firewalls. I am generally unable to help you troubleshoot these issues.
 - We recommend that you include common contaminants in your database for better error detection. At minimum, we recommend *Homo sapiens* for any genes that might amplify vertebrates and *Cyprinus carpio* for all projects. As of mid-2023, the *Cyprinus carpio* genome is full of Illumina adapters, so if you have a lot of primer dimer in your reads, or if you fail to trim your adapters, you will have many hits to this species. I assume it will get a new genome at some point, so this may not be true forever. 
 - This script can search at any taxonomic level. For species, include the binomial name. For subspecies, check NCBI for the correct name of the subspecies you're interested in, or use taxids. For genera and above, use the single-word taxon name.
-- There is an extension to the R script that can check for sequences within a genus for any species that has no available relevant sequences in genbank, to add congeners and therefore accuracy to the database. By default, it is commented out. To use it, simply remove the comment character (#) inside the query_rentrez.R script, starting at the section labeled "search no-hits by genus" and going to the end of the file. **note: currently, this will not work.**
-- This script doesn't check for the wrong organism in the search results. This allows the script to search for organisms at any taxonomic rank. However, there is a version of this script called step_0_make_local_database_by_taxid.sh that you can use instead if you are worried about sister taxa slipping into your search results. The input for that script is a taxfile containing a list of taxids, which you are responsible for supplying. In theory, you can use [this NCBI tool](https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi) to look up taxids. **The taxid version of this script only accepts species/subspecies as input, not genera or any higher taxonomic rank, and will check to ensure that only the target taxid is included in the output files.** **note: the taxid script isn't ready yet**
+
 - 
 ### Inputs
 - A taxa file containing the scientific names of your target taxa, one per line, with the header "taxname"
@@ -88,11 +96,11 @@ The script requires four command line arguments:
 * -n a name for the output files, ex. "your_project"
 * -t the path to the file containing a list of taxa
 * -g the path to the file containing the gene terms
-* -d the path to the output directory
+* -d the path to your project directory
+* -h the **name** (not path) you want to give to your output directory. Path with be /project_directory/output_directory. Default is "reference_database".
 
 **Optional Arguments:**
 * -r (retmax) maximum number of search records to return. Default 10. Setting this value very high (>50) may cause problems with the rentrez search and will probably add off-target sequences (wrong gene more likely than wrong organism) to your database. I recommend getting an NCBI API key for large databases, see [the rentrez tutorial](https://cran.r-project.org/web/packages/rentrez/vignettes/rentrez_tutorial.html#rate-limiting-and-api-keys) for more info.
-* -c combine: choice of "comb" or "sep" (default). If "comb" is invoked, the fastas from all genes will be combined into a single database. This is not recommended. Sequences from different genes/loci must be processed separately (because they will almost certainly be different lengths)
   
 `bash step_0_make_local_database.sh -n your_name -t /path/to/taxfile -g /path/to/genefile -d /path/to/outputdir -r 10 -c sep -r ~/Rpackages`
 
@@ -102,16 +110,46 @@ In your output directory:
 - A tab-delimited summary file with information about each taxon including the taxid, number of available sequences on NCBI (at any locus), whether sequences are available for any of your target loci, and a yes/no for each locus, called "your_project_database_taxa_summary.txt"
 - A list of taxa that had no hits for your relevant genes in NCBI, called "your_project_database_taxa_no_hits.txt"
 - A fasta file for each gene/locus called your_project_gene_database_seqs.fasta
-- Directories for each gene containing the fasta files for each taxa separately, which can be deleted if you're done with them. 
-- A searchable local NCBI reference database for each gene. These consists of 10 files, each with the name "your_project_gene_reference.[suffix]".
 
 
 **If you already have a reference library:**
-Your reference library needs to be an NCBI blast database (made with makeblastdb). You can use your own fasta file to create it and name it whatever you'd like. However, please note that only reference libraries made using NCBI accession numbers and the -parse_seqids option of makeblastdb will be able to take advantage of the part of this pipeline that assessess equally-good BLAST hits to find a consensus taxon.
+Your reference library needs to be an NCBI blast database (made with makeblastdb) and we **strongly recommend** re-building your reference library using this pipeline in order to avoid errors downstream. If you wish to build your reference library using a FASTA you made yourself, or if you wish to add extra sequences to your library (such as off-target taxa with no representation at your gene), simply name the fasta any_name_gene1_sequences.fasta. You can have as many fastas as you want, just put them in the database directory you want (or the one you specified in step 1). The second step of this pipeline will add taxIDs to your sequences as long as each sequence begins >[Valid NCBI Accession]. You must have a copy of each fasta that you want included for each gene1...geneN that you're analyzing. 
 
-If you only have a few extra sequences with no accession numbers (for instance, that you sequenced yourself), there is a somewhat-tedious workaround for this. The fasta header line for that sequence should be edited to have the following format: >unique_identifier species name taxid=unique_value. It should be space-delimited. Then, to the bottom of your NCBItax2lin output file, you can add a row with your unique_value and the relevant taxonomic information. Your unique value and unique_identifier can be anything that doesn't contain spaces or special characters. The format for the taxonomy info in the NCBItax2lin output is visible in the header, and is comma-separated.
+## Step 2: Build the local reference database
+This script will grab everything in your database directory called *_gene1_sequences.fasta for each gene1...geneN, add taxIDs based on the NCBI accession number, check for duplicate entries, and then make a blast database. As noted above, you can supply your own FASTA and start the pipeline here, but your FASTA MUST use real NCBI accession #s in order for the taxid lookup to work. Theoretically, the pipeline should still work when a non-standard FASTA is supplied, just without the taxonomic decisionmaking, but behavior may be unpredictable.
 
-## Step 2: Data Quality Analysis
+### Inputs
+- A tab-delimited genelist file (see step 1)
+- The FASTA files output from step 1, plus any other fastas you want to add, with the naming format *_gene1_sequences.fasta for gene1...geneN
+
+### Usage
+
+**Cluster usage**
+Fill in the blanks in the step_2_wrapper.sh script, including the path to your project directory and the **name** (not path) of the reference_database directory you chose. This directory must be nested inside your project directory, and it must contain at least 1 fasta file with the name scheme *_gene1_sequences.fasta for gene1...geneN.
+
+dirr=/path/to/project/directory (can be $PWD if you're running the script from inside the project directory)
+db_dirr=reference_database [name, not path, of database directory]
+genelist=/path/to/genelist 
+taxlist=/path/to/taxlist
+prefix="your_project"
+retmax=10 [optional: leave blank for default. Default=10].
+
+`sbatch step_1_wrapper.sh`
+
+**To Run on the Head Nodes**
+**Arguments/Options**
+The script requires four command line arguments:
+* -n a name for the output files, ex. "your_project", should be the same name as step 1.
+* -g the path to the file containing the gene terms
+* -d the path to the project directory
+* -h the **name** (not path) to the output (reference database) directory you chose in step 1. Default is "reference_database".
+* -r 10 the number of matches you want to return. More = a longer runtime but potentially higher diversity coverage in your FASTA files. We recommend <100 to help manage NCBI API limits.
+  
+### Outputs
+- Directories for each gene containing the fasta files for each taxa separately, which can be deleted if you're done with them. 
+- A searchable local NCBI reference database for each gene. These consist of 10 files, each with the name "your_project_gene_reference.[suffix]".
+
+## Step 3: Data Quality Assessment
 
 ### Inputs
 - Your demultiplexed, appropriately-named, trimmed, paired-end data files. Each gene should have data files in a separate folder named "gene1" "gene2" etc for each of your genes/loci/primer sets.
@@ -124,8 +162,8 @@ If you only have a few extra sequences with no accession numbers (for instance, 
 ### Usage
 
 **Running on the cluster**
-Fill out the step_2_wrapper.sh file just like you did for step 1, then run:
-`sbatch step_2_wrapper.sh`
+Fill out the step_3_wrapper.sh file just like you did for step 1, then run:
+`sbatch step_3_wrapper.sh`
 
 **Running in the head node**
 The  program takes the following arguments:
@@ -136,16 +174,16 @@ The  program takes the following arguments:
 * -q the pattern for th ened of your R2 files. Default is "_R2.fastq".
 * -k the number of samples you want to view quality plots for. Samples will be randomly selected . Default is 24. Increasing this value increaeses computational time.
 
-`bash step_2_process_reads_in_dada.sh	-n name -g genelist -d directory -p pattern1 -q pattern2 -k num_graphs`
+`bash step_3_process_reads_in_dada.sh	-n name -g genelist -d directory -p pattern1 -q pattern2 -k num_graphs`
 
 ### Outputs
 
-Step 2 will output two PDFs into your_directory/reports/. They will contain k quality plots from dada's plot_quality_profile function. 
+Step 3 will output two PDFs into your_directory/reports/. They will contain k quality plots from dada's plot_quality_profile function. 
 
 
 Once it's done running, adjust your params_file accordingly. You're ready for step 3.
 
-## Step 3: Filtering data, performing ASV selection, blasting ASVs and building taxtables.
+## Step 4: Filtering data, performing ASV selection, blasting ASVs and building taxtables.
 
 Step 3 is a big step. First it will filter your data using the parameters you specify in the params_file. You should have one params_file for each gene (as you should filter your different loci each according to their length and sequencing quality). Your files should be named "params_file_gene1" and "params_file_gene2" for each gene. You can specify the name of "params_file" in the wrapper/command line, as long as the name is followed by "_geneN" for each gene.
 
@@ -153,7 +191,7 @@ Most of the filtering parameters are optional and can be left blank to use dada2
 
 After filtering, the script will output _seqs.txt files that contain the unique ASVs retained for each sample, and their read counts. It will also output a raw ASV table (ASVs as rows and samples as columns, read counts as data) in a directory called `/results_tables/`. Then it will create a fasta file with each unique ASV present in any of your samples. Then, it blasts those sequences against the reference database you made in step 1 and does some calculations about your hit rate. A very low hit rate suggests you should consider filtering your data more stringently, or expanding your reference database.
 
-After that, it will look for a taxonomy file. If you have one already downloaded from NCBI, it will skip trying to install and download. Otherwise, it will attempt to install and download. If you run into permissions issues, simply follow the steps to run ncbi2tax yourself in your database folder and then run step 3 again. It will find it and skip the install step. If you're using your own reference databse, I recommend commenting out most of this stuff because it's unlikely you'll be able to use the taxonomic-informed blast decisions. **currently, this script only works well for reference databases made in step 1 or using makeblastdb's -parse_seqids function with taxids added to each sequence. A script to add taxids to each sequence is coming, and this script is being actively developed to improve its performance with non-pipeline reference databases.**
+After that, it will look for a taxonomy file. If you have one already downloaded from NCBI, it will skip trying to install and download. Otherwise, it will attempt to install and download. If you run into permissions issues, simply follow the steps to run ncbi2tax yourself in your database folder and then run step 3 again. It will find it and skip the install step. 
 
 After adding taxonomy to all hits, it will evaluate equally-identical blast hits and pick the taxonomic rank at which there is agreement. This is a naive (but conservative) way of assessing hits. The raw_blast_out and raw_blast_out_with_tax files will be available in the out directory for you to examine by hand.
 
@@ -200,6 +238,7 @@ The program takes the following arguments:
   - a raw ASV table that has each unique ASV (unfiltered for RRA) and read count per sample. Pre-blast, so no taxa information.
 - A file in the "reports" folder that tracks the different filtering steps taken by DADA2 and the reads per sample at each step. Only includes samples that had >0 reads pass the initial quality filter.
 
+## Optional: Step 5: Re-run low % hits with NCBI remote BLAST
 
 From here you can check out a remote blast of your low-ID or no hits, look at trends in your taxa or ASV table, and more.
 
