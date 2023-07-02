@@ -5,7 +5,7 @@ pattern1="_R1.fastq"
 pattern2="_R2.fastq"
 params1="params_file"
 
-while getopts ":n:g:d:m:p:q:r:l:" opt; do
+while getopts ":n:g:d:m:p:q:r:l:b:" opt; do
   case $opt in
     n) prefix="$OPTARG"
     ;;
@@ -15,19 +15,19 @@ while getopts ":n:g:d:m:p:q:r:l:" opt; do
     ;;
     m) params1="$OPTARG"
     ;;
-        p) pattern1="$OPTARG"
-        ;;
-        q) pattern2="$OPTARG"
-        ;;
-        r) db_dirr="$OPTARG"
-        ;;
-        l) rlib="$OPTARG"
-        ;;
-	b) localdat="$OPTARG"
-        ;;
-        \?) echo "Invalid option -$OPTARG" >&2
-        exit 1
-        ;;
+    p) pattern1="$OPTARG"
+    ;;
+    q) pattern2="$OPTARG"
+    ;;
+    r) db_dirr="$OPTARG"
+    ;;
+    l) rlib="$OPTARG"
+    ;;
+    b) localdat="$OPTARG"
+    ;;
+    \?) echo "Invalid option -$OPTARG" >&2
+    exit 1
+    ;;
     esac
 done
 
