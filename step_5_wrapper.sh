@@ -9,6 +9,7 @@ dir=$PWD #path to the your_project directory. If you are running this code from 
 prefix=your_project
 genelist=$PWD/genelist #path to genelist
 cutoff=97 #your identity % cutoff. Non-inclusive. 
+rlib="~/Rpackages" #path to your r packages library
 
-bash step_4_filter_and_blast_local.sh -d ${dir} -n ${prefix} -g ${genelist} -c ${cutoff}
+bash step_4_filter_and_blast_local.sh -d ${dir} -n ${prefix} -g ${genelist} -c ${cutoff} -l ${rlib}
 
