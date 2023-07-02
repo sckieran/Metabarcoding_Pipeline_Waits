@@ -321,9 +321,44 @@ The program takes the following arguments:
 
 ## Optional: Step 5: Re-run low % hits with NCBI remote BLAST
 
-If your local database is too small or doesn't contain enough contaminant breadth, it might be useful to remotely blast your worst hits (those with low percent identity). That will help you understand if there's more data you can extract from this dataset. This optional step takes an identity percent threshold cutoff you provide, extracts sequences whose **best** BLAST hit in your local database was lower than your cutoff (not inclusive), and re-runs those samples with local blast.
+If your local database is too small or doesn't contain enough contaminant breadth, it might be useful to remotely blast your worst hits (those with low percent identity). That will help you understand if there's more data you can extract from this dataset. This optional step takes an identity percent threshold cutoff you provide, extracts sequences whose **best** BLAST hit in your local database was lower than your cutoff (not inclusive), and re-runs those samples with remote blast. This is time consuming for a large number of sequences. Future updates to this script may improve the remote blast processing time by chunking the sequences, but this is only a workaround - the NCBI API controls the rate at which sequences are BLASTed.
 
 The outputs are a new taxatable with only the remote hits, a new remote_best_hits.txt file with your best hits, and a file called local_vs_remote_best_hits.txt which compares the identity and taxa of the best hits for each sequence with a best local hit below your cutoff.
+
+### Inputs
+
+- Your genelist from step 4
+- Your _seqs.txt files, the script will look for them in the ./sample_seqfiles folder.
+
+### Usage
+
+**Command Line Usage** 
+Fill out the wrapper as before:
+dirr=/path/to/your/project same as in previous steps
+genelist=/path/to/your/genelist must be the same as in step 4
+prefix=your_project must be the same as in step 4
+cutoff=98 must be numeric, must provide some input (no default). Leaving blank will BLAST all sequences but also might produce unexpected behavior. Value is non-inclusive (ie, cutoff-98 will extract sequences with % identity match of 0-97.9%)
+rlib="~/path/to/rpackages"
+
+`sbatch step_5_wrapper.sh`
+
+**Head Node Usage**
+
+This program takes the following arguments:
+* -n your_project #must be the same as step 4
+* -g /path/to/your/genelist #must be the same as step 4
+* -d /path/to/your/project/directory #must be the same as step 4
+* -c cutoff #numeric, non-inclusive percent identity cutoff. Samples with values less than $cutoff will be re-run with remote BLAST.
+* -l /path/to/Rpackages/
+
+`bash step_5_add_remote_blast.sh -n your_project -g genelist -d /your/project -c cutoff -l /path/to/rPackages/`
+
+### Outputs
+
+- remote taxatable and best_remote_blast_hits.txt in your results_tables directory
+- comparative blast hit tab-delimited table for the best hit of each re-run sequence with fields sequence, %identity-local, %identity-remote, taxa-local and taxa-remote/
+
+
 
 
 
