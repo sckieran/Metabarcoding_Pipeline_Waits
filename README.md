@@ -18,7 +18,7 @@ That's fine, but it will add some tedioius work upfront. First, check if the spe
 
 **What if I want to use remote BLAST to query all of NCBI?**
 
-Sure, that's fine, start the pipeline at step 3 and then run the step_4_remote_blast_option.sh or step_4_remote_wrapper.sh (for head nodes and SLURM clusters, respectively). Expect the BLAST search to take several hours depending on the number of sequences, and make sure you have a good internet connection. If running on the standalone servers/head nodes of RCDS, I recommend using screen so the run will continue even if your pipe breaks.
+Sure, that's fine, start the pipeline at step 3 and then run the step_4_remote_blast_option.sh or step_4_remote_wrapper.sh (for head nodes and SLURM clusters, respectively). Expect the BLAST search to take several hours depending on the number of sequences, and make sure you have a good internet connection. If running on the standalone servers/head nodes of RCDS, I recommend using `screen` for all steps, but especially step 4, so the run will continue even if your pipe breaks.
 
 
 **This pipeline is not designed for microbial metagenomics at 16S**. I say this because there is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
@@ -30,18 +30,15 @@ This pipeline requires the following inputs:
 - Demultiplexed, appropriately-named paired-end metabarcoding data in fastq (or fastq.gz) format, with adapters trimmed. Each gene or primer set should be analyzed separately, and should be in a different folder called gene1, gene2...geneN.
 - A parameters file (see template) with your filtering parameters. You don't need this until step 3, so you can fill it out after you've seen the quality report on your reads. It must be in exactly the format as the template.
 - The output of a single run of ncbitax2lin. This script will attempt to install and run ncbitax2lin if it can't find a taxonomy file. If you are having issues with permissions and install, you can run it yourself by copying the commands from [this readme](https://github.com/zyxue/ncbitax2lin), the script assumes a name of "ncbi_lineages_[date_of_utcnow].csv.gz" but is agnostic to the date, and you can provide a name if preferred.
-- A tab-separated, single-line list of genes/loci you're interested in. If you provide a genelist in step 1, the script will use the header from that list.
+- A taxa file containing the scientific names of your target taxa, one per line, with the header "taxname", if you want to run step 1 and query NCBI for your fasta.
+- A file with lists of common terms for your target genes. One gene per column, as many permutations on the gene as you'd like, one per line (ie, "Cytochrome Oxidase I", "COI", "COX1"). See the example files for a template. The columns should have a header (which you can repeat in the body) that is a short, human-readable name of the gene that contains no spaces, slashes, quote marks or other special characters. For example, instead of heading your column "Cytochrome Oxidase I", head it "COI". This file can serve as your "genelist" file for steps 2 through 4 as well.
 
-Additionally, to run the local database building tool, you need:
-- A taxa file containing the scientific names of your target taxa, one per line, with the header "taxname"
-- A file with lists of common terms for your target genes. One gene per column, as many permutations on the gene as you'd like, one per line (ie, "Cytochrome Oxidase I", "COI", "COX1"). See the example files for a template. The columns should have a header (which you can repeat in the body) that is ta short, human-readable name of the gene that contains no spaces, slashes, quote marks or other special characters. For example, instead of heading your column "Cytochrome Oxidase I", head it "COI". This file can serve as your "genelist" file for steps 2 and 3 as well.
-
-Data is often demultiplexed by the sequencing service company at no (or minor) cost. However, if your data has not been demultiplexed, we recommend using either [fastq-multx](https://github.com/brwnj/fastq-multx) or the demux-by-name function of [BBMap](https://github.com/BioInfoTools/BBMap). Some demultiplexers (fastq-multx, for instance) do automatic trimming, others do not. The dual-indexed fusion primers often used in metabarcoding may require extra trimming of the overhangs. We recommend using [cutadapt](https://cutadapt.readthedocs.io/en/stable/) to trim. 
+Data is often demultiplexed by the sequencing service company at no (or minor) cost. However, if your data has not been demultiplexed, we recommend using either [fastq-multx](https://github.com/brwnj/fastq-multx) or the demux-by-name function of [BBMap](https://github.com/BioInfoTools/BBMap). Some demultiplexers (fastq-multx, for instance) do automatic trimming, others do not, which is why this pipeline only accepts pre-trimmed data, although you have the option of using dada2's `trim` function to trim N bases from left/right. We recommend using [cutadapt](https://cutadapt.readthedocs.io/en/stable/) to trim. 
 
 ### Software and Installation
 
 You will need
-- Command-line github (pre-installed on UI RCDS Cluster, UCD FARM and Barbera)
+- Command-line git (pre-installed on UI RCDS Cluster, UCD FARM and Barbera)
 - Command-Line BLAST [Installation Instructions Here](https://www.ncbi.nlm.nih.gov/books/NBK279690/) (pre-installed on UI RCDS Cluster, UCD FARM and Barbera)
 - NCBItax2lin: [see here](https://github.com/zyxue/ncbitax2lin) used to add taxonomic information to the local reference database. Requires pip to install.
 - gnu-sed (gsed) [Installation Instructions Here](https://formulae.brew.sh/formula/gnu-sed). Nearly all unix-based computing clusters use this as the default (including UI RCDS, FARM and Barbera), but it needs to be installed on a mac and aliased to 'sed'. It can be easily installed with [homebrew](https://brew.sh/)
@@ -58,13 +55,12 @@ You will need
 **If you are using the UI RCDS cluster:**
 There is a good tutorial for installing r packages here: [link to RCDS](https://www.hpc.uidaho.edu/compute/Applications/R.html)
 However, you need to make one change to the tutorial: you must load the newest R module (`module load R/4.2.3`). 
-
-**for this pipeline to work on the RCDS cluster, you must install your packages into a specific place: ~/Rpackages. If you install your R packages somewhere else, you _must_ go into the R scripts and change the `lib="~/Rpackages"` line of each `library` command by hand (or with sed).**
+You can install your R packages wherever you'd like, but must supply the path to the scripts either in the wrapper or on the command line.
 
 ### Installing the pipeline
 
 **Recommended install on the cluster:**
-1. make a new directory called your_project 
+1. make a new directory called your_project
 `mkdir your_project`
 2. move all your data files into folders called gene1,gene2...geneN for each gene/primer set you want to analyze. Move these folders into the your_project directory:
 `mv /gene1/ /path/to/your_project/gene1/`
