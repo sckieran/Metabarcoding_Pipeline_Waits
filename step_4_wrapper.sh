@@ -1,8 +1,9 @@
 #!/bin/bash
-#SBATCH -o step_3_slurm.%j.out
-#SBATCH -e step_3_slurm.%j.err
+#SBATCH -o step_4_slurm.%j.out
+#SBATCH -e step_4_slurm.%j.err
 #SBATCH -C "ceph"
 #SBATCH -t 1440
+#SBATCH -J step_4
 
 dir=$PWD #path to the your_project directory. If you are running this code from inside that directory (recommended), you can put $PWD here.
 prefix=your_project
