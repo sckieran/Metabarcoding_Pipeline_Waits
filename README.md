@@ -252,9 +252,9 @@ The program takes the following arguments:
 * -p 'pattern1' default: same as in step 2, default is "_R1.fastq"
 * -q 'pattern2' default: same as in step 2, default is "_R2.fastq"
 * -r name, not path to, folder that contains your reference database (and your NCBI2tax run, if you did that separately). Default is "reference_database"
-* -l ref_database_name default: your_project_gene1_reference
+* -l path to your R packages folder
 
-`bash step_3_filter_and_blast_local.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -l ref_database_name`
+`bash step_4_filter_and_blast_local.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -l ref_database_name`
 
 ### Outputs
 
