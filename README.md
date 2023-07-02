@@ -199,8 +199,9 @@ The  program takes the following arguments:
 * -p the pattern for the end of your R1 files. Default is "_R1.fastq".
 * -q the pattern for th ened of your R2 files. Default is "_R2.fastq".
 * -k the number of samples you want to view quality plots for. Samples will be randomly selected . Default is 24. Increasing this value increaeses computational time.
+* -l path to your R packages library
 
-`bash step_3_quality_check_reads.sh	-n name -g genelist -d directory -p pattern1 -q pattern2 -k num_graphs`
+`bash step_3_quality_check_reads.sh	-n name -g genelist -d directory -p pattern1 -q pattern2 -k num_graphs -l rlib`
 
 ### Outputs
 
@@ -254,7 +255,7 @@ The program takes the following arguments:
 * -r name, not path to, folder that contains your reference database (and your NCBI2tax run, if you did that separately). Default is "reference_database"
 * -l path to your R packages folder
 
-`bash step_4_filter_and_blast_local.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -l ref_database_name`
+`bash step_4_filter_and_blast_local.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -b ref_database_name -l rlib`
 
 ### Outputs
 
@@ -284,7 +285,7 @@ Very similar to regular step 4, but ignores any local database and performs remo
 ### Usage
 
 **Command line Usage**
-Fill in the wrapper as with step 2. The name and directory must be the same between the steps. If you've done an NCBItax2lin run, put the unzipped output in your project directory.
+Fill in the wrapper as with step 4 local. The name and directory must be the same between the steps. If you've done an NCBItax2lin run, put the output in your project directory.
 
 `sbatch step_4_remote_wrapper.sh`
 
@@ -297,8 +298,9 @@ The program takes the following arguments:
 * -m 'params_file' mandatory: just the first part of the file name, program assumes that it ends '_gene1'...'geneN' for each gene in the genelist. Default is "params_file"
 * -p 'pattern1' default: same as in step 2, default is "_R1.fastq"
 * -q 'pattern2' default: same as in step 2, default is "_R2.fastq"
+* -l path to your R package library
 
-`bash step_3_filter_and_blast.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -l ref_database_name`
+`bash step_3_filter_and_blast.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -l rlib
 
 ### Outputs
 
