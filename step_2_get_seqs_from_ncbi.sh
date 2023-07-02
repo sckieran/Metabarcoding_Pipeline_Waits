@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts ":n:h:g:d:c:" opt; do
+while getopts ":n:h:g:d:" opt; do
   case $opt in
     n) prefix="$OPTARG"
     ;;
@@ -10,46 +10,37 @@ while getopts ":n:h:g:d:c:" opt; do
     ;;
     d) dirr="$OPTARG"
     ;;
-    c) comb="$OPTARG"
-    ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1
     ;;
   esac
 done
-#make the output directory, if it doesn't exist#
-if [[ -z $comb ]]
-then
-comb=sep
-fi
+
 if [[ -z db_dirr ]]
 then
-db_dirr=reference_database
+	db_dirr=reference_database
 fi
 
 module load ncbi-blast
 mkdir -p $db_dirr
-
-
-
 cp $genelist $db_dirr
 cd $db_dirr
 
-head -n1 $genelist | sed "s:\t:\n:g" > list_of_genes.txt
-
-#for fil in *_sequences.fasta
-#do
-#        grep ">" $fil > temp_lines
-#        echo "adding taxid $taxid to $fil"
-#        sed -i 's/>//g' temp_lines
-#        while read p;
-#        do
-#                taxid=$( curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${ACC}&rettype=fasta&retmode=xml" | grep TSeq_taxid | cut -d '>' -f 2 | cut -d '<' -f 1 | tr -d "\n" | awk '{print $1}')
-#                sed -i "s@${p}@${p}\ttaxid=${taxid}@g" $fil
-#        done <temp_lines
-#done
+for fil in *_sequences.fasta
+do
+	grep ">" $fil > temp_lines
+	echo "adding taxid $taxid to $fil"
+	sed -i 's/>//g' temp_lines
+	while read p; #for each sequence in each fasta, query NCBI's taxid lookup to get taxid, and attach it to the end of the sequence title.
+	do
+ 		taxid=$( curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${ACC}&rettype=fasta&retmode=xml" | grep TSeq_taxid | cut -d '>' -f 2 | cut -d '<' -f 1 | tr -d "\n" | awk '{print $1}')
+  		sed -i "s@${p}@${p}\ttaxid=${taxid}@g" $fil
+	done < temp_lines
+done
 
 echo "done processing fastas, building database."
+#loop over each gene in your genelist#
+head -n1 $genelist | sed "s:\t:\n:g" > list_of_genes.txt
 while read p; 
 do
         mkdir -p "$p"
