@@ -1,7 +1,8 @@
-library(dada2, lib="~/Rpackages") ##load your library
-library(lubridate, lib="~/Rpackages")
-library(tidyverse, lib="~/Rpackages")
-library(optparse, lib="~/Rpackages")
+args = commandArgs(trailingOnly=TRUE)
+library(dada2, lib=args[1]) ##load your library
+library(lubridate, lib=args[1])
+library(tidyverse, lib=args[1])
+library(optparse, lib=args[1])
 
 option_list <- list(make_option(c('-d','--directory'), action='store', type='character', default="~", help='path to the enclosing directory, which contains a folder called "gene" that contains your demultiplexed and trimmed fastqs'),
                     make_option(c('-g','--gene'), action='store', type='character', default="12S", help='path to your tab-separated list of genes, one gene per column, one name per row ie COI, COXI'),

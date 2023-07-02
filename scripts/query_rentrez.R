@@ -1,11 +1,14 @@
 #!/usr/bin/R/
 ##2022 Shannon Kieran Blair##
 ##a script to query genbank for barcodes matching a list of taxa##
-library(rentrez, lib="~/Rpackages")
-library(lubridate, lib="~/Rpackages")
-library(tidyverse, lib="~/Rpackages")
-library(stringr, lib="~/Rpackages")
-library(optparse, lib="~/Rpackages")
+
+args = commandArgs(trailingOnly=TRUE)
+
+library(rentrez, lib=args[1])
+library(lubridate, lib=args[1])
+library(tidyverse, lib=args[1])
+library(stringr, lib=args[1])
+library(optparse, lib=args[1])
 #import your taxa and barcodes##
 ##INPUT FILE: tab-delimited list of genes, with header. Genes in columns. Rows are synonymous search terms. Taxlist: single column of taxnames, optional single column (tab delimited) for taxid
 
