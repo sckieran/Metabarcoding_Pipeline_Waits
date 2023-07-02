@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-while getopts ":n:g:d:c:" opt; do
+while getopts ":n:g:d:c:l:" opt; do
   case $opt in
     n) prefix="$OPTARG"
     ;;
@@ -9,6 +9,8 @@ while getopts ":n:g:d:c:" opt; do
     d) dirr="$OPTARG"
     ;;
     c) cutoff="$OPTARG"
+    ;;
+    l) rlib="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1
@@ -224,7 +226,7 @@ echo "done with ${gene}. You can find taxa tables and raw ASV tables  in your pr
 
 rm temp*
 
-Rscript ${dirr}/scripts/compare_taxlists.R ${dirr}/${gene}_dada_out ${prefix}_${gene}_best_blast_hits.txt ${prefix}_${gene}_best_remote_blast_hits.txt ${prefix} ${gene}
+Rscript ${dirr}/scripts/compare_taxlists.R ${rlib} ${dirr}/${gene}_dada_out ${prefix}_${gene}_best_blast_hits.txt ${prefix}_${gene}_best_remote_blast_hits.txt ${prefix} ${gene}
 
 cp *_comparative_BLAST_hits.txt ${dirr}/results_tables/
 
