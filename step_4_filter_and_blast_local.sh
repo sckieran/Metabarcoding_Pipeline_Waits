@@ -240,7 +240,7 @@ do
                         lin=$($ln)
                         st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
                         tax=$(echo $lin | awk -v OFS='\t' '{print $8,$9,$10,$11,"NA"}')
-                        echo "${st}     ${fam} sp.      "NA"	${tax}" >> ${prefix}_${gene}_best_blast_hits.out
+                        echo "${st}	${fam} sp.	"NA"	${tax}" >> ${prefix}_${gene}_best_blast_hits.out
 		elif [[ ${spec_number} -gt 1 ]] && [[ $order_number -eq 1 ]]
 		then
 			ord=$( cut -f9 temp_tax | sort | uniq | awk '{print $1}')
@@ -249,7 +249,7 @@ do
                         lin=$($ln)
                         st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
                         tax=$(echo $lin | awk -v OFS='\t' '{print $8,$9,$10,"NA","NA"}')
-                        echo "${st}     ${ord} sp.      "NA"	${tax}" >> ${prefix}_${gene}_best_blast_hits.out
+                        echo "${st}	${ord} sp.	"NA"	${tax}" >> ${prefix}_${gene}_best_blast_hits.out
 		elif [[ ${spec_number} -gt 1 ]] && [[ $class_number -eq 1 ]]
 		then
 			class=$( cut -f8 temp_tax | sort | uniq | awk '{print $1}')
@@ -258,7 +258,7 @@ do
                         lin=$($ln)
                         st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
                         tax=$(echo $lin | awk -v OFS='\t' '{print $8,$9,"NA","NA","NA"}')
-                        echo "${st}     ${class} sp.      "NA"	${tax}" >> ${prefix}_${gene}_best_blast_hits.out
+                        echo "${st}	${class} sp.	"NA"	${tax}" >> ${prefix}_${gene}_best_blast_hits.out
 		elif [[ ${spec_number} -gt 1 ]] && [[ $phylum_number -eq 1 ]]
 		then
 			phylum=$( cut -f7 temp_tax | sort | uniq | awk '{print $1}')
@@ -267,7 +267,7 @@ do
                         lin=$($ln)
                         st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
                         tax=$(echo $lin | awk -v OFS='\t' '{print $8,"NA","NA","NA","NA"}')
-                        echo "${st}     ${phylum} sp.      "NA"	${tax}" >> ${prefix}_${gene}_best_blast_hits.out
+                        echo "${st}	${phylum} sp.	"NA"	${tax}" >> ${prefix}_${gene}_best_blast_hits.out
 		elif [[ ${spec_number} -gt 1 ]] && [[ $phylum_number -gt 1 ]]
 		then
 			echo "multiple phyla present in equally-good BLAST hits. Designating as no-hit."
