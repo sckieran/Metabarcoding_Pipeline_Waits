@@ -7,12 +7,12 @@
 
 
 
-dirr=$PWD
-db_dirr=reference_database
-genelist=$PWD/genelist
-prefix="rlha_test"
-comb=
+dirr=$PWD #path to your database, see step 1.
+db_dirr=reference_database #name (not path) of your reference_database folder
+genelist=$PWD/genelist #path to your tab-delimited gene/primer set list. 
+prefix="your_project" #name, same as step 1.
+rlib="~/Rpackages" #path to your R packages library.
 
 
-bash step_2_get_seqs_from_ncbi.sh -n ${prefix} -d ${dirr} -g ${genelist}  -h ${db_dirr} -c ${comb}
+bash step_2_get_seqs_from_ncbi.sh -n ${prefix} -d ${dirr} -g ${genelist}  -h ${db_dirr} -l ${rlib}
 
