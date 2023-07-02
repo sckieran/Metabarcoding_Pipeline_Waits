@@ -3,16 +3,23 @@ Shannon Blair 2023
 
 A rough pipeline and tutorial to analyze metabarcoding data using dada2 with a limited local reference database. It is intended to be an analysis guide for students working on their own projects.
 
+
 This pipeline assumes reasonably good resolution of locus data and is designed as a "first pass" at your metabarcoding data, not a finished product. The way this pipeline assesses BLAST hits is both **naive and conservative**. If more than one equally-likely BLAST hit is available (judged by percent identity), it will attempt to assign taxonomy to each hit using the output of ncbitax2lin, then walk up the taxonomy tree until it finds a consensus rank. If no consensus is available at the phylum level, it calls a "no-hit". Therefore **this pipeline only works with reference libraries made using this pipeline.** However, you can use your own FASTAs as input to step 2 of this pipeline if you want to skip querying rentrez, as long as each sequence in that FASTA begins with a header line in the format >[Valid NCBI Accession Number]. 
 
+
 **What if I want my database to include every organism available for X gene?**
+
 This pipeline is for limited-taxa reference databases or remote querying of NCBI. It is not designed to manage the curation of a large database that includes, say, all inverts with COI sequences in NCBI. If you want a larger database, consider using another reference database building tool, for instance [RESCRIPt](https://github.com/bokulich-lab/RESCRIPt) or [bcDatabaser](https://bcdatabaser.molecular.eco/). This pipeline is being actively developed to better improve performance with other databases. Any FASTA file that contains unique sequences each with a valid NCBI accession will work in step 2 of the pipeline, but runtimes for step 2 will be very long for huge databases (>1000 taxa).
 
+
 **What if I have a few of my own in-house sequences I want to add to my database?**
+
 That's fine, but it will add some tedioius work upfront. First, check if the species you are including have taxIDS assigned in NCBI. All taxa with at least one sequence in the NCBI nucleotide or sra database have a taxid, and you can look it up here: [here](https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi). Put your homebrewed sequences in a file called extras_gene1_sequences.fasta with the header format ">unique_identifier species name taxid=unique_taxid" and put it in your reference_database directory. If your species has a taxID assigned in NCBI, use that as the unique_taxid. Otherwise, you can assign one yourself, I recommend a series of letters and numbers separated by underscores. Do not use a strictly numeric value, you will almost definitely accidentally assign a real taxID to your species. You can assign any unique_identifier to the sequence (to replace the accession number), but it must not include spaces or special characters and each sequence must be uniquely named. Next, also in your reference database directory, install and run ncbitax2lin. Then, unzip and modify the ncbitax2lin file. Add the unique_taxids you assigned to the end of the file and add taxonomic information for each species following the comma-separated format of the ncbitax2lin file (described in the header of the file). This is tedious to do by hand, so we really recommend submitting your homebrew sequences to NCBI if they're long enough!
 
 **What if I want to use remote BLAST to query all of NCBI?**
-Sure, that's fine, start the pipeline at step 3 and run the step_4_remote_blast_option.sh or step_4_remote_wrapper.sh (for head nodes and SLURM clusters, respectively). Expect the BLAST search to take several hours depending on the number of sequences, and make sure you have a good internet connection.
+
+Sure, that's fine, start the pipeline at step 3 and then run the step_4_remote_blast_option.sh or step_4_remote_wrapper.sh (for head nodes and SLURM clusters, respectively). Expect the BLAST search to take several hours depending on the number of sequences, and make sure you have a good internet connection. If running on the standalone servers/head nodes of RCDS, I recommend using screen so the run will continue even if your pipe breaks.
+
 
 **This pipeline is not designed for microbial metagenomics at 16S**. I say this because there is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
 
