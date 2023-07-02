@@ -13,5 +13,6 @@ prefix="your_project" #for ease of use, this should match the name you gave in S
 pattern1="_R1.fastq"
 pattern2="_R2.fastq"
 num_graphs=24 #change this based on how many quality profiles you want to look at. Adding more adds computational time to this script.#
+rlib="~/Rpackages" #path to your R packages
 
-bash step_3_quality_check_reads.sh  -d ${dirr} -n ${prefix} -g ${genelist} -p ${pattern1} -q ${pattern2} -k ${num_graphs}
+bash step_3_quality_check_reads.sh  -d ${dirr} -n ${prefix} -g ${genelist} -p ${pattern1} -q ${pattern2} -k ${num_graphs} -l ${rlib}
