@@ -4,11 +4,11 @@
 
 args = commandArgs(trailingOnly=TRUE)
 
-library(rentrez, lib=args[1])
-library(lubridate, lib=args[1])
-library(tidyverse, lib=args[1])
-library(stringr, lib=args[1])
-library(optparse, lib=args[1])
+library(rentrez, lib=args[2])
+library(lubridate, lib=args[2])
+library(tidyverse, lib=args[2])
+library(stringr, lib=args[2])
+library(optparse, lib=args[2])
 #import your taxa and barcodes##
 ##INPUT FILE: tab-delimited list of genes, with header. Genes in columns. Rows are synonymous search terms. Taxlist: single column of taxnames, optional single column (tab delimited) for taxid
 
@@ -16,6 +16,7 @@ option_list <- list(make_option(c('-t','--taxfile'), action='store', type='chara
                     make_option(c('-g','--gene'), action='store', type='character', default="example_gene_list.txt", help='path to your tab-separated list of genes, one gene per column, one name per row (ie, COI, COX1'),
                     make_option(c('-d','--directory'), action='store', type='character', default="~", help='full path to output directory'),
                     make_option(c('-n', '--name'), action='store', type='character', default='your_project', help='prefix for naming outfiles'),
+                    make_option(c('-z','--rlib'), action='store', type='character', default="~/Rpackages", help='r library path'),
                     make_option(c('-r', '--retmax'), action='store', type='integer', default=10, help='how many matching fastas to return. Recommend <100')
 )
 opt <- parse_args(OptionParser(option_list = option_list))
