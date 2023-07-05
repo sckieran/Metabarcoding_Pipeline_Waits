@@ -29,12 +29,12 @@ cd $db_dirr
 for fil in *_sequences.fasta
 do
 	grep ">" $fil | awk -F" " '{print $1}' > temp_lines
-	echo "adding taxid $taxid to $fil"
+	echo "adding taxid to $fil"
 	sed -i 's/>//g' temp_lines
 	while read p; #for each sequence in each fasta, query NCBI's taxid lookup to get taxid, and attach it to the end of the sequence title.
 	do
- 		taxid=$( curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${ACC}&rettype=fasta&retmode=xml" | grep TSeq_taxid | cut -d '>' -f 2 | cut -d '<' -f 1 | tr -d "\n" | awk '{print $1}')
-  		sed -i "s@${p}@${p}\ttaxid=${taxid}@g" $fil
+ 		taxid=$( curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${p}&rettype=fasta&retmode=xml" | grep TSeq_taxid | cut -d '>' -f 2 | cut -d '<' -f 1 | tr -d "\n" | awk '{print $1}')
+  		sed -i "/${p}/ s/$/\ttaxid=${taxid}/" $fil
 	done < temp_lines
 done
 rm temp_lines
