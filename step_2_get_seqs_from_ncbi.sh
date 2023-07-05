@@ -28,7 +28,7 @@ cd $db_dirr
 
 for fil in *_sequences.fasta
 do
-	grep ">" $fil > temp_lines
+	grep ">" $fil | awk -F" " '{print $1}' > temp_lines
 	echo "adding taxid $taxid to $fil"
 	sed -i 's/>//g' temp_lines
 	while read p; #for each sequence in each fasta, query NCBI's taxid lookup to get taxid, and attach it to the end of the sequence title.
@@ -37,7 +37,7 @@ do
   		sed -i "s@${p}@${p}\ttaxid=${taxid}@g" $fil
 	done < temp_lines
 done
-
+rm temp_lines
 echo "done processing fastas, building database."
 #loop over each gene in your genelist#
 head -n1 $genelist | sed "s:\t:\n:g" > list_of_genes.txt
