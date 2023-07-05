@@ -45,7 +45,7 @@ while read p;
 do
 	gene=${p}
 	mkdir -p ${gene}_dada_out
-	Rscript ${dirr}/scripts/quality_check_reads_in_DADA2.R ${rlib} -d ${dirr} -g ${gene} -p ${pattern1} -q ${pattern2} -n ${prefix} -k ${num_graphs}
+	Rscript ${dirr}/scripts/quality_check_reads_in_DADA2.R -z ${rlib} -d ${dirr} -g ${gene} -p ${pattern1} -q ${pattern2} -n ${prefix} -k ${num_graphs}
 	mv ${dirr}/${gene}/${prefix}*.pdf ${dirr}/reports/
 done < list_of_genes.txt
 
