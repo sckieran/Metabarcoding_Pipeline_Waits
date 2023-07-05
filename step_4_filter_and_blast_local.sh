@@ -261,7 +261,7 @@ do
 			elif [[ ${spec_number} -gt 1 ]] && [[ $phylum_number -gt 1 ]]
 			then
 				echo "multiple phyla present in equally-good BLAST hits. Designating as no-hit."
-				st=$( head -n1 temp_tax | awk -v OFS='\t' '{print $1,$3,"No Hit","NA","NA","NA","NA","NA"}')
+				st=$( head -n1 temp_tax | awk -v OFS='\t' '{print $1,$3,"No Hit","NA","NA","NA","NA","NA","NA"}')
 				echo "${st}" >> ${prefix}_${gene}_best_blast_hits.out
 			fi
 		else 
