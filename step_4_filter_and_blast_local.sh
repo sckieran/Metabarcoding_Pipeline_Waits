@@ -303,7 +303,7 @@ do
  			lin=$($ln)
 			seq=$(echo $lin | awk -F"," '{print $1}')
 			reads=$(echo $lin | awk -F"," '{print $2}')
-			taxline=$(grep -w "$seq" ${prefix}_${gene}_best_blast_hits.txt | awk -v OFS='\t' '{print $3,$4" "$5,$6,$7,$8,$9,$10,$11}')
+			taxline=$(grep -m1 -w "$seq" ${prefix}_${gene}_best_blast_hits.txt | awk -v OFS='\t' '{print $3,$4" "$5,$6,$7,$8,$9,$10,$11}')
 			echo "$base	$seq	$reads	$taxline" >> ${prefix}_${gene}_taxatable.txt
 			x=$(( $x + 1 ))
 		done
