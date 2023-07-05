@@ -1,8 +1,8 @@
 args = commandArgs(trailingOnly=TRUE)
-library(dada2, lib=args[1]) ##load your library
-library(lubridate, lib=args[1])
-library(tidyverse, lib=args[1])
-library(optparse, lib=args[1])
+library(dada2, lib=args[2]) ##load your library
+library(lubridate, lib=args[2])
+library(tidyverse, lib=args[2])
+library(optparse, lib=args[2])
 
 option_list <- list(make_option(c('-d','--directory'), action='store', type='character', default="~", help='path to the enclosing directory, which contains a folder called "gene" that contains your demultiplexed and trimmed fastqs'),
                     make_option(c('-g','--gene'), action='store', type='character', default="12S", help='path to your tab-separated list of genes, one gene per column, one name per row ie COI, COXI'),
@@ -10,6 +10,7 @@ option_list <- list(make_option(c('-d','--directory'), action='store', type='cha
                     make_option(c('-q','--pattern2'), action='store', type='character', default="_R2.fastq", help='pattern for naming your R2 files, default is _R2.fastq'),
                     make_option(c('-n','--name'), action='store', type='character', default="your_project", help='prefix for naming your outfiles. default is "your_project"'),
                     make_option(c('-e','--rracutoff'), action='store', type='numeric', default=0.0005, help='filter ASVs at readcounts < rracutoff.'),
+		    make_option(c('-z','--rlib'), action='store', type='character', default="~/Rpackages", help='r library path'),
 		    make_option(c('-m','--multithread'), action='store', type='logical', default="TRUE", help='TRUE or FALSE to multithread threadable functions')
 )
 opt <- parse_args(OptionParser(option_list = option_list))
