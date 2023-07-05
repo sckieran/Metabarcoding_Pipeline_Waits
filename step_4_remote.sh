@@ -56,7 +56,7 @@ do
 	cd ${dirr}
 	#this script will take a params file that contains your gene name and filtering parameters you provide it to process your reads through dada2.
 	echo "starting the dada process for ${gene}"
-	Rscript ${dirr}/scripts/filter_and_process_dada.R ${rlib} -d ${project_dir} -g ${gene} -p ${pattern1} -q ${pattern2} -n ${prefix} -e ${rra_cutoff} -m ${multi}
+	Rscript ${dirr}/scripts/filter_and_process_dada.R -z ${rlib} -d ${project_dir} -g ${gene} -p ${pattern1} -q ${pattern2} -n ${prefix} -e ${rra_cutoff} -m ${multi}
 
 	cd ${gene}_dada_out
 	echo "done with DADA2 processing. Beginning blast and taxtable."
