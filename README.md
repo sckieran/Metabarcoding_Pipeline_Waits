@@ -1,12 +1,106 @@
 # Waits Lab Metabarcoding Training Pipeline
 Shannon Blair 2023
 
+##Overview of Pipeline##
 A rough pipeline and tutorial to analyze metabarcoding data using dada2 with a limited local reference database. It is intended to be an analysis guide for students working on their own projects.
 
 
 This pipeline assumes reasonably good resolution of locus data and is designed as a "first pass" at your metabarcoding data, not a finished product. The way this pipeline assesses BLAST hits is both **naive and conservative**. If more than one equally-likely BLAST hit is available (judged by percent identity), it will attempt to assign taxonomy to each hit using the output of ncbitax2lin, then walk up the taxonomy tree until it finds a consensus rank. If no consensus is available at the phylum level, it calls a "no-hit". Therefore **this pipeline only works with reference libraries made using this pipeline.** However, you can use your own FASTAs as input to step 2 of this pipeline if you want to skip querying rentrez, as long as each sequence in that FASTA begins with a header line in the format >[Valid NCBI Accession Number]. 
 
+###Step One: Fetch FASTAs###
 
+**Scripts:**
+step_1_make_local_database.sh (head node, local runs)
+step_1_wrapper.sh (SLURM runs)
+
+**What This Script Does:**
+This script does the following, in order:
+1. Parses your arguments and makes relevant output directories
+2. Executes the script query_rentrez.R, which:
+3. Executess a loop using the `rentrez` R package that searches NCBI for each taxa and each gene term you give it. So the search for the first taxa in the example files would query NCBI for "Aplodontus rufia[ORGN] AND ("12S OR 12s Ribosomal RNA OR 12S RNA OR 12S Mitochondrial"). It does this for each taxa, one a at time. It stores the following:
+   * Whether or not there are sequences in genbank for that set of gene terms
+   * How many sequences there are
+   * The FASTA header and sequence for the first 10 (default) or retmax (set by user) matching sequences in NCBI. These sequences are written to a FASTA file in your out directory with the name "taxa"_"gene"_sequences.fasta
+4. Creates a summary file with the above information.
+
+That's it for Step 1. We wanted to make sure that users had the opportunity to add their own, potentially off target samples to their databases For instance, there shouldn't be Homo Sapiens hits to trnL or other plant-specific loci, but they may still show up in your data from contamination in the sequencing lane. Similarly, the European Carp genome (Cyprinus carpio) and lots of COVID sequences are full of Illumina adapters, so including a few can help you identify primer dimers and untrimmed sequences in your data.
+
+###Step Two: Validate FASTAs and Make Ref Database###
+
+**Scripts:**
+step_2_get_scripts_from_ncbi.sh
+step_2_wrapper.sh
+
+**What This Script Does:**
+This script does the following, in order:
+1. Parses arguments and makes out directories
+2. Loops through each taxa's sequence fastas and queries Entrez to get NCBI-assigned taxids that are associated with each taxon.
+3. Adds the NCBI-assigned taxid to the end of the FASTA sequence header (the part that starts with ">") for each sequence. This makes taxonomic assessment easier down the road.
+4. Concatenates all taxa FASTAs for each gene into one large FASTA.
+5. Checks for (and removes) duplicate sequences with the script step_2_p1_rmdups.sh. This is because sequences with identical headers cause makeblastdb to throw an error
+6. Uses the `ncbi-blast` function `makeblastdb` with the following parameters: -db_type nucl (options are "nucl" and "prot") -in your_project_gene1_database_sequences.fasta -out your_project_gene1_reference -parse_seqids -blastdb_version 5
+7. Moves all the extra taxa-specific FASTA files into folders to keep things tidy.
+
+End result is a set of reference database files (10 of them, created by makeblastdb) that NCBI blast can use as a reference, along with a fasta file for each gene, all in a folder called reference_database (or a name supplied by you) inside your project folder
+
+
+###Step Three: Check the quality of your reads###
+
+**Scripts**
+step_3_quality_check_reads.sh
+step_3_wrapper.sh
+
+**What This Script Does**
+This script does the following, in order:
+1. Parses arguments and create out directories
+2. Loops over your list of genes and for each gene executes the script quality_check_reads_in_DADA2.R, which:
+3. Grabs all the files in your data directory that match the patterns -p (default: _R1.fastq) and -q (default: _R2.fastq). This means it will grab all your data files but not anything else you might have in there.
+4. Uses the dada2 function "plotQualityProfile" to plot quality graphs for -k (default: 24) samples. The samples are randomly pulled using the base-R `sample` function. You can use all your samples, but runtimes are long and the program doesn't do a great job of splitting the graphs up across multiple pages (potentially, a better functionality for higher k values is coming soon).
+5. Writes those plots (one set for R1s, one set for R2s) to a pdf in a folder called "reports" inside your project directory.
+
+The end result is a pair of PDFs for each gene called your_project_geneN_R[1-2]s_quality_profiles.pdf. You can then look at these and make decisions about your filtering parameters, I recommend following the dada2 tutorial to better understand the filtering options. Use these PDFs to fill out your params_file for step 4.
+
+###Step Four: Filter and BLAST your reads###
+
+**Scripts**
+step_4_by_pident_filter_and_blast_local.sh
+step_4_by_score_filter_and_blast_local.sh
+step_4_remote.sh
+step_4_wrapper.sh
+
+
+**What These Scripts Do**
+Step 4 does the following, in order:
+1. Parses arguments and creates out directories
+2. Parses the parameter file and builds a filtering script in R with the appropriate arguments and settings.
+3. Executes the newly-written filter_and_process_dada.R script to filter the data, which does the following:
+  4. Grabs your data files based on your -p and -q patterns
+  5. Filters the data using dada2's `FilterAndTrim` function, using your params_file for settings.
+  6. Subsamples 50 randomly-selected samples down to 100k reads. This speeds up the error rate estimation process as it was not really built for huge #s of reads/sample, and is very robust at <100k reads.
+  7. Performs the dada2 function  `LearnErrors` for the R1s and R2s to learn error rates.
+  8. Performs the dada2 function `dada`, [the central algorithm of the dada2 pipeline](https://www.nature.com/articles/nmeth.3869#methods). This reduces samples down to unique ASV (amplicon sequence variants) within the learned error limits.
+  9. Permforms the dada2 function `mergePairs` which merges the R1 and R2 unique reads into a single sequence
+  10. Performs the dada2 function `removeBimeraDenovo` with the parameters `method="consensus"` to remove chimeric sequences.
+  11. Produces an outfile in the "reports" directory tracking how many reads were retained for each sample at each of steps 5-10. This will only include samples that had >0 reads retained after filtering.
+  12. Produces a raw ASV table with read counts for each sample at each ASV and ouptuts it in your results_tables directory in your project folder.
+  13. Filters ASVs per sample: sets a relative read abundance (RRA) cutoff, default is 0.001 (0.1%). For each sample, multiplies total reads in that sample by the RRA cutoff to get the real_cutoff (so for a sample with 10,000 reads total across any number of ASVs, the real_cutoff would be 10,000*0.001=10). Outputs a file for each sample called sample_seqs.txt in your `gene_dada_out` directory in your project folder. The file contains all sequences with greater than real_cutoff reads. It is a two-column comma-separated file, column 1 contains sequences, column 2 contains reads.
+
+The end result of this part of each of the scripts are a raw ASV table (rows are all valid, non-chimeric ASVs, no filtering, columns are samples, values are read counts), and a per-sample sample_seqs.txt file that contains all ASVs
+
+What happens next in the scripts depends on your inputs. There are a few options that define the way the program makes decisions:
+
+**What the Arguments Do**
+
+*cutoff=97: This is an important cutoff. This is the percent identity (pident or %ident in BLAST) that the program will use as its cutoff for a "good" hit. This cutoff should depend on your system and your gene, but is generally between 97-99. This value **must* be an integer.
+
+return_low=TRUE/FALSE: If not hits above cutoff% pident are available, should the program return the top hit? If TRUE, returns best hit according to the "score_pident" argument. If FALSE, returns "No Hit" for that sequence.
+
+*local=TRUE/FALSE: If you select TRUE, you use your local reference database to perform BLAST and assess hits. This is the recommended method. It is faster and more tailored to your system. You will likely obtain higher resolution and more accurate assignments with a well-curated local reference database than with remote BLAST. If you select FALSE, you use the `-remote` function of `ncbi-blast` to perform remote BLAST rather than using a local database.
+
+score_pident="bitscore"/"pident"/"raw_score": If you select this option, the program will assess BLAST hits differently.
+  * "bitscore":
+
+#FAQ
 **What if I want my database to include every organism available for X gene?**
 
 This pipeline is for limited-taxa reference databases or remote querying of NCBI. It is not designed to manage the curation of a large database that includes, say, all inverts with COI sequences in NCBI. If you want a larger database, consider using another reference database building tool, for instance [RESCRIPt](https://github.com/bokulich-lab/RESCRIPt) or [bcDatabaser](https://bcdatabaser.molecular.eco/). This pipeline is being actively developed to better improve performance with other databases. Any FASTA file that contains unique sequences each with a valid NCBI accession will work in step 2 of the pipeline, but runtimes for step 2 will be very long for huge databases (>1000 taxa).
@@ -23,6 +117,7 @@ Sure, that's fine, start the pipeline at step 3 and then run the step_4_remote_b
 
 **This pipeline is not designed for microbial metagenomics at 16S**. I say this because there is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
 
+#Installation and Usage
 ## Inputs and Preparation
 
 ### Inputs
