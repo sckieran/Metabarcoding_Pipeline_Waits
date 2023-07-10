@@ -9,6 +9,7 @@ option_list <- list(make_option(c('-d','--directory'), action='store', type='cha
                     make_option(c('-p','--pattern1'), action='store', type='character', default="_R1.fastq", help='pattern for naming your R1 files, default is _R1.fastq'),
                     make_option(c('-q','--pattern2'), action='store', type='character', default="_R2.fastq", help='pattern for naming your R2 files, default is _R2.fastq'),
                     make_option(c('-n','--name'), action='store', type='character', default="your_project", help='prefix for naming your outfiles. default is "your_project"'),
+		    make_option(c('-z','--rlib'), action='store', type='character', default="~/Rpackages", help='r library path'),
 		    make_option(c('-k','--num_graphs'), action='store', type='integer', default=24, help='prefix for naming your outfiles. default is 24') 
             )
 opt <- parse_args(OptionParser(option_list = option_list))
