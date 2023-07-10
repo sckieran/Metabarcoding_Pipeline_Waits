@@ -1,13 +1,14 @@
 # Waits Lab Metabarcoding Training Pipeline
 Shannon Blair 2023
 
-##Overview of Pipeline##
+## Overview of Pipeline
+
 A rough pipeline and tutorial to analyze metabarcoding data using dada2 with a limited local reference database. It is intended to be an analysis guide for students working on their own projects.
 
 
 This pipeline assumes reasonably good resolution of locus data and is designed as a "first pass" at your metabarcoding data, not a finished product. The way this pipeline assesses BLAST hits is both **naive and conservative**. If more than one equally-likely BLAST hit is available (judged by percent identity), it will attempt to assign taxonomy to each hit using the output of ncbitax2lin, then walk up the taxonomy tree until it finds a consensus rank. If no consensus is available at the phylum level, it calls a "no-hit". Therefore **this pipeline only works with reference libraries made using this pipeline.** However, you can use your own FASTAs as input to step 2 of this pipeline if you want to skip querying rentrez, as long as each sequence in that FASTA begins with a header line in the format >[Valid NCBI Accession Number]. 
 
-###Step One: Fetch FASTAs###
+### Step One: Fetch FASTAs
 
 **Scripts:**
 step_1_make_local_database.sh (head node, local runs)
@@ -25,7 +26,7 @@ This script does the following, in order:
 
 That's it for Step 1. We wanted to make sure that users had the opportunity to add their own, potentially off target samples to their databases For instance, there shouldn't be Homo Sapiens hits to trnL or other plant-specific loci, but they may still show up in your data from contamination in the sequencing lane. Similarly, the European Carp genome (Cyprinus carpio) and lots of COVID sequences are full of Illumina adapters, so including a few can help you identify primer dimers and untrimmed sequences in your data.
 
-###Step Two: Validate FASTAs and Make Ref Database###
+### Step Two: Validate FASTAs and Make Ref Database
 
 **Scripts:**
 step_2_get_scripts_from_ncbi.sh
@@ -44,7 +45,7 @@ This script does the following, in order:
 End result is a set of reference database files (10 of them, created by makeblastdb) that NCBI blast can use as a reference, along with a fasta file for each gene, all in a folder called reference_database (or a name supplied by you) inside your project folder
 
 
-###Step Three: Check the quality of your reads###
+### Step Three: Check the quality of your reads
 
 **Scripts**
 step_3_quality_check_reads.sh
@@ -100,7 +101,7 @@ return_low=TRUE/FALSE: If not hits above cutoff% pident are available, should th
 score_pident="bitscore"/"pident"/"raw_score": If you select this option, the program will assess BLAST hits differently.
   * "bitscore":
 
-#FAQ
+# FAQ
 **What if I want my database to include every organism available for X gene?**
 
 This pipeline is for limited-taxa reference databases or remote querying of NCBI. It is not designed to manage the curation of a large database that includes, say, all inverts with COI sequences in NCBI. If you want a larger database, consider using another reference database building tool, for instance [RESCRIPt](https://github.com/bokulich-lab/RESCRIPt) or [bcDatabaser](https://bcdatabaser.molecular.eco/). This pipeline is being actively developed to better improve performance with other databases. Any FASTA file that contains unique sequences each with a valid NCBI accession will work in step 2 of the pipeline, but runtimes for step 2 will be very long for huge databases (>1000 taxa).
