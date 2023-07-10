@@ -20,7 +20,7 @@ score="pident"
 local="local"
 
 
-bash ${dirr}/scripts/step_4_start.sh -d ${dir} -n ${prefix} -g ${genelist} -p ${pattern1} -q ${pattern2} -m ${params_file} -l ${localdat} -b ${rlib} -c ${cutoff} -t ${return_low} -s ${score} -x ${local}
+bash ${dirr}/scripts/step_4_start.sh -d ${dir} -n ${prefix} -g ${genelist} -p ${pattern1} -q ${pattern2} -m ${params_file} -b ${localdat} -l ${rlib} -c ${cutoff} -t ${return_low} -s ${score} -x ${local}
 
 
 
