@@ -13,5 +13,5 @@ genelist=$PWD/genelist #path to your tab-delimited gene/primer set list.
 prefix="your_project" #name, same as step 1.
 
 
-bash step_2_get_seqs_from_ncbi.sh -n ${prefix} -d ${dirr} -g ${genelist}  -h ${db_dirr} 
+bash ${dirr}/scripts/step_2_get_seqs_from_ncbi.sh -n ${prefix} -d ${dirr} -g ${genelist}  -h ${db_dirr} 
 
