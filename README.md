@@ -61,7 +61,7 @@ This script does the following, in order:
 
 The end result is a pair of PDFs for each gene called your_project_geneN_R[1-2]s_quality_profiles.pdf. You can then look at these and make decisions about your filtering parameters, I recommend following the dada2 tutorial to better understand the filtering options. Use these PDFs to fill out your params_file for step 4.
 
-###Step Four: Filter and BLAST your reads###
+### Step Four: Filter and BLAST your reads
 
 **Scripts**
 step_4_by_pident_filter_and_blast_local.sh
