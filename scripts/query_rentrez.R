@@ -53,7 +53,7 @@ for (i in 1:z) {
     accession <- extract_from_esummary(summs, "caption")
     Sys.sleep(0.1)
     temp.fasta <- entrez_fetch(db="nucleotide", id=results$ids, rettype="fasta")
-    temp.fasta <- sub("\n",paste0(" taxid=",taxid,"\n"),temp.fasta)
+    #temp.fasta <- sub("\n",paste0(" taxid=",taxid,"\n"),temp.fasta) #this adds the taxid to the first sequence. Useful later if you don't want to use taxid lookup to add id to seqs. But taxid lookup way is better and this causes weird behavior so for now i have commented it out#
     temp.data <- data.frame("taxname" = taxlist$taxname[i], "taxid" = as.character(taxid), "avail_seq"=avail_seq, "num_records"=num_avail) ##build individual dataframe.
     assign(paste0(taxlist$taxname[i],"_",colnames(genelist[y])),temp.data)
     genus=str_split_fixed(taxlist$taxname[i]," ",2)[1]
