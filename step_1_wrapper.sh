@@ -12,6 +12,6 @@ taxlist=$PWD/taxlist #full path to your list of taxa. Space-delimited, single-co
 prefix="your_project" #name for your outfiles. Outfiles will generally be named "your_project_gene1" for each gene/primer set.
 retmax=20 #maximum number of NCBI sequences to return. Recommended value is <100. 
 rlib="~/Rpackages" #your R package library path
+key="your_ncbi_api_key"
 
-
-bash ${dirr}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -d ${dirr} -g ${genelist} -t ${taxlist} -r ${retmax} -h ${db_dirr} -l ${rlib}
+bash ${dirr}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -d ${dirr} -g ${genelist} -t ${taxlist} -r ${retmax} -h ${db_dirr} -l ${rlib} -k ${key}
