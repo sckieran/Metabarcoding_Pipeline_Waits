@@ -5,7 +5,7 @@
 #SBATCH -t 1440
 #SBATCH -J step_4
 
-dir=$PWD #path to the your_project directory. If you are running this code from inside that directory (recommended), you can put $PWD here.
+dirr=$PWD #path to the your_project directory. If you are running this code from inside that directory (recommended), you can put $PWD here.
 prefix=your_project
 db_dir=reference_database #name, not path, of database directory (path will be ${dir}/${db_dir}). Default is 'reference_database'
 pattern1="_R1.fastq" #default is _R1.fastq, leave blank for default
