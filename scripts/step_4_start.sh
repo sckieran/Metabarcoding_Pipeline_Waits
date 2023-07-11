@@ -6,7 +6,7 @@ pattern2="_R2.fastq"
 params1="params_file"
 score="bitscore"
 
-while getopts ":n:g:d:m:p:q:r:l:b:s:x:" opt; do
+while getopts ":n:g:d:m:p:q:r:l:b:c:t:s:x:" opt; do
   case $opt in
     n) prefix="$OPTARG"
     ;;
