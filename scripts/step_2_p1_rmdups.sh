@@ -6,7 +6,7 @@ gene=$2
 
 filename=${prefix}_${gene}_sequence_database.fasta
 
-grep ">" $filename | sort | uniq -c | awk -F '($1 > 1)' | awk -F" " '{print $2}' > dup_fs
+grep ">" $filename | cut -d" " -f 1-5 | sort | uniq -c | awk '($1 > 1)' | awk -F" " '{print $2}' > dup_fs
 
 nl=$( wc -l dup_fs | awk '{print $1}' )
 if [[ $nl -eq 0 ]]
