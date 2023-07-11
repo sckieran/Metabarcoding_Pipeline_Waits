@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -C "ceph"
-#SBATCH -e step_2.%j.err
-#SBATCH -o step_2.%j.out
+#SBATCH -e step_3.%j.err
+#SBATCH -o step_3.%j.out
 #SBATCH -t 1440
-#SBATCH -J step_2
+#SBATCH -J step_3
 
 
 
