@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -C "ceph"
-#SBATCH -e new_step_2_slurm.%j.err
-#SBATCH -o new_step_2_slurm.%j.out
-#SBATCH -J new_step_2
+#SBATCH -e step_2_slurm.%j.err
+#SBATCH -o step_2_slurm.%j.out
+#SBATCH -J step_2
 #SBATCH -t 1440
 
 
