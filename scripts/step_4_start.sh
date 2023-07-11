@@ -150,15 +150,15 @@ do
 if [[ "$score" = "bitscore" ]] && [[ "$local" = "local" ]]
 then
 	echo "using bitscore assessment of best BLAST hits to perform local BLAST and assessment."
-	bash ${dirr}/scripts/step_4_by_score_local.sh -n ${prefix} -g ${gene} -d ${dirr} -r ${db_dirr} -b ${localdat} -c ${cutoff} -t ${return_low} -s ${score}
+	bash ${dirr}/scripts/step_4_by_score_local.sh -n ${prefix} -g ${gene} -d ${dirr} -r ${db_dirr} -c ${cutoff} -t ${return_low} -s ${score}  -b ${localdat}
 elif [[ "$score" = "pident" ]] && [[ "$local" = "local" ]]
 then
 	echo "using percent identity assessment of BLAST hits to perform local BLAST and assessment."
-	bash ${dirr}/scripts/step_4_by_pident_local.sh -n ${prefix} -g ${gene} -d ${dirr} -r ${db_dirr} -b ${localdat} -c ${cutoff} -t ${return_low} -s ${score}
+	bash ${dirr}/scripts/step_4_by_pident_local.sh -n ${prefix} -g ${gene} -d ${dirr} -r ${db_dirr} -c ${cutoff} -t ${return_low} -s ${score} -b ${localdat}
 elif [[ "${score}" = "pident" ]] && [[ "$local" = "remote" ]]
 then
 	echo "using percent identity based assessment of best BLAST hits to perform remote BLAST and assessment."
- 	bash ${dirr}/scripts/step_4_by_pident_remote.sh -n ${prefix} -g ${gene} -d ${dirr} -b ${localdat} -c ${cutoff} -t ${return_low} -s ${score}
+ 	bash ${dirr}/scripts/step_4_by_pident_remote.sh -n ${prefix} -g ${gene} -d ${dirr} -c ${cutoff} -t ${return_low} -s ${score}
 fi
 
 done < list_of_genes.txt
