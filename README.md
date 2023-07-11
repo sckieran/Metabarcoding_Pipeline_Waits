@@ -64,9 +64,9 @@ The end result is a pair of PDFs for each gene called your_project_geneN_R[1-2]s
 ### Step Four: Filter and BLAST your reads
 
 **Scripts**
-step_4_by_pident_filter_and_blast_local.sh
-step_4_by_score_filter_and_blast_local.sh
-step_4_remote.sh
+step_4_by_pident_local.sh
+step_4_by_score_local.sh
+step_4_by_pident_remote.sh
 step_4_wrapper.sh
 
 
@@ -98,8 +98,8 @@ return_low=TRUE/FALSE: If not hits above cutoff% pident are available, should th
 
 *local=TRUE/FALSE: If you select TRUE, you use your local reference database to perform BLAST and assess hits. This is the recommended method. It is faster and more tailored to your system. You will likely obtain higher resolution and more accurate assignments with a well-curated local reference database than with remote BLAST. If you select FALSE, you use the `-remote` function of `ncbi-blast` to perform remote BLAST rather than using a local database.
 
-score_pident="bitscore"/"pident"/"raw_score": If you select this option, the program will assess BLAST hits differently.
-  * "bitscore":
+score_pident="bitscore"/"pident": Depending on which option you pick, the program will evaluate BLAST hits either by 
+  * "bitscore": The 
 
 # FAQ
 **What if I want my database to include every organism available for X gene?**
