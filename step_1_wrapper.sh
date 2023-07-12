@@ -14,4 +14,6 @@ retmax=20 #maximum number of NCBI sequences to return. Recommended value is <100
 rlib="~/Rpackages" #your R package library path
 key="your_ncbi_api_key"
 
+conda activate metab_pipeline_sblair
+
 bash ${dirr}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -d ${dirr} -g ${genelist} -t ${taxlist} -r ${retmax} -h ${db_dirr} -l ${rlib} -k ${key}
