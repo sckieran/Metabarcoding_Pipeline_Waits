@@ -11,11 +11,13 @@ This pipeline assumes reasonably good resolution of locus data and is designed a
 ### Step One: Fetch FASTAs
 
 **Scripts:**
+
 step_1_wrapper.sh
 - step_1_get_seqs_for_database.sh
 - query_rentrez.R
 
 **What This Script Does:**
+
 This script does the following, in order:
 1. Parses your arguments and makes relevant output directories
 2. Executes the script query_rentrez.R, which:
@@ -30,11 +32,13 @@ That's it for Step 1. We wanted to make sure that users had the opportunity to a
 ### Step Two: Validate FASTAs and Make Ref Database
 
 **Scripts:**
+
 step_2_wrapper.sh
 - step_2_make_database.sh
 - step_2_p1_rmdups.sh
 
 **What This Script Does:**
+
 This script does the following, in order:
 1. Parses arguments and makes out directories
 2. Loops through each taxa's sequence fastas and queries Entrez to get NCBI-assigned taxids that are associated with each taxon.
@@ -50,11 +54,13 @@ End result is a set of reference database files (10 of them, created by makeblas
 ### Step Three: Check the quality of your reads
 
 **Scripts**
+
 step_3_wrapper.sh
 - step_3_quality_check_reads.sh
 - quality_check_reads_in_DADA2.R
 
 **What This Script Does**
+
 This script does the following, in order:
 1. Parses arguments and create out directories
 2. Loops over your list of genes and for each gene executes the script quality_check_reads_in_DADA2.R, which:
@@ -67,6 +73,7 @@ The end result is a pair of PDFs for each gene called your_project_geneN_R[1-2]s
 ### Step Four: Filter and BLAST your reads
 
 **Scripts**
+
 step_4_wrapper.sh
 - step_4_by_pident_local.sh
 - step_4_start.sh
@@ -77,6 +84,7 @@ step_4_wrapper.sh
 - step_3_p1_make_filt_parameters.sh
 
 **What These Scripts Do**
+
 Step 4 does the following, in order:
 1. Parses arguments and creates out directories
 2. Parses the parameter file and builds a filtering script in R with the appropriate arguments and settings.
@@ -100,15 +108,13 @@ What happens next in the scripts depends on your inputs. There are a few options
 
 **What the Arguments Do**
 
-*cutoff=97: This is an important cutoff. This is the percent identity (pident or %ident in BLAST) that the program will use as its cutoff for a "good" hit. This cutoff should depend on your system and your gene, but is generally between 97-99. This value **must* be an integer.
-
-return_low=TRUE/FALSE: If not hits above cutoff% pident are available, should the program return the top hit? If TRUE, returns best hit according to the "score_pident" argument. If FALSE, returns "No Hit" for that sequence.
-
-*local=TRUE/FALSE: If you select TRUE, you use your local reference database to perform BLAST and assess hits. This is the recommended method. It is faster and more tailored to your system. You will likely obtain higher resolution and more accurate assignments with a well-curated local reference database than with remote BLAST. If you select FALSE, you use the `-remote` function of `ncbi-blast` to perform remote BLAST rather than using a local database.
-
-score_pident="bitscore"/"pident": Depending on which option you pick, the program will evaluate BLAST hits either by assessing the bitscore or the percent identity (https://ravilabio.info/notes/bioinformatics/e-value-bitscore.html). If "bitscore", then the "top BLAST hits" are considered to be the hit(s) with the highest bitscore (ie, equally high bitscores). If "pident", then the top BLAST hits are the hits with the top percent identity, regardless of length. In both cases the program then checks the highest scoring hit(s) are against the cutoff and if `return_low` is set to FALSE, hits below that cutoff are discarded.
+* **cutoff=**97: This is an important cutoff. This is the percent identity (pident or %ident in BLAST) that the program will use as its cutoff for a "good" hit. This cutoff should depend on your system and your gene, but is generally between 97-99. This value **must* be an integer.
+* **return_low=**TRUE/FALSE: If not hits above cutoff% pident are available, should the program return the top hit? If TRUE, returns best hit according to the "score_pident" argument. If FALSE, returns "No Hit" for that sequence.
+* **local=**TRUE/FALSE: If you select TRUE, you use your local reference database to perform BLAST and assess hits. This is the recommended method. It is faster and more tailored to your system. You will likely obtain higher resolution and more accurate assignments with a well-curated local reference database than with remote BLAST. If you select FALSE, you use the `-remote` function of `ncbi-blast` to perform remote BLAST rather than using a local database.
+* **score=**"bitscore"/"pident": Depending on which option you pick, the program will evaluate BLAST hits either by assessing the bitscore or the percent identity (https://ravilabio.info/notes/bioinformatics/e-value-bitscore.html). If "bitscore", then the "top BLAST hits" are considered to be the hit(s) with the highest bitscore (ie, equally high bitscores). If "pident", then the top BLAST hits are the hits with the top percent identity, regardless of length. In both cases the program then checks the highest scoring hit(s) are against the cutoff and if `return_low` is set to FALSE, hits below that cutoff are discarded.
 
 **What the programs do next**
+
   14. Reads your user input and runs either local or remote BLAST on your combined ASV fasta. It returns a tab-formatted out-results file that includes the length, percent identity, and bitscore of every hit for every ASV. 
   15. creates a list of no-hits, as BLAST does not return data for sequences with no hit. 
   16. Adds the species and taxid to each BLAST hit.
@@ -141,7 +147,7 @@ E-values help asses likelihood of homology and are affected by database size. Th
 
 **I want to do 16S bacterial metagenomics. Is this pipeline right for me?** Probably not. There is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
 
-#Installation and Usage
+
 ## Inputs and Preparation
 
 ### Inputs
@@ -170,11 +176,14 @@ You will need
   - stringr
   - bioconductor
   - dada2 (see dadad2 installation instructions [here](https://benjjneb.github.io/dada2/dada-installation.html) for bioconductor installation of dada2, may need to remove the "version=" flag to install.
+    
 **Providing an NCBI API Key** 
+
 We strongly recommend providing Step 1 with an NCBI API key if you want to run the program on the SLURM nodes (recommended). Getting an NCBI account is free: [sign up here](https://account.ncbi.nlm.nih.gov/signup/). Once logged in, click your name in the upper right hand corner of the screen, click "Account Settings" and scroll down to the button that says "generate API key". Copy this key into the step_1_wrapper.sh script and you'll be good to go.
 
 
 **If you are using the UI RCDS cluster:**
+
 There is a good tutorial for installing r packages here: [link to RCDS](https://www.hpc.uidaho.edu/compute/Applications/R.html)
 However, you need to make one change to the tutorial: you must load the newest R module (`module load R/4.2.3`). 
 You can install your R packages wherever you'd like, but must supply the path to the scripts in the wrapper.
@@ -182,6 +191,7 @@ You can install your R packages wherever you'd like, but must supply the path to
 ### Installing the pipeline
 
 **Recommended install on the cluster:**
+
 1. make a new directory called your_project
 `mkdir your_project`
 2. move all your data files into folders called gene1,gene2...geneN for each gene/primer set you want to analyze. Move these folders into the your_project directory:
