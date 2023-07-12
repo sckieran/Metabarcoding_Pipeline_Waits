@@ -11,8 +11,9 @@ This pipeline assumes reasonably good resolution of locus data and is designed a
 ### Step One: Fetch FASTAs
 
 **Scripts:**
-step_1_make_local_database.sh (head node, local runs)
-step_1_wrapper.sh (SLURM runs)
+step_1_wrapper.sh
+- step_1_get_seqs_for_database.sh
+- query_rentrez.R
 
 **What This Script Does:**
 This script does the following, in order:
@@ -29,8 +30,9 @@ That's it for Step 1. We wanted to make sure that users had the opportunity to a
 ### Step Two: Validate FASTAs and Make Ref Database
 
 **Scripts:**
-step_2_get_scripts_from_ncbi.sh
 step_2_wrapper.sh
+- step_2_make_database.sh
+- step_2_p1_rmdups.sh
 
 **What This Script Does:**
 This script does the following, in order:
@@ -48,8 +50,9 @@ End result is a set of reference database files (10 of them, created by makeblas
 ### Step Three: Check the quality of your reads
 
 **Scripts**
-step_3_quality_check_reads.sh
 step_3_wrapper.sh
+- step_3_quality_check_reads.sh
+- quality_check_reads_in_DADA2.R
 
 **What This Script Does**
 This script does the following, in order:
@@ -64,11 +67,14 @@ The end result is a pair of PDFs for each gene called your_project_geneN_R[1-2]s
 ### Step Four: Filter and BLAST your reads
 
 **Scripts**
-step_4_by_pident_local.sh
-step_4_by_score_local.sh
-step_4_by_pident_remote.sh
 step_4_wrapper.sh
-
+- step_4_by_pident_local.sh
+- step_4_start.sh
+- step_4_by_score_local.sh
+- step_4_by_pident_remote.sh
+- filter_dada_part1.R
+- filter_dada_part2.R
+- step_3_p1_make_filt_parameters.sh
 
 **What These Scripts Do**
 Step 4 does the following, in order:
@@ -156,19 +162,22 @@ You will need
 - NCBItax2lin: [see here](https://github.com/zyxue/ncbitax2lin) used to add taxonomic information to the local reference database. Requires pip to install.
 - gnu-sed (gsed) [Installation Instructions Here](https://formulae.brew.sh/formula/gnu-sed). Nearly all unix-based computing clusters use this as the default (including UI RCDS, FARM and Barbera), but it needs to be installed on a mac and aliased to 'sed'. It can be easily installed with [homebrew](https://brew.sh/)
 - R: This pipeline was optimized for R version 4.2.3 
-- Packages required:
+  Packages required:
   - optparse
   - tidyverse
   - lubridate
   - rentrez
   - stringr
   - bioconductor
-  - dada2 (see dadad2 installation instructions [here](https://benjjneb.github.io/dada2/dada-installation.html) for bioconductor installation of dada2, may need to remove the "version=" flag to install)
+  - dada2 (see dadad2 installation instructions [here](https://benjjneb.github.io/dada2/dada-installation.html) for bioconductor installation of dada2, may need to remove the "version=" flag to install.
+**Providing an NCBI API Key** 
+We strongly recommend providing Step 1 with an NCBI API key if you want to run the program on the SLURM nodes (recommended). Getting an NCBI account is free: [sign up here](https://account.ncbi.nlm.nih.gov/signup/). Once logged in, click your name in the upper right hand corner of the screen, click "Account Settings" and scroll down to the button that says "generate API key". Copy this key into the step_1_wrapper.sh script and you'll be good to go.
+
 
 **If you are using the UI RCDS cluster:**
 There is a good tutorial for installing r packages here: [link to RCDS](https://www.hpc.uidaho.edu/compute/Applications/R.html)
 However, you need to make one change to the tutorial: you must load the newest R module (`module load R/4.2.3`). 
-You can install your R packages wherever you'd like, but must supply the path to the scripts either in the wrapper or on the command line.
+You can install your R packages wherever you'd like, but must supply the path to the scripts in the wrapper.
 
 ### Installing the pipeline
 
@@ -195,6 +204,8 @@ To maximize pipeline success, we recommend the following directory structure for
 
 
 You should avoid spaces and special characters (^,$,%,@,#,!,*) in the names of your files/folders and check for hidden characters like carriage returns (sometimes displayed as ^M or \r) in your filenames. Taxlist is only required if you're building a ref database. genelist is required. You can name your genes/loci/primer sets anything (again, avoiding spaces and special characters), but must provide a single-line, tab-separated list of the terms in a file. If you're building the local reference database, the program will automatically pull these term from the header of your gene search terms list. Your data files must be separated by gene in folders that correspond to the terms in the "genelist" file. This is even true if you only have one marker.
+
+If you simply provide a project directory (folder) containing the step 1 input files and also containing a directory called gene1 (through ...geneN) that contains your fastas, the pipeline will create the rest of the directories for you within that project directory.
 
 ## Optional: Step 1: Build a Local Reference FASTA File
 
@@ -260,23 +271,15 @@ dirr=/path/to/project/directory (can be $PWD if you're running the script from i
 db_dirr=reference_database :name, not path, of database directory]
 genelist=/path/to/genelist :the path to the file containing the gene terms
 prefix="your_project" :a name for the output files, ex. "your_project", should be the same name as step 1.
-retmax=10 [optional: leave blank for default. Default=10]. 10 the number of matches you want to return. More = a longer runtime but potentially higher diversity coverage in your FASTA files. We recommend <100 to help manage NCBI API limits.
 
+Then run:
 
-`sbatch step_1_wrapper.sh`
+`sbatch step_2_wrapper.sh` (SLURM nodes)
 
 or
 
-`bash step_1_wrapper.sh`
+`bash step_2_wrapper.sh` (zaphod, marvin, petunia, whale head nodes)
 
-**To Run on the Head Nodes**
-**Arguments/Options**
-The script requires four command line arguments:
-* -n 
-* -g t
-* -d the path to the project directory
-* -h the **name** (not path) to the output (reference database) directory you chose in step 1. Default is "reference_database".
-* -r 10 the number of matches you want to return. More = a longer runtime but potentially higher diversity coverage in your FASTA files. We recommend <100 to help manage NCBI API limits.
   
 ### Outputs
 - Directories for each gene containing the fasta files for each taxa separately, which can be deleted if you're done with them. 
