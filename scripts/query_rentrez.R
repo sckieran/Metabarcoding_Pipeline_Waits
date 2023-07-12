@@ -3,12 +3,14 @@
 ##a script to query genbank for barcodes matching a list of taxa##
 
 args = commandArgs(trailingOnly=TRUE)
+if(!require("rentrez")){
+    install.packages("rentrez")
+}
 
-library(rentrez, lib=args[2])
-library(lubridate, lib=args[2])
-library(tidyverse, lib=args[2])
-library(stringr, lib=args[2])
-library(optparse, lib=args[2])
+library(rentrez)
+library(tidyverse)
+library(stringr)
+library(optparse)
 #import your taxa and barcodes##
 ##INPUT FILE: tab-delimited list of genes, with header. Genes in columns. Rows are synonymous search terms. Taxlist: single column of taxnames, optional single column (tab delimited) for taxid
 
