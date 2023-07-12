@@ -88,6 +88,8 @@ Step 4 does the following, in order:
 
 The end result of this part of each of the scripts are a raw ASV table (rows are all valid, non-chimeric ASVs, no filtering, columns are samples, values are read counts), and a per-sample sample_seqs.txt file that contains all ASVs
 
+The program then creates a combined_ASV.fasta file, the input for your BLAST search. It does this by combining every sample's seqs.txt file and extracting the unique sequences. It assigns a unique header name (seq_00001 through seq_99999) to each ASV.
+
 What happens next in the scripts depends on your inputs. There are a few options that define the way the program makes decisions:
 
 **What the Arguments Do**
@@ -98,8 +100,18 @@ return_low=TRUE/FALSE: If not hits above cutoff% pident are available, should th
 
 *local=TRUE/FALSE: If you select TRUE, you use your local reference database to perform BLAST and assess hits. This is the recommended method. It is faster and more tailored to your system. You will likely obtain higher resolution and more accurate assignments with a well-curated local reference database than with remote BLAST. If you select FALSE, you use the `-remote` function of `ncbi-blast` to perform remote BLAST rather than using a local database.
 
-score_pident="bitscore"/"pident": Depending on which option you pick, the program will evaluate BLAST hits either by 
-  * "bitscore": The 
+score_pident="bitscore"/"pident": Depending on which option you pick, the program will evaluate BLAST hits either by assessing the bitscore or the percent identity (https://ravilabio.info/notes/bioinformatics/e-value-bitscore.html). If "bitscore", then the "top BLAST hits" are considered to be the hit(s) with the highest bitscore (ie, equally high bitscores). If "pident", then the top BLAST hits are the hits with the top percent identity, regardless of length. In both cases the program then checks the highest scoring hit(s) are against the cutoff and if `return_low` is set to FALSE, hits below that cutoff are discarded.
+
+**What the programs do next**
+  14. Reads your user input and runs either local or remote BLAST on your combined ASV fasta. It returns a tab-formatted out-results file that includes the length, percent identity, and bitscore of every hit for every ASV. 
+  15. creates a list of no-hits, as BLAST does not return data for sequences with no hit. 
+  16. Adds the species and taxid to each BLAST hit.
+  17. Makes a list of your sequences from your input fasta, and loops over that list. For each sequence, it:
+    18. Pulls every matching hit from the BLAST output
+    19. Assesses it to determine the highest scoring hit(s) (see the previous section for a description of how the program "scores" the hits)
+    20. Checks how many species are present in the highest scoring hit(s). If it is only one, the program stores the species and taxonomic information for that sequence as the "best hit". If the top BLAST hit(s) include multiple species, the program then fetches the taxonomy tree for each species among the highest scoring hits and walks up the tree, checking at each level (genus, family, class, order, phylum) whether there is taxonomic agreement among the best hits. If no agreement is found at the phylum level, the sequence is recorded as a no-hit. Otherwise, the lowest commonly-shared taxon is reported as the "best hit" for that sequence.
+  21. Once top BLAST hits have been selected for all ASVs, the program formats a best_hits.txt output file with one row per ASV.
+  22. Formats and writes the taxatable, a tab-separated txt file (parsable by excel) that contains a row for every sample/ASV that reports the sample, the ASV, the reads, and the identity, score, and taxonomic information of the best hit for that ASV.
 
 # FAQ
 **What if I want my database to include every organism available for X gene?**
@@ -115,8 +127,13 @@ That's fine, but it will add some tedioius work upfront. First, check if the spe
 
 Sure, that's fine, start the pipeline at step 3 and then run the step_4_remote_blast_option.sh or step_4_remote_wrapper.sh (for head nodes and SLURM clusters, respectively). Expect the BLAST search to take several hours depending on the number of sequences, and make sure you have a good internet connection. If running on the standalone servers/head nodes of RCDS, I recommend using `screen` for all steps, but especially step 4, so the run will continue even if your pipe breaks.
 
+**Should I use the "bitscore" or "pident" method of assessing BLAST hits?**
+See the section above for the explanation about what bitscore and % identity are, and how the program uses them. The answer overall depends on your locus, its resolution, and the taxa in your ref database. For most datasets, bitscore is probably the best option. However, because the program only considers the hits with the single highest bitscore value, many nearly-equally-good hits may be hiding behind slightly-different bitscores. These bitscores may be different because of query cover differences of only a couple of base pairs. For high-quality datasets and loci with generally high resolution, choosing the pident option is generally going to be more conservative and recover fewer species-level hits than choosing bitscore. I encourage you to try both options and compare the results - overall they will likely be very similar, the differences in pident and bitscore will be seen mostly in edge cases.
 
-**This pipeline is not designed for microbial metagenomics at 16S**. I say this because there is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
+**Why doesn't this pipeline use e-value instead of bitscore or pident?**
+E-values help asses likelihood of homology and are affected by database size. The conserved regions of metabarcoding primers almost guarantee homology above any standard e-value cutoff, and these databases are generally small, so e-values are high across the board.
+
+**I want to do 16S bacterial metagenomics. Is this pipeline right for me?** Probably not. There is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
 
 #Installation and Usage
 ## Inputs and Preparation
@@ -195,28 +212,26 @@ We recommend a local reference database to improve the accuracy of detections. F
 
 
 ### Usage
-**Cluster Usage**
-To use this script on the RCDS 44 cluster, edit the step_1_wrapper.sh file to include your relevant project names and paths. To specify your current working directory  as your project directory, you can use $PWD. For example, in the wrapper, `dirr=$PWD` would tell the script to use your current directory as the project directory. Similarly, `genelist=$PWD/genelist` will tell the script to look for a file called "genelist" in your current directory.
+**Usage**
+Edit the step_1_wrapper.sh file using a text editor like `nano` or `emacs` (NOT MS WORD) to include your relevant project names and paths. To specify your current working directory  as your project directory, you can use $PWD. For example, in the wrapper, `dirr=$PWD` would tell the script to use your current directory as the project directory. Similarly, `genelist=$PWD/genelist` will tell the script to look for a file called "genelist" in your current directory.
+
+Options in the wrapper:
+dirr=$PWD :full path to your_project directory. If you're running this code from inside this folder (recommended), you can use $PWD here.
+db_dirr=reference_database :name (not path) to the out directory for your reference database. Default is "reference_database". Path is ${dirr}/reference_database.
+genelist=$PWD/genelist :full path to your tab-delimited list of gene/primer set search terms.
+taxlist=$PWD/taxlist :full path to your list of taxa. Space-delimited, single-column, header must be called "taxnames"
+prefix="your_project" :name for your outfiles. Outfiles will generally be named "your_project_gene1" for each gene/primer set.
+retmax=20 :maximum number of NCBI sequences to return. Recommended value is <100. 
+rlib="~/Rpackages" :your R package library path
+key="your_ncbi_api_key" : If you are running this on a cluster, we strongly recommend getting an NCBI API key because rate-limiting doesn't always work. They are free. Simply sign up (https://account.ncbi.nlm.nih.gov/signup) and navigate to >Account Settings. Click "generate API key" and put that code into this space.
 
 Then run
-`sbatch step_1_wrapper.sh`
+`sbatch step_1_wrapper.sh` (for the SLURM node fortyfive)
 
-Make sure the step_1_wrapper, and the step_1.sh script are both in your directory.
+or
 
-**to run on a head node**
+`bash step_1_wrapper.sh` (for the head nodes like zaphod)
 
-**Arguments/Options**
-The script requires four command line arguments:
-* -n a name for the output files, ex. "your_project"
-* -t the path to the file containing a list of taxa
-* -g the path to the file containing the gene terms
-* -d the path to your project directory
-* -h the **name** (not path) you want to give to your output directory. Path with be /project_directory/output_directory. Default is "reference_database".
-
-**Optional Arguments:**
-* -r (retmax) maximum number of search records to return. Default 10. Setting this value very high (>50) may cause problems with the rentrez search and will probably add off-target sequences (wrong gene more likely than wrong organism) to your database. I recommend getting an NCBI API key for large databases, see [the rentrez tutorial](https://cran.r-project.org/web/packages/rentrez/vignettes/rentrez_tutorial.html#rate-limiting-and-api-keys) for more info.
-  
-`bash step_0_make_local_database.sh -n your_name -t /path/to/taxfile -g /path/to/genefile -d /path/to/outputdir -r 10 -c sep -r ~/Rpackages`
 
 ### Output
 
@@ -238,23 +253,27 @@ This script will grab everything in your database directory called *_gene1_seque
 
 ### Usage
 
-**Cluster usage**
+**Usage**
 Fill in the blanks in the step_2_wrapper.sh script, including the path to your project directory and the **name** (not path) of the reference_database directory you chose. This directory must be nested inside your project directory, and it must contain at least 1 fasta file with the name scheme *_gene1_sequences.fasta for gene1...geneN.
 
 dirr=/path/to/project/directory (can be $PWD if you're running the script from inside the project directory)
-db_dirr=reference_database [name, not path, of database directory]
-genelist=/path/to/genelist 
-taxlist=/path/to/taxlist
-prefix="your_project"
-retmax=10 [optional: leave blank for default. Default=10].
+db_dirr=reference_database :name, not path, of database directory]
+genelist=/path/to/genelist :the path to the file containing the gene terms
+prefix="your_project" :a name for the output files, ex. "your_project", should be the same name as step 1.
+retmax=10 [optional: leave blank for default. Default=10]. 10 the number of matches you want to return. More = a longer runtime but potentially higher diversity coverage in your FASTA files. We recommend <100 to help manage NCBI API limits.
+
 
 `sbatch step_1_wrapper.sh`
+
+or
+
+`bash step_1_wrapper.sh`
 
 **To Run on the Head Nodes**
 **Arguments/Options**
 The script requires four command line arguments:
-* -n a name for the output files, ex. "your_project", should be the same name as step 1.
-* -g the path to the file containing the gene terms
+* -n 
+* -g t
 * -d the path to the project directory
 * -h the **name** (not path) to the output (reference database) directory you chose in step 1. Default is "reference_database".
 * -r 10 the number of matches you want to return. More = a longer runtime but potentially higher diversity coverage in your FASTA files. We recommend <100 to help manage NCBI API limits.
@@ -279,28 +298,20 @@ The script requires four command line arguments:
 Fill out the step_3_wrapper.sh file:
 
 `dirr=$PWD #path to your project directory. If you're running this code from inside your directory (recommended), you can set this to $PWD.
-genelist=$PWD/genelist #path to your genelist, a tab-separated single-line list of genes/primer sets that correspond to your data folders.
-prefix="your_project" #for ease of use, this should match the name you gave in Step 1.
-pattern1="_R1.fastq"
-pattern2="_R2.fastq"
-num_graphs=24 #change this based on how many quality profiles you want to look at. Adding more adds computational time to this script.`
-
+genelist=$PWD/genelist :path to your genelist, a tab-separated single-line list of genes/primer sets that correspond to your data folders.
+prefix="your_project" :for ease of use, this should match the name you gave in Step 1.
+pattern1="_R1.fastq" :the pattern for the end of your R1 files. Default is "_R1.fastq".
+pattern2="_R2.fastq" :the pattern for the ened of your R2 files. Default is "_R2.fastq".
+num_graphs=24 :change this based on how many quality profiles you want to look at. Adding more adds computational time to this script.`
+rlib="~/Rpackages" :path to your R packages
 
 then run:
 
-`sbatch step_3_wrapper.sh`
+`sbatch step_3_wrapper.sh` 
 
-**Running in the head node**
-The  program takes the following arguments:
-* -n a name for your outfiles. Should match step 1 for easiest working.
-* -g the path to the list containing your gene terms.
-* -d the directory that contains your project, probbaly the directory you're running the code from ($PWD)
-* -p the pattern for the end of your R1 files. Default is "_R1.fastq".
-* -q the pattern for th ened of your R2 files. Default is "_R2.fastq".
-* -k the number of samples you want to view quality plots for. Samples will be randomly selected . Default is 24. Increasing this value increaeses computational time.
-* -l path to your R packages library
+or 
 
-`bash step_3_quality_check_reads.sh	-n name -g genelist -d directory -p pattern1 -q pattern2 -k num_graphs -l rlib`
+`bash step_3_wrapper.sh`
 
 ### Outputs
 
@@ -331,30 +342,28 @@ It then formats and outputs a taxa table, which includes all ASVs for all sample
 **Command line Usage**
 Fill in the wrapper as with step 3. The name and directory must be the same between the steps.
 
-`dir=$PWD #path to the your_project directory. If you are running this code from inside that directory (recommended), you can put $PWD here.
-prefix=your_project
-db_dir=reference_database #name, not path, of database directory (path will be ${dir}/${db_dir}). Default is 'reference_database'
-pattern1="_R1.fastq" #default is _R1.fastq, leave blank for default
-pattern2="_R2.fastq" #default is _R2.fastq, leave blank for default
-genelist=$PWD/genelist #path to genelist
-params_file="params_file" #name of params_file prefix. All parameter filenames should start with this prefix and end with _gene1,_gene2...geneN for each gene/primer set in the genelist. Default is params_file
-localdat= #only put something here if your local database is not named "yourproject_gene_reference", which is the default for steps 1 and 2.`
+dirr=$PWD :path to the your_project directory. If you are running this code from inside that directory (recommended), you can put $PWD here.
+prefix=your_project :must use the same name as step_3
+db_dir=reference_database :name, not path, of database directory (path will be ${dir}/${db_dir}). Default is 'reference_database'
+pattern1="_R1.fastq" :default is _R1.fastq, leave blank for default
+pattern2="_R2.fastq" :default is _R2.fastq, leave blank for default
+genelist=$PWD/genelist :path to genelist
+params_file="params_file" :name of params_file prefix. All parameter filenames should start with this prefix and end with _gene1,_gene2...geneN for each gene/primer set in the genelist. Default is params_file
+localdat= :only put something here if your local database is not named "yourproject_gene_reference", which is the default for steps 1 and 2.
+rlib="~/Rpackages" :path to your Rpackages
+cutoff=98 :an integer cutoff (inclusive) for BLAST hits. hits below this are ignored if return_low is set to FALSE. 
+return_low=TRUE Options: TRUE or FALSE. Set to TRUE to return the best available BLAST hit regardless of percent identity. Set to FALSE to discard hits below your cutoff. 
+score="pident" Options: "pident" or "bitscore" only.
+local="local" Options: "local" or "remote" only. Pick "local" to use your ref database to perform local BLAST or "remote" for remote BLAST (currently only supports the "pident" method).
 
-`sbatch step_4_wrapper.sh`
+then run:
 
-**Head Node Usage**
+`sbatch step_4_wrapper.sh` (fortyfive SLURM node)
 
-The program takes the following arguments:
-* -n  'your_project' mandatory:  must be the same as your step 2 name
-* -g  'genelist' mandatory: same genelist as steps 1 and 2
-* -d  '/path/to/your/project/directory' mandatory: should be the same as steps 1 and 2
-* -m 'params_file' mandatory: just the first part of the file name, program assumes that it ends '_gene1'...'geneN' for each gene in the genelist. Default is "params_file"
-* -p 'pattern1' default: same as in step 2, default is "_R1.fastq"
-* -q 'pattern2' default: same as in step 2, default is "_R2.fastq"
-* -r name, not path to, folder that contains your reference database (and your NCBI2tax run, if you did that separately). Default is "reference_database"
-* -l path to your R packages folder
+or
 
-`bash step_4_filter_and_blast_local.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -r database_directory -b ref_database_name -l rlib`
+`bash step_4_wrapper.sh` (zaphod, marvin, whale, petunia head nodes)
+
 
 ### Outputs
 
@@ -373,91 +382,4 @@ The program takes the following arguments:
 - A file in the "reports" folder that tracks the different filtering steps taken by DADA2 and the reads per sample at each step. Only includes samples that had >0 reads pass the initial quality filter.
 - 
 Yay! You're done! Time to analyze your data in R or excel, affiliate sample names with metadata, and evaluating your parameters. Hooray!
-
-## Alternate Step 4: Filtering data, performing ASV selection, and performing REMOTE BLAST
-Very similar to regular step 4, but ignores any local database and performs remote blast. Remote BLAST is very slow for large #s of sequences, so be prepared to wait. This script is currently being tested, and may be revised to make it easier to BLAST large numbers of sequences.
-
-### Inputs
-- Your sequence data files in folders labeled 'gene1'...'geneN'
-- A params_file for each gene, called params_file_gene1...params_file_geneN. You can specify the 'params_file' part of the name.
-
-### Usage
-
-**Command line Usage**
-Fill in the wrapper as with step 4 local. The name and directory must be the same between the steps. If you've done an NCBItax2lin run, put the output in your project directory.
-
-`sbatch step_4_remote_wrapper.sh`
-
-**Head Node Usage**
-
-The program takes the following arguments:
-* -n  'your_project' mandatory:  must be the same as your step 2 name
-* -g  'genelist' mandatory: same genelist as steps 1 and 2
-* -d  '/path/to/your/project/directory' mandatory: should be the same as steps 1 and 2
-* -m 'params_file' mandatory: just the first part of the file name, program assumes that it ends '_gene1'...'geneN' for each gene in the genelist. Default is "params_file"
-* -p 'pattern1' default: same as in step 2, default is "_R1.fastq"
-* -q 'pattern2' default: same as in step 2, default is "_R2.fastq"
-* -l path to your R package library
-
-`bash step_3_filter_and_blast.sh -n name -g genelist -d project_directory -m params_file_prefix -p pattern1 -q pattern2 -l rlib
-
-### Outputs
-
-- A folder in your project_directory called "gene1_dada_out" for gene1...geneN. Within that:
-    - A folder called "subsampled" containing your subsampled reads for improving error rate estimation time.
-    - A folder called "filtered" containing your filtered reads. Altered based on your input to the params file
-    - A folder called "sample_seqfiles" containing your _seqs.txt file of unique ASVs and read counts for each sample
-    - your_project_gene1_combined_ASVs.fasta, a fasta containing every unique ASV that passed the dada2 filters for any sample, this is the input to blast. Sequences are named seq_1...seq_n.
-    - your_project_gene_remote_blast_out, the raw output of the blastn. Contains every hit, the seq ID, the subject accession number, identity and length. Does not report no hits, which are inferred at a later step.
-    - your_project_gene_remote_blast_out_with_tax, the raw blast output that adds taxonomy to each blast hit
-    - your_project_remote_best_blast_hits.txt a file that has one row for each input sequence (seq_1...seq_n), reporting the best blast hit based on the taxonomic assesment done by this script.
-    - your ncbi taxonomy files
-- A folder in your project_directory called "results_tables", which includes:
-  - a taxa table with every unique ASV reported for every sample, with read count, identity, and taxonomic information
-  - a raw ASV table that has each unique ASV (unfiltered for RRA) and read count per sample. Pre-blast, so no taxa information.
-- A file in the "reports" folder that tracks the different filtering steps taken by DADA2 and the reads per sample at each step. Only includes samples that had >0 reads pass the initial quality filter.
-
-
-## Optional: Step 5: Re-run low % hits with NCBI remote BLAST
-
-If your local database is too small or doesn't contain enough contaminant breadth, it might be useful to remotely blast your worst hits (those with low percent identity). That will help you understand if there's more data you can extract from this dataset. This optional step takes an identity percent threshold cutoff you provide, extracts sequences whose **best** BLAST hit in your local database was lower than your cutoff (not inclusive), and re-runs those samples with remote blast. This is time consuming for a large number of sequences. Future updates to this script may improve the remote blast processing time by chunking the sequences, but this is only a workaround - the NCBI API controls the rate at which sequences are BLASTed.
-
-The outputs are a new taxatable with only the remote hits, a new remote_best_hits.txt file with your best hits, and a file called local_vs_remote_best_hits.txt which compares the identity and taxa of the best hits for each sequence with a best local hit below your cutoff.
-
-### Inputs
-
-- Your genelist from step 4
-- Your _seqs.txt files, the script will look for them in the ./sample_seqfiles folder.
-
-### Usage
-
-**Command Line Usage** 
-Fill out the wrapper as before:
-dirr=/path/to/your/project same as in previous steps
-genelist=/path/to/your/genelist must be the same as in step 4
-prefix=your_project must be the same as in step 4
-cutoff=98 must be numeric, must provide some input (no default). Leaving blank will BLAST all sequences but also might produce unexpected behavior. Value is non-inclusive (ie, cutoff-98 will extract sequences with % identity match of 0-97.9%)
-rlib="~/path/to/rpackages"
-
-`sbatch step_5_wrapper.sh`
-
-**Head Node Usage**
-
-This program takes the following arguments:
-* -n your_project #must be the same as step 4
-* -g /path/to/your/genelist #must be the same as step 4
-* -d /path/to/your/project/directory #must be the same as step 4
-* -c cutoff #numeric, non-inclusive percent identity cutoff. Samples with values less than $cutoff will be re-run with remote BLAST.
-* -l /path/to/Rpackages/
-
-`bash step_5_add_remote_blast.sh -n your_project -g genelist -d /your/project -c cutoff -l /path/to/rPackages/`
-
-### Outputs
-
-- remote taxatable and best_remote_blast_hits.txt in your results_tables directory
-- comparative blast hit tab-delimited table for the best hit of each re-run sequence with fields sequence, %identity-local, %identity-remote, taxa-local and taxa-remote/
-
-
-
-
 
