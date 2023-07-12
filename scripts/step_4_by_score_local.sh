@@ -24,8 +24,6 @@ while getopts ":n:g:d:r:b:c:t:s:" opt; do
     esac
 done
 
-module load R/4.2.3
-module load ncbi-blast
 
 
 	cd ${dirr}/${gene}_dada_out
