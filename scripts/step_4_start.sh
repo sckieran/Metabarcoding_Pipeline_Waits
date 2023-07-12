@@ -75,13 +75,13 @@ do
  	#build your filtering parameters based on your params_file
  	bash ${dirr}/scripts/step_3_p1_make_filt_parameters.sh ${params}
 	cat ${dirr}/scripts/filter_dada_part1.R filtline ${dirr}/scripts/filter_dada_part2.R > ${dirr}/scripts/filter_and_process_dada.R
-	rm filtcomm filtline
+	rm filtercomm filtline
 	
  	##this script will randomly subsample 50 of your samples down to the first 100k reads to speed up the error learning process. This is because the Rscript was throwing an unusual error that I think is related to the very large processing needs of learnerrors when it uses very large files.
 	mkdir -p ${dirr}/${gene}_dada_out/subsampled ${dirr}/results_tables
 	#this script will take a params file that contains your gene name and filtering parameters you provide it to process your reads through dada2.
 	echo "starting the dada process for ${gene}"
-	
+	 x=1; while [[ $x -le 50 ]] do; echo "${p}	${q}" >> ${dirr}/${gene}_dada_out/filtered/sl2; x=$(( $x + 1 )); done
  	Rscript ${dirr}/scripts/filter_and_process_dada.R -z ${rlib} -d ${project_dir} -g ${gene} -p ${pattern1} -q ${pattern2} -n ${prefix} -e ${rra_cutoff} -m ${multi}
 
 	cd ${gene}_dada_out
