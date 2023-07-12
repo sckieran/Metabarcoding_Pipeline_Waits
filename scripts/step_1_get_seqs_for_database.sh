@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 
+conda activate metab_pipeline_sblair
 
 while getopts ":n:t:g:d:r:h:l:k:" opt; do
   case $opt in
@@ -36,8 +37,6 @@ db_dirr=reference_database
 fi
 mkdir -p $db_dirr
 
-module load R/4.2.3
-module load ncbi-blast
 #run rentrez#
 Rscript ${dirr}/scripts/query_rentrez.R -z ${rlib} -n $prefix -t $taxlist -g $genelist -d ${dirr}/$db_dirr -r $retmax -k $key
 
