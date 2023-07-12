@@ -24,9 +24,6 @@ while getopts ":n:g:d:r:b:c:t:s:" opt; do
     esac
 done
 
-module load R/4.2.3
-module load ncbi-blast
-
 
 	cd ${dirr}/${gene}_dada_out
 	ncbi=$( ls ncbi*.csv | head -n1 | awk '{print $1}')
@@ -279,9 +276,13 @@ module load ncbi-blast
 						echo "${st}	${top_score}	0" >> ${prefix}_${gene}_best_blast_hits.out	
 					fi
 				else
-					echo "found BLAST hit(s) with ${cutoff}% id or higher, but at below highest score. Reporting both real and top score along with identity."
+					echo "found BLAST hit(s) with ${cutoff}% id or higher, but at below highest score. Limiting hits to above match_length_cutoff and reporting both real and top score along with identity."
 					id=$(cut -f3 temp_seq | sort -nr | head -n1 | awk '{print $1}')
-					grep "${id}	" temp_seq > temp_choose ##pull all the matches with the top score # for a sequence into a new file##
+     					qlen=$(grep -w -A1 "${p}" ${prefix}_${gene}_combined_ASVs.fasta | tail -n1 | wc -c | awk '{print $1}')
+	  				plen= $(( $qlen / 100 ))
+       					passlen=$(( $plen * 75 ))
+					grep "${id}	" temp_seq > temp_choose3 ##pull all the matches with the top indentity for a sequence into a new file##
+     					awk -v c=${passlen} -v OFS='\t' '( $4 >= c )' temp_choose3 > temp_choose
 					spec_number=$(cut -f5 temp_choose | sort | uniq | wc -l | awk '{print $1}') ##how many species are in the equally good hits? If one, pull that and call the hit. if more than one, then go to next.##
 					if [[ $spec_number -eq 1 ]]
 					then
