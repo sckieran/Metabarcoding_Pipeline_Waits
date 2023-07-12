@@ -12,17 +12,15 @@ filtRs <- file.path(filtpath, filtRs_list)
 sample.names <- sapply(strsplit(basename(filtFs_list),"_F_filt.fastq"),`[`,1)
 setwd(filtpath)
 system("ls *_F_filt.fastq | shuf -n50 > sublist")
-setwd(filtpath)
-system("ls *_F_filt.fastq | shuf -n50 > sublist")
 system("paste sublist sl2 > sub2")
 system("while read k; do base=$(echo ${k} | cut -f1 | awk -F\"_F_filt.fastq\" '{print $1}'); echo \"subsampling $base\"; p1=$(echo ${k} | awk '{print $2}'); p2=$(echo ${k} | awk '{print $3}'); head -n400000 ${base}_F_filt.fastq > ../subsampled/${base}_sub${p1}; head -n400000 ${base}_R_filt.fastq > ../subsampled/${base}_sub${p2}; done < sub2")
 subFs<- sort(list.files(subpath, pattern=paste0("_sub",opt$pattern1), full.names = TRUE))
 subRs<- sort(list.files(subpath, pattern=paste0("_sub",opt$pattern2), full.names = TRUE))
 write("learning error rates", stdout())
-
+setwd(subpath)
 errF <- learnErrors(subFs, multithread=opt$multithread) #learning error rates
 errR <- learnErrors(subRs, multithread=opt$multithread)
-
+setwd(filtpath)
 
 ##performing the dada function###
 write("now performing dada function")
