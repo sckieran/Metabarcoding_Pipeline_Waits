@@ -16,9 +16,9 @@ option_list <- list(make_option(c('-d','--directory'), action='store', type='cha
 opt <- parse_args(OptionParser(option_list = option_list))
 
 setwd(opt$directory) ##set a directory that contains your filenames
-path <- paste0(opt$directory,opt$gene)  ##this is the path, likely it will be identical to your working directory.
+path <- paste0(opt$directory,"/",opt$gene)  ##this is the path, likely it will be identical to your working directory.
 
-outpath <- paste0(opt$directory,opt$gene,"_dada_out")
+outpath <- paste0(opt$directory,"/",opt$gene,"_dada_out")
 subpath <- paste0(outpath,"/subsampled")
 list.files(path) ##make a list of all the files in your path
 write(paste0("path to data files is, ",path),stdout())
