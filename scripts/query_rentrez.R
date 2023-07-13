@@ -17,7 +17,7 @@ option_list <- list(make_option(c('-t','--taxfile'), action='store', type='chara
                     make_option(c('-d','--directory'), action='store', type='character', default="~", help='full path to output directory'),
                     make_option(c('-n', '--name'), action='store', type='character', default='your_project', help='prefix for naming outfiles'),
                     make_option(c('-z','--rlib'), action='store', type='character', default="~/Rpackages", help='r library path'),
-                    make_option(c('-k','--key'), action='store', type='numeric', default="416858084f0b7a195302d9a4cff9627e5308", help='your NCBI api key'),
+                    make_option(c('-k','--key'), action='store', type='character', default="416858084f0b7a195302d9a4cff9627e5308", help='your NCBI api key'),
                     make_option(c('-r', '--retmax'), action='store', type='integer', default=10, help='how many matching fastas to return. Recommend <100')
 )
 opt <- parse_args(OptionParser(option_list = option_list))
