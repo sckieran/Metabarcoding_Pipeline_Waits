@@ -87,7 +87,7 @@ for (i in 1:z) {
   rm(temp_gene_all)
 }
 if (length(genes) = 1 ) { 
-write.table(paste0(colnames(genelist[y]),"_all"),file=paste0(prefix,"_database_taxa_summary.txt"), row.names=FALSE, col.names=TRUE, sep="\t",quote=FALSE,eol="\n")
+write.table(paste0(colnames(genelist[1]),"_all"),file=paste0(prefix,"_database_taxa_summary.txt"), row.names=FALSE, col.names=TRUE, sep="\t",quote=FALSE,eol="\n")
 } else {
 list_of_all2 <-  mget(ls(pattern ="_all"))
 ##your whole list: each taxID has a row for each gene that includes the accession # and the number of records##
