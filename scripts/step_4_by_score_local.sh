@@ -188,7 +188,7 @@ done
 				if [[ $num_long_hits -eq 0 ]] 
 				then
 					echo "no BLAST hits of any score above ${cutoff}% identity found."
-					if [[ $return_low == "TRUE" ]]
+					if [[ $return_low = "TRUE" ]]
 					then
 						echo "because you set return_low to TRUE, finding highest score hit regardless of identity."
 						id=$(cut -f7 temp_seq | sort -nr |  head -n1 | awk '{print $1}')
@@ -283,12 +283,6 @@ done
 					fi
 				else
 					echo "found BLAST hit(s) with ${cutoff}% id or higher, but at below highest score. Limiting hits to above match_length_cutoff and reporting both real and top score along with identity."
-					id=$(cut -f3 temp_seq | sort -nr | head -n1 | awk '{print $1}')
-     					qlen=$(grep -w -A1 "${p}" ${prefix}_${gene}_combined_ASVs.fasta | tail -n1 | wc -c | awk '{print $1}')
-	  				plen= $(( $qlen / 100 ))
-       					passlen=$(( $plen * 75 ))
-					grep "${id}	" temp_seq > temp_choose3 ##pull all the matches with the top indentity for a sequence into a new file##
-     					awk -v c=${passlen} -v OFS='\t' '( $4 >= c )' temp_choose3 > temp_choose
 					spec_number=$(cut -f5 temp_choose | sort | uniq | wc -l | awk '{print $1}') ##how many species are in the equally good hits? If one, pull that and call the hit. if more than one, then go to next.##
 					if [[ $spec_number -eq 1 ]]
 					then
