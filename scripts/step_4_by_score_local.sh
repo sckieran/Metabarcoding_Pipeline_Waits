@@ -272,7 +272,7 @@ done
 						elif [[ ${spec_number} -gt 1 ]] && [[ $phylum_number -gt 1 ]]
 						then
 							echo "multiple phyla present in equally-good BLAST hits. Designating as no-hit, but reporting best score and top identity."
-							st=$( head -n1 temp_tax | awk -v OFS='\t' '{print $1,$3,"No Hit","NA","NA","NA","NA","NA"}')
+							st=$( head -n1 temp_tax | awk -v OFS='\t' '{print $1,$3,"No Hit","NA","NA","NA","NA","NA","NA"}')
 							echo "${st}	${top_score}	${top_score}" >> ${prefix}_${gene}_best_blast_hits.out
 							real_score=$(echo $lin | awk -v OFS='\t' '{print $8}')
 						fi
@@ -282,90 +282,9 @@ done
 						echo "${st}	${top_score}	0" >> ${prefix}_${gene}_best_blast_hits.out	
 					fi
 				else
-					echo "found BLAST hit(s) with ${cutoff}% id or higher, but at below highest score. Limiting hits to above match_length_cutoff and reporting both real and top score along with identity."
-					spec_number=$(cut -f5 temp_choose | sort | uniq | wc -l | awk '{print $1}') ##how many species are in the equally good hits? If one, pull that and call the hit. if more than one, then go to next.##
-					if [[ $spec_number -eq 1 ]]
-					then
-						spec=$(head -n1 temp_choose |cut -f5 | awk '{print $1,$2}') 
-						echo "one species amongst best hits. species is ${spec}."
-						ln="head -n1 temp_choose"
-						lin=$($ln)
-						st=$(echo $lin | awk -v OFS='\t' '{print $1,$3,$5" "$6,$7}')
-						real_score=$(echo $lin | awk -v OFS='\t' '{print $8}')
-						taxid=$(echo $lin | awk '{print $7}')
-						tax=$(grep -w "^${taxid}" ${ncbi}_r | awk -v OFS='\t' '{print $2,$3,$4,$5,$6}')	
-						echo "${st}	${tax}	${top_score}	${real_score}" >> ${prefix}_${gene}_best_blast_hits.out
-					else #if multiple species are present in best hits, go through each one and add the taxonomy. This is slow, and is like this because adding a taxmap to the ref database simply does not seem to work.#
-						while read z;
-						do
-							taxid=$(echo ${z} | awk '{print $7}')
-							grep -w "^${taxid}" ${ncbi}_r | cut -f2-6 >> temp_ids
-						done < temp_choose
-						paste temp_choose temp_ids > temp_tax
-						rm temp_choose temp_ids
-						gen_number=$( cut -f12 temp_tax | sort | uniq | wc -l)
-						fam_number=$( cut -f11 temp_tax | sort | uniq | wc -l)
-						order_number=$( cut -f10 temp_tax | sort | uniq | wc -l)
-						class_number=$( cut -f9 temp_tax | sort | uniq | wc -l)
-						phylum_number=$( cut -f8 temp_tax | sort | uniq | wc -l)
-					fi
-					if [[ ${spec_number} -gt 1 ]] && [[ $gen_number -eq 1 ]]
-					then
-						gen=$( cut -f12 temp_tax | sort | uniq | awk '{print $1}')
-						echo "one genus and ${spec_number} species amongst best hits. taxa is ${gen} sp."
-						ln="grep -m1 "$gen" temp_tax"
-						lin=$($ln)
-						st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
-						real_score=$(echo $lin | awk -v OFS='\t' '{print $8}')
-						tax=$(echo $lin | awk -v OFS='\t' '{print $9,$10,$11,$12,$13}')
-						echo "${st}	${gen} sp.	"NA"	${tax}	${top_score}	${real_score}" >> ${prefix}_${gene}_best_blast_hits.out
-					elif [[ ${spec_number} -gt 1 ]] && [[ $fam_number -eq 1 ]]
-					then
-						fam=$( cut -f11 temp_tax | sort | uniq | awk '{print $1}')	
-						echo "one family, ${gen_number} genera and ${spec_number} species amongst best hits. taxa is ${fam} sp."
-						ln="grep -m1 "$fam" temp_tax"
-						lin=$($ln)
-						st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
-						real_score=$(echo $lin | awk -v OFS='\t' '{print $8}')
-						tax=$(echo $lin | awk -v OFS='\t' '{print $9,$10,$11,$12,"NA"}')
-						echo "${st}	${fam} sp.	"NA"	${tax}	${top_score}	${real_score}" >> ${prefix}_${gene}_best_blast_hits.out
-					elif [[ ${spec_number} -gt 1 ]] && [[ $order_number -eq 1 ]]
-					then
-						ord=$( cut -f10 temp_tax | sort | uniq | awk '{print $1}')
-						echo "one order, ${fam_number} families, ${gen_number} genera and ${spec_number} species amongst best hits. taxa is ${ord} sp."
-						ln="grep -m1 "$ord" temp_tax"
-						lin=$($ln)
-						st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
-						real_score=$(echo $lin | awk -v OFS='\t' '{print $8}')
-						tax=$(echo $lin | awk -v OFS='\t' '{print $9,$10,$11,"NA","NA"}')
-						echo "${st}	${ord} sp.	"NA"	${tax}	${top_score}	${real_score}" >> ${prefix}_${gene}_best_blast_hits.out
-					elif [[ ${spec_number} -gt 1 ]] && [[ $class_number -eq 1 ]]
-					then
-						class=$( cut -f9 temp_tax | sort | uniq | awk '{print $1}')
-						echo "one class, ${order_number} orders, ${fam_number} families, ${gen_number} genera and ${spec_number} species amongst best hits. taxa is ${class} sp."
-						ln="grep -m1 "$class" temp_tax"
-						lin=$($ln)
-						st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
-						tax=$(echo $lin | awk -v OFS='\t' '{print $9,$10,"NA","NA","NA"}')
-						real_score=$(echo $lin | awk -v OFS='\t' '{print $8}')
-						echo "${st}	${class} sp.	"NA"	${tax}	${top_score}	${real_score}" >> ${prefix}_${gene}_best_blast_hits.out
-					elif [[ ${spec_number} -gt 1 ]] && [[ $phylum_number -eq 1 ]]
-					then
-						phylum=$( cut -f8 temp_tax | sort | uniq | awk '{print $1}')
-						echo "one phylum, ${class_number} classes, ${order_number} orders, ${fam_number} families, ${gen_number} genera and ${spec_number} species amongst best hits. taxa is ${phylum} sp."
-						ln="grep -m1 "$phylum" temp_tax"
-						lin=$($ln)
-						st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
-						tax=$(echo $lin | awk -v OFS='\t' '{print $9,"NA","NA","NA","NA"}')
-						real_score=$(echo $lin | awk -v OFS='\t' '{print $8}')
-						echo "${st}	${phylum} sp.	"NA"	${tax}	${top_score}	${real_score}" >> ${prefix}_${gene}_best_blast_hits.out
-					elif [[ ${spec_number} -gt 1 ]] && [[ $phylum_number -gt 1 ]]
-					then
-						echo "multiple phyla present in equally-good BLAST hits. Designating as no-hit, but reporting best score and top identity."
-						st=$( head -n1 temp_tax | awk -v OFS='\t' '{print $1,$3,"No Hit","NA","NA","NA","NA","NA"}')
-						echo "${st}	${top_score}	${top_score}" >> ${prefix}_${gene}_best_blast_hits.out
-						real_score=$(echo $lin | awk -v OFS='\t' '{print $8}')
-					fi
+					echo "there are blast hits above the cutoff, but not among the top hits. Designating no hit."
+     					st=$( head -n1 temp_seq | awk -v OFS='\t' '{print $1,$3,"No Hit","NA","NA","NA","NA","NA","NA"}')
+					echo "${st}	${top_score}	0" >> ${prefix}_${gene}_best_blast_hits.out	
 				fi	
 
 			fi
