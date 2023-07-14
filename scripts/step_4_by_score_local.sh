@@ -176,18 +176,9 @@ done
 				fi
 			elif [[ $top_id -lt $cutoff ]]
 			then
-				echo "top hit by score has max id% <= ${cutoff}%. Looking for higher %identity hits, potentially at lower scores."
-				awk -v d=$cutoff '( $3 > d )' temp_seq > temp_high_pident			
-    				qlen=$(grep -w -A1 "${p}" ${prefix}_${gene}_combined_ASVs.fasta | tail -n1 | wc -c | awk '{print $1}')
-	  			plen= $(( $qlen / 100 ))
-       				passlen=$(( $plen * 75 ))
-     				awk -v c=${passlen} -v OFS='\t' '( $4 >= c )' temp_high_pident > temp_choose3
-				num_hits=$( wc -l temp_high_pident |  awk '{print $1}')
-    				num_long_hits=$( wc -l temp_choose3 | awk '{print $1}')
-    				echo "there were $num_hits above your cutoff $cutoff, but only $num_long_hits had alignment lengths longer than 75% of the query length."
-				if [[ $num_long_hits -eq 0 ]] 
-				then
-					echo "no BLAST hits of any score above ${cutoff}% identity found."
+				echo "top hit by score has max id% <= ${cutoff}%. 
+				
+
 					if [[ $return_low = "TRUE" ]]
 					then
 						echo "because you set return_low to TRUE, finding highest score hit regardless of identity."
@@ -281,13 +272,8 @@ done
 						st=$( head -n1 temp_seq | awk -v OFS='\t' '{print $1,$3,"No Hit","NA","NA","NA","NA","NA","NA"}')
 						echo "${st}	${top_score}	0" >> ${prefix}_${gene}_best_blast_hits.out	
 					fi
-				else
-					echo "there are blast hits above the cutoff, but not among the top hits. Designating no hit."
-     					st=$( head -n1 temp_seq | awk -v OFS='\t' '{print $1,$3,"No Hit","NA","NA","NA","NA","NA","NA"}')
-					echo "${st}	${top_score}	0" >> ${prefix}_${gene}_best_blast_hits.out	
-				fi	
-
-			fi
+				fi
+			
 		fi
 	done < temp_seqlist
 	rm temp_seqlist
