@@ -16,7 +16,7 @@ localdat= #only put something here if your local database is not named "yourproj
 rlib="~/Rpackages" #path to your Rpackages
 cutoff=98
 return_low=TRUE
-score="pident"
+score="bitscore"
 local="local"
 
 
