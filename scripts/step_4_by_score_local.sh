@@ -249,7 +249,7 @@ done
 							st=$(echo $lin | awk -v OFS='\t' '{print $1,$3}')
 							tax=$(echo $lin | awk -v OFS='\t' '{print $9,$10,"NA","NA","NA"}')
 							real_score=$(echo $lin | awk -v OFS='\t' '{print $8}')
-							echo "${st}	${class} sp.	"NA"	${tax}	${top_score}	${ereal_score}" >> ${prefix}_${gene}_best_blast_hits.out
+							echo "${st}	${class} sp.	"NA"	${tax}	${top_score}	${real_score}" >> ${prefix}_${gene}_best_blast_hits.out
 						elif [[ ${spec_number} -gt 1 ]] && [[ $phylum_number -eq 1 ]]
 						then
 							phylum=$( cut -f8 temp_tax | sort | uniq | awk '{print $1}')
