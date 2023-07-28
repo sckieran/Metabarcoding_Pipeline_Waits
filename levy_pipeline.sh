@@ -28,14 +28,14 @@ echo "###"
 echo "now doing step one - downloading sequences for your local reference database."
 echo "###"
 
-bash step_1_get_seqs_for_database.sh -n ${prefix} -t ${taxlist} -g ${genelist} -d ${dir} -r ${retmax} -h ${db_dirr} -l ${rlib} -k ${key}
+bash ${dir}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -t ${taxlist} -g ${genelist} -d ${dir} -r ${retmax} -h ${db_dirr} -l ${rlib} -k ${key}
 
 echo "###"
 echo "###"
 echo "moving on to step 2 - making your blast database from the downloaded NCBI sequences"
 echo "###"
 
-bash step_2_make_database.sh -n ${prefix} -h ${db_dirr} -g ${genelist} -d ${dir}
+bash ${dir}/scripts/step_2_make_database.sh -n ${prefix} -h ${db_dirr} -g ${genelist} -d ${dir}
 
 echo "###"
 echo "###"
