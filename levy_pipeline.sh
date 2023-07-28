@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#SBATCH -J metab_pipe
+#SBATCH -o metab_pipe.%j.out
+#SBATCH -e metab_pipe.%j.err
+#SBATCH --mem=14G
 
 dir=$PWD
 prefix=
