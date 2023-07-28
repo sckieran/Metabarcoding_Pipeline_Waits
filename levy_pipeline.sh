@@ -1,20 +1,22 @@
 #!/bin/bash
 
 
-dir=
+dir=$PWD
 prefix=
-rlib=
-genelist=
-taxlist=
-retmax=
-db_dirr=
+rlib=~/Rpackages
+genelist=$PWD/genelist
+taxlist=$PWD/taxlist
+retmax=20
+db_dirr=reference_database
 key=
 R1_pattern=
 R2_pattern=
-extra_seqs=
-asv_rra=
-taxa_rra=
-identity_cutoff=
+#extra_seqs=
+filter=TRUE
+taxa_rra=0.005
+identity_cutoff=97
+minlen=70
+return_low=TRUE
 
 
 echo "###"
@@ -67,6 +69,21 @@ do
   echo "done making seqfiles. No RRA filtering was done, functionality coming soon. Beginning the local BLAST process"
   echo "###"
 
-  bash step_6_blast.sh
+  bash ${dir}/scripts/step_6_blast.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -r ${db_dirr} -c ${identity_cutoff} -t ${return_low}
 
-bash step_7_make_taxatable
+   echo "###"
+   echo "###"
+   echo "done with BLAST. Making raw (unfiltered) taxatable"
+   echo "###"
+   bash ${dir}/scripts/step_7_taxatable.sh ${prefix} ${gene} ${dir}
+   
+   echo "###"
+   echo "###"
+   if [[ $filter == "TRUE" ]]
+   then
+     echo "Done making raw taxatable. You chose to filter your data by relative read abundance and percent identity. Now filtering per-sample taxa at your relative read abundance cutoff of ${taxa_rra} and your identity cutoff of ${identity_cutoff}."
+     bash ${dir}/scripts/step_8_filter_data.sh ${prefix} ${gene} ${taxa_rra} ${identity_cutoff} ${dir}
+     echo "###"
+     echo "all done with ${gene}. Moving on to next gene or exiting."
+    fi
+  done < list_of_genes.txt
