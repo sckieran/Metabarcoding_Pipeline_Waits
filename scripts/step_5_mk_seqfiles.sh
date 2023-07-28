@@ -15,3 +15,4 @@ do
 done
 
 mv *_clustered.fasta ./collapsed/
+mv *_seqs.txt ./seqfiles/
