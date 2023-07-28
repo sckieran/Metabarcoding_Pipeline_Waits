@@ -34,10 +34,7 @@ if [[ -z ${localdat} ]]
 then
 	localdat=${prefix}_${gene}_reference
 fi
-if [[ -z ${db_dirr} ]]
-then
-	db_dirr=${dirr}/reference_database
-fi
+
 mkdir -p ${gene}_out 
 
 cd ${gene}_out
