@@ -10,6 +10,6 @@ dir=$5
 
 cd ${dir}/${gene}_out
 
-Rscript filter_id_taxa.R $prefix $gene $cutoff $ident
+Rscript filter_id_taxa.R ${prefix}_${gene}_taxatable.txt ${dir}/${gene}_out $prefix $gene $cutoff $ident
 
 cp ${prefix}_${gene}_filtered_taxatable.txt ${dir}/results_tables/
