@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts ":n:h:g:d:" opt; do
+while getopts ":n:h:g:d:e:" opt; do
   case $opt in
     n) prefix="$OPTARG"
     ;;
@@ -9,6 +9,8 @@ while getopts ":n:h:g:d:" opt; do
     g) genelist="$OPTARG"
     ;;
     d) dirr="$OPTARG"
+    ;;
+    e) extra="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1
@@ -24,6 +26,7 @@ fi
 module load ncbi-blast
 mkdir -p $db_dirr
 cp $genelist $db_dirr
+cp ${extra}*.fasta $db_dirr
 cd $db_dirr
 
 for fil in *_sequences.fasta
