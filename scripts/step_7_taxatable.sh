@@ -43,7 +43,8 @@ do
         ck="squeue -u ${user}"
         chck=$($ck)
         check=$(echo "$chck" | grep "ttb" | wc -l | awk '{print $1}')
-        if [[ $check -eq 0 ]];then
+        echo "there are $check jobs left"
+	if [[ $check -eq 0 ]];then
            echo "done with taxatable" 
            break
         fi 
