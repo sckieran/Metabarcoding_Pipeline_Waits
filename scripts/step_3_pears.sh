@@ -39,7 +39,7 @@ do
         sleep 30s
         ck="squeue -u ${user}"
         chck=$($ck)
-        check=$(echo "$chck" | grep "pr" | wc -l | awk '{print $1}')
+        check=$(echo "$chck" | grep "pear" | wc -l | awk '{print $1}')
         if [ "$check" = "0" ];then
            echo "done with pears" 
            break
