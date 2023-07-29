@@ -58,4 +58,5 @@ do
         fi 
 done
 
+rm pairedlist_*
 mv *_paired.assembled.fastq ./paired/
