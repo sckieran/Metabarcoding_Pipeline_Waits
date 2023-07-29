@@ -15,7 +15,7 @@ db_dirr=reference_database
 key=
 R1_pattern=
 R2_pattern=
-#extra_seqs=
+extra_seqs=
 filter=TRUE
 taxa_rra=0.005
 identity_cutoff=97
@@ -35,7 +35,7 @@ echo "###"
 echo "moving on to step 2 - making your blast database from the downloaded NCBI sequences"
 echo "###"
 
-bash ${dir}/scripts/step_2_make_database.sh -n ${prefix} -h ${db_dirr} -g ${genelist} -d ${dir}
+bash ${dir}/scripts/step_2_make_database.sh -n ${prefix} -h ${db_dirr} -g ${genelist} -d ${dir} -e ${extra_seqs}
 
 echo "###"
 echo "###"
