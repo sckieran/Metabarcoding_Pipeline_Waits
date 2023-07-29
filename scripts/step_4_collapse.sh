@@ -19,10 +19,15 @@ mv *${r2_pattern} ./unpaired/
 ls *_paired.assembled.fastq > pairedlist
 num_seqs=$( cat pairedlist | wc -l | awk '{print $1}')
 tot_per_file=$(( $num_seqs / $max_jobs ))
+if [[ ${tot_per_file} -eq 0 ]]
+then
+  tot_per_file=1
+fi
+echo "there were $num_seqs samples to pear and $tot_per_file sample(s) per job."
 
 #cut into slurm jobs for faster processing#
 x=1
-while [[ $x -lt ${max_jobs} ]]
+while [[ $x -lt ${max_jobs} ]];
 do
   if [[ -s pairedlist ]];
   then
@@ -47,7 +52,7 @@ do
         ck="squeue -u ${user}"
         chck=$($ck)
         check=$(echo $chck | grep "fx_col" | wc -l | awk '{print $1}')
-        if [ "$check" = "0" ];then
+        if [[ $check -eq 0 ]];then
            echo "done with collapsing ASVs" 
            break
         fi 
