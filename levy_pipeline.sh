@@ -54,14 +54,14 @@ do
   echo "beginning pears F/R read mergers on 4 threads for gene $p"
   echo "###"
   
-  bash ${dir}/scripts/step_3_pears.sh ${R1_pattern} ${R2_pattern} ${dir}/${gene} ${max_jobs} ${user}
+  bash ${dir}/scripts/step_3_pears.sh ${R1_pattern} ${R2_pattern} ${dir} ${max_jobs} ${user} ${gene}
  
   echo "###"
   echo "###"
   echo "done with pears merging. Now collapsing ASVs with fastx-collapser"
   echo "###"
   
-  bash ${dir}/scripts/step_4_collapse.sh ${dir}/${gene} ${pattern} ${r2_pattern}
+  bash ${dir}/scripts/step_4_collapse.sh ${dir} ${pattern} ${r2_pattern} ${max_jobs} ${user} ${gene}
 
   echo "###"
   echo "###"
@@ -81,7 +81,7 @@ do
    echo "###"
    echo "done with BLAST. Making raw (unfiltered) taxatable"
    echo "###"
-   bash ${dir}/scripts/step_7_taxatable.sh ${prefix} ${gene} ${dir}
+   bash ${dir}/scripts/step_7_taxatable.sh ${prefix} ${gene} ${dir} ${max_jobs} ${user}
    
    echo "###"
    echo "###"
