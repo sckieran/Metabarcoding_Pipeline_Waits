@@ -1,5 +1,6 @@
 args = commandArgs(trailingOnly=TRUE)
 
+library(lubridate, lib=args[7])
 library(tidyverse, lib=args[7])
 
 setwd(args[2])
