@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH -J pr_3
+#SBATCH -J pear_j
 #SBATCH -e pears.err
 #SBATCH -o pears.out
 
