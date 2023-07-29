@@ -183,7 +183,7 @@ echo "there were $num_seqs samples to pear and $tot_per_file sample(s) per job."
 	for fil in seqfile_*;
  	do
   		x=$( echo $fil | awk -F"_" '{print $2}')
-    		sbatch run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi
+    		sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi
        done
 
        while true;
