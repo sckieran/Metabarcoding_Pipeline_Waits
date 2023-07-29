@@ -9,29 +9,32 @@ gene=$6
 
 cd ${dir}/${gene}
 
-module load pear
 
 ls *${pattern} > seqlist
 num_seqs=$( cat seqlist | wc -l | awk '{print $1}')
 tot_per_file=$(( $num_seqs / $max_jobs ))
+echo "there were $num_seqs samples to pear and $tot_per_file samples per job."
 
 x=1
 while [[ $x -lt ${max_jobs} ]]
 do
   if [[ -s seqlist ]];
   then
+    echo "seqlist not empty, making seqlist_${x}
     head -n ${tot_per_file} seqlist > seqlist_${x}
     sed -i "1,${tot_per_file}d" seqlist
+    rem=$( wc -l seqlist | awk '{print $1}')
+    echo "there are $rem samples remaining in the seqlist"
     x=$(( $x + 1 ))
   else
-  x=$max_jobs
+    x=${max_jobs}
   fi
 done
 rm seqlist
 
 for fil in seqlist_*;
 do
-  sbatch ${dir}/scripts/pear.sh $fil $pattern $r2_pattern ${dir}/${gene}
+  #sbatch ${dir}/scripts/pear.sh $fil $pattern $r2_pattern ${dir}/${gene}
 done
 
 while true;
