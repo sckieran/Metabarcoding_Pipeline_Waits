@@ -53,7 +53,7 @@ do
   echo "beginning pears F/R read mergers on 4 threads for gene $p"
   echo "###"
   
-  bash ${dir}/scripts/step_3_pears.sh ${R1_pattern} ${R2_pattern} ${dir}/${gene}
+  bash ${dir}/scripts/step_3_pears.sh ${R1_pattern} ${R2_pattern} ${dir}/${gene} ${max_jobs}
  
   echo "###"
   echo "###"
