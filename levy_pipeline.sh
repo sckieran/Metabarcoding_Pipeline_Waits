@@ -15,6 +15,7 @@ db_dirr=reference_database
 key=
 R1_pattern=
 R2_pattern=
+max_jobs=
 extra_seqs=
 filter=TRUE
 taxa_rra=0.005
