@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH -J $1 
-#SBATCH -e ${1}.err
-#SBATCH -o ${1}.out
+#SBATCH -J pears
+#SBATCH -e pears.err
+#SBATCH -o pears.out
 
 infil=$1
 pattern=$2
