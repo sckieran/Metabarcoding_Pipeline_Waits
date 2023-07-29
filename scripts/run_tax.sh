@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH -j tax
+#SBATCH -J tax
 #SBATCH -e tax.err
 #SBATCH -o tax.out
 
