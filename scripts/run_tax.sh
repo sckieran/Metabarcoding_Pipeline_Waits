@@ -10,6 +10,9 @@ gene=$3
 tot=$4
 blastout=$5
 ncbi=$6
+dir=$7
+
+cd ${dir}/${gene}_out
 
 while read p;
 	do
@@ -123,7 +126,8 @@ while read p;
 					st=$( head -n1 temp_tax_${x} | awk -v OFS='\t' '{print $1,$3,"No Hit","NA","NA","NA","NA","NA"}')
 					echo "${st}	${top_score}	${num_tx}	${spec2}" >> ${prefix}_${gene}_best_blast_hits.out_${x}
 				fi
-		fi
+		fi	
+  	fi
  done < seqlist_${x}
  rm temp_*_${x} seqlist_${x}
  echo "job seqlist_${x} is done"
