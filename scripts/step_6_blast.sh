@@ -186,7 +186,8 @@ echo "there were $tot samples to pear and $tot_per_file sample(s) per job."
 
        while true;
 	do
-       	 ck="squeue -u ${user}"
+       	 sleep 10s
+	 ck="squeue -u ${user}"
 	 chck=$($ck)
   	 check=$(echo "$chck" | grep "tax" | wc -l | awk '{print $1}')
 	 echo "waiting for jobs to run. There are $check jobs left"
