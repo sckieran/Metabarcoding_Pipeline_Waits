@@ -26,7 +26,7 @@ do
   echo "x is $x and max_jobs is $max_jobs"
   if [[ -s seqlist ]];
   then
-    echo "seqlist not empty, making seqlist_${x}
+    echo "seqlist not empty, making seqlist_${x}"
     head -n ${tot_per_file} seqlist > seqlist_${x}
     sed -i "1,${tot_per_file}d" seqlist
     rem=$( wc -l seqlist | awk '{print $1}')
