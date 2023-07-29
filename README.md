@@ -1,5 +1,5 @@
 # Waits Lab Metabarcoding Training Pipeline
-Shannon Blair 2023
+Shannon Kieran Blair 2023
 
 ## Overview of Pipeline
 
@@ -311,5 +311,5 @@ filter_id_taxa.R
 7. Re-builds the taxatable to include all samples
 8. Produces outfile your_project_filtered_taxatable.txt and cleans up outfiles.
 
-
+This step runs in sequence rather than by submitting jobs. It is usually pretty quick. 200 samples and 61k unique sequences takes about 4 minutes on the RCDS cluster.
 
