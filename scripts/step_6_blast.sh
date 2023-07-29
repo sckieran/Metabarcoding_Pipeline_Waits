@@ -104,9 +104,15 @@ cd ${dirr}/${gene}_out
 	ncbi=$( ls ncbi*.csv | head -n1 | awk '{print $1}')
 	echo "now doing local blast search, this may take many hours. You have $n sequences to align. You can check your progress in the ${gene}_out folder with the command: tail ${prefix}_${gene}_raw_blast_out"
 	echo "localdat is $localdat, prefix is $prefix"
-	blastn -db ${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out
 
-
+ 	if [[ ${return_low} == "TRUE" ]]
+  	then
+		echo "you set return_low to TRUE, so BLAST will return the top bitscore matches regardless of percent identity."
+  		blastn -db ${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out
+	else
+ 		echo "you set return_low to FALSE, or did not enter a valid TRUE/FALSE value, so BLAST will only return hits above %{cutoff} percent identity, regardless of score."
+		blastn -db ${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff}
+  	fi
 	blastout=${prefix}_${gene}_raw_blast_out
 	sed -i '/^#/d' $blastout
 	echo "blast done, making outfiles"
