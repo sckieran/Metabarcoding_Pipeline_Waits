@@ -19,7 +19,7 @@ mv *${r2_pattern} ./unpaired/
 ls *_paired.assembled.fastq > pairedlist
 num_seqs=$( cat pairedlist | wc -l | awk '{print $1}')
 tot_per_file=$(( $num_seqs / $max_jobs ))
-if [[ ${tot_per_file} -eq 0 ]]
+if [[ ${tot_per_file} -eq 0 ]];
 then
   tot_per_file=1
 fi
