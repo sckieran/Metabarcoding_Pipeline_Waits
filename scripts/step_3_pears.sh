@@ -50,7 +50,7 @@ do
         ck="squeue -u ${user}"
         chck=$($ck)
         check=$(echo "$chck" | grep "pear" | wc -l | awk '{print $1}')
-        if [ "$check" = "0" ];then
+        if [[ $check -eq 0 ]];then
            echo "done with pears" 
            break
         fi 
