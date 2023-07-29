@@ -4,6 +4,7 @@ pattern=$1
 r2_pattern=$2
 dir=$3
 max_jobs=$4
+user=$4
 
 cd ${dir}
 
@@ -32,4 +33,14 @@ do
   sbatch ${dir}/scripts/pear.sh $fil $pattern $r2_pattern $dir
 done
 
-
+while true;
+do
+        sleep 30s
+        ck="squeue -u ${user}"
+        chck=$($ck)
+        check=$(echo $chck | grep "^pr" | wc -l | awk '{print $1}')
+        if [ "$check" = "0" ];then
+           echo "done with pears" 
+           break
+        fi 
+done
