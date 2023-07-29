@@ -33,8 +33,8 @@ rm samplist
 
 for fil in samplist_*
 do
-	echo "making taxtable, doing samplist_${x}"
-	sbatch ${dirr}/scripts/run_ttb.sh samplist_${x} $dirr $gene $prefix
+	echo "making taxtable, doing $fil"
+	sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix
 done
 
 while true;
