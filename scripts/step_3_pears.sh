@@ -8,12 +8,12 @@ cd ${dir}
 
 module load pear
 
-for fil in *_${pattern};
+for fil in *${pattern};
 do
   base=$(echo $fil | awk -F"$pattern" '{print $1}')
-  pear -f ${fil} -r ${base}_${r2_pattern} -o ${base}_paired -j 4
+  pear -f ${fil} -r ${base}${r2_pattern} -o ${base}_paired -j 4
 done
 
 mkdir -p unpaired paired collapsed seqfiles
-mv *_${pattern} ./unpaired/
-mv *_${r2_pattern} ./unpaired/
+mv *${pattern} ./unpaired/
+mv *${r2_pattern} ./unpaired/
