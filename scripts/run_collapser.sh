@@ -4,6 +4,8 @@
 #SBATCH -e fastx-collapse.err
 #SBATCH -o fastx-collapse.out
 
+module load fastx
+
 infil=$1
 dir=$2
 
