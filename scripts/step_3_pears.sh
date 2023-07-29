@@ -16,7 +16,7 @@ tot_per_file=$(( $num_seqs / $max_jobs ))
 x=1
 while [[ $x -lt ${max_jobs} ]]
 do
-  if [[ -s diff seqlist ]]
+  if [[ -s seqlist ]];
   then
     head -n ${tot_per_file} seqlist > seqlist_${x}
     sed -i "1,${tot_per_file}d" seqlist
