@@ -74,7 +74,6 @@ do
 	then
 		echo ">seq_0${x}" >> ${prefix}_${gene}_headers
 		x=$(( $x + 1 ))
-	fi
 	elif [[ $x -ge 100000 ]]
 	then
 		echo ">seq_${x}" >> ${prefix}_${gene}_headers
