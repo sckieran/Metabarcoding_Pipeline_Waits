@@ -37,7 +37,12 @@ do
 	while read p; #for each sequence in each fasta, query NCBI's taxid lookup to get taxid, and attach it to the end of the sequence title.
 	do
  		taxid=$( curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${p}&rettype=fasta&retmode=xml" | grep TSeq_taxid | cut -d '>' -f 2 | cut -d '<' -f 1 | tr -d "\n" | awk '{print $1}')
-  		sed -i "/${p}/ s/$/\ttaxid=${taxid}/" $fil
+  		if [[ -z $taxid ]]
+    		then
+      			sed -i "/${p}/ s/$/\ttaxid=${taxid}/" $fil
+		else
+  			echo "no taxid for accession $p"
+     		fi
 	done < temp_lines
 done
 rm temp_lines
