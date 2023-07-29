@@ -1,6 +1,6 @@
-library(dplyr)
-
 args = commandArgs(trailingOnly=TRUE)
+
+library(tidyverse, lib=args[7])
 
 setwd(args[2])
 
