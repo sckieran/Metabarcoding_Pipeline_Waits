@@ -61,7 +61,7 @@ do
   echo "done with pears merging. Now collapsing ASVs with fastx-collapser"
   echo "###"
   
-  bash ${dir}/scripts/step_4_collapse.sh ${dir} ${pattern} ${r2_pattern} ${max_jobs} ${user} ${gene}
+  bash ${dir}/scripts/step_4_collapse.sh ${dir} ${R1_pattern} ${R2_pattern} ${max_jobs} ${user} ${gene}
 
   echo "###"
   echo "###"
