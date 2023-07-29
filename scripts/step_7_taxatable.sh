@@ -10,8 +10,13 @@ echo "sample	sequence	reads	identity	taxa	taxid	phylum	class	order	family	genus	
 ls *_seqs.txt > samplist
 num_seqs=$( cat samplist | wc -l | awk '{print $1}')
 tot_per_file=$(( $num_seqs / $max_jobs ))
+if [[ ${tot_per_file} -eq 0 ]]
+then
+  tot_per_file=1
+fi
+echo "there were $num_seqs samples to do taxatables for and $tot_per_file sample(s) per job."
 x=1
-while [[ $x -lt ${max_jobs} ]]
+while [[ $x -lt ${max_jobs} ]];
 do
 	if [[ -s samplist ]];
  	then
@@ -36,7 +41,7 @@ do
         ck="squeue -u ${user}"
         chck=$($ck)
         check=$(echo "$chck" | grep "ttb" | wc -l | awk '{print $1}')
-        if [ "$check" = "0" ];then
+        if [[ $check -eq 0 ]];then
            echo "done with taxatable" 
            break
         fi 
