@@ -11,9 +11,11 @@ gene=$6
 cd ${dir}/${gene}
 
 #clean up files#
-mkdir -p unpaired paired collapsed seqfiles
+mkdir -p unpaired paired collapsed seqfiles paired/unassembled  paired/discarded
 mv *${pattern} ./unpaired/
 mv *${r2_pattern} ./unpaired/
+mv *.discarded.fastq ./paired/discarded/
+mv *.unassembled*.fastq ./paired/unassembled/
 
 #make list of files to collapse#
 ls *_paired.assembled.fastq > pairedlist
