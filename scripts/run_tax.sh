@@ -39,7 +39,7 @@ while read p;
 				st=$(echo $lin | awk -v OFS='\t' '{print $1,$3,$5" "$6,$7}')
 				taxid=$(echo $lin | awk '{print $7}')
 				tax=$(grep -w "^${taxid}" ${ncbi}_r | awk -v OFS='\t' '{print $2,$3,$4,$5,$6}')
-				echo "${st}	${tax}	${top_score}	${num_tx}	${spec2}" >> ${prefix}_${gene}_best_blast_hits.out_${x}
+				echo "${st}	${tax}	${top_score}	${num_tx}	${spec}" >> ${prefix}_${gene}_best_blast_hits.out_${x}
 				rm temp_seq_${x}
 			elif [[ $n -gt 1 ]] 
 			then
