@@ -13,7 +13,7 @@ cd ${dir}/${gene}
 ls *${pattern} > seqlist
 num_seqs=$( cat seqlist | wc -l | awk '{print $1}')
 tot_per_file=$(( $num_seqs / $max_jobs ))
-
+echo "max_jobs is set to $max_jobs"
 if [[ ${tot_per_file} -eq 0 ]]
 then
   tot_per_file=1
