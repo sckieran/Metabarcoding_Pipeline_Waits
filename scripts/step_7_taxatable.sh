@@ -3,28 +3,52 @@
 prefix=$1
 gene=$2
 dirr=$3
+max_jobs=$4
+user=$5
 
-echo "sample	sequence	reads	identity	taxa	taxid	phylum	class	order	family	genus	bitscore	tax_num	all_species_in_best_hit	seqnum" >  ${prefix}_${gene}_taxatable.txt
-	for fil in *_seqs.txt
-	do
-		echo "making taxtable, doing $fil"
-		base=$(echo $fil | awk -F"_" '{print $1}')
-		x=2
-		n=$( wc -l $fil | awk '{print $1}')
-		while [[ $x -le $n ]]
-		do
-			ln="sed -n ${x}p $fil"
-			lin=$($ln)
-			seq=$(echo $lin | awk  '{print $1}')
-			reads=$(echo $lin | awk  '{print $2}')
-			taxline=$(grep -w  -m1 "$seq" ${prefix}_${gene}_best_blast_hits.txt | awk -v OFS='\t' '{print $3,$4" "$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$2}')
-			echo "$base	$seq	$reads	$taxline" >> ${prefix}_${gene}_taxatable.txt
-			x=$(( $x + 1 ))
-		done
-	done
-	echo "done with ${gene}. You can find taxa tables and raw ASV tables in your project directory/reports."
-	rm temp*
-	mkdir ${dirr}/${gene}_out/sample_seqfiles
-	mv *_seqs.txt ${dirr}/${gene}_out/sample_seqfiles
-	cd ${dirr}
-	cp ${dirr}/${gene}_out/*_taxatable.txt ${dirr}/results_tables/
+echo "sample	sequence	reads	identity	taxa	taxid	phylum	class	order	family	genus	bitscore	tax_num	all_species_in_best_hit	seqnum" >  ${prefix}_${gene}_ttb_header
+ls *_seqs.txt > samplist
+num_seqs=$( cat samplist | wc -l | awk '{print $1}')
+tot_per_file=$(( $num_seqs / $max_jobs ))
+x=1
+while [[ $x -lt ${max_jobs} ]]
+do
+	if [[ -s samplist ]];
+ 	then
+  		head -n ${tot_per_file} samplist > samplist_${x}
+    		sed -i "1,${tot_per_file}d" samplist
+      		x=$(( $x + 1 ))	
+	else
+ 		x=$max_jobs
+  	fi
+done
+rm samplist 	
+
+for fil in samplist_*
+do
+	echo "making taxtable, doing samplist_${x}"
+	sbatch ${dir}/scripts/run_ttb.sh samplist_${x} $dir $gene $prefix
+done
+
+while true;
+do
+        sleep 30s
+        ck="squeue -u ${user}"
+        chck=$($ck)
+        check=$(echo "$chck" | grep "ttb" | wc -l | awk '{print $1}')
+        if [ "$check" = "0" ];then
+           echo "done with taxatable" 
+           break
+        fi 
+done
+
+cat ${prefix}_${gene}_taxatable.txt_* > ttb
+cat ${prefix}_${gene}_ttb_header ttb > ${prefix}_${gene}_unfiltered_taxatable.txt
+rm ttb ${prefix}_${gene}_ttb_header ${prefix}_${gene}_taxatable.txt_* samplist_*
+
+echo "done with unfiltered analysis ${gene}. You can find taxa tables and raw ASV tables in your project directory/reports, and if you set filter to TRUE, the next step will filter your data at your read and identity cutoffs."
+rm temp*
+mkdir ${dirr}/${gene}_out/sample_seqfiles
+mv *_seqs.txt ${dirr}/${gene}_out/sample_seqfiles
+cd ${dirr}
+cp ${dirr}/${gene}_out/*_taxatable.txt ${dirr}/results_tables/
