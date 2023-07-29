@@ -60,7 +60,7 @@ do
   echo "done with pears merging. Now collapsing ASVs with fastx-collapser"
   echo "###"
   
-  bash ${dir}/scripts/step_4_collapse.sh ${dir}/${gene}
+  bash ${dir}/scripts/step_4_collapse.sh ${dir}/${gene} ${pattern} ${r2_pattern}
 
   echo "###"
   echo "###"
