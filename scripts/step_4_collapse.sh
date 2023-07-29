@@ -2,6 +2,8 @@
 module load fastx
 
 dir=$1
+pattern=$2
+r2_pattern=$3
 
 cd ${dir}
 mkdir -p unpaired paired collapsed seqfiles
