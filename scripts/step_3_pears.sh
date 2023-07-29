@@ -21,8 +21,9 @@ fi
 echo "there were $num_seqs samples to pear and $tot_per_file sample(s) per job."
 
 x=1
-while [[ $x -lt ${max_jobs} ]]
+while [[ $x -lt ${max_jobs} ]];
 do
+  echo "x is $x and max_jobs is $max_jobs"
   if [[ -s seqlist ]];
   then
     echo "seqlist not empty, making seqlist_${x}
@@ -32,6 +33,7 @@ do
     echo "there are $rem samples remaining in the seqlist"
     x=$(( $x + 1 ))
   else
+    echo "seqlist empty, moving on"
     x=${max_jobs}
   fi
 done
