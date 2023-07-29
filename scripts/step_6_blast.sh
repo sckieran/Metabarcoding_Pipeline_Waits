@@ -197,19 +197,13 @@ echo "there were $tot samples to pear and $tot_per_file sample(s) per job."
        	fi 
 	done
   
- 	##go through your list of sequence hits one by one
+#cat your files and make a header for the best hits table.
 
- 	cat ${prefix}_${gene}_best_blast_hits.out_* | sort -k1 > ${prefix}_${gene}_best_blast_hits.out
+cat ${prefix}_${gene}_best_blast_hits.out_* | sort -k1 > ${prefix}_${gene}_best_blast_hits.out
+echo "done with choosing best blast hits, now creating and formatting outfiles."
 	
- 	echo "done with choosing best blast hits, now creating and formatting outfiles."
-	
-	
-	echo "sequence	seqnum	identity	species	taxid	phylum	class	order	family	genus	bitscore	num_spec_in_best_hit	all_spec_in_best_hit" > ${prefix}_${gene}_best_blast_hits.txt
- 	
-	while read c;
-	do
-		seqnum=$( echo ${c} | awk '{print $1}') 
-		seq=$( grep -w -A1 ">${seqnum}" ${prefix}_${gene}_combined_ASVs.fasta | tail -n1 | awk '{print $1}')
-		echo "${seq}	${c}" >> ${prefix}_${gene}_best_blast_hits.txt
-	done < ${prefix}_${gene}_best_blast_hits.out
-	rm ${prefix}_${gene}_best_blast_hits.out ${prefix}_${gene}_best_blast_hits.out.r ${prefix}_${gene}_best_blast_hits.out_* 
+echo "sequence	seqnum	identity	species	taxid	phylum	class	order	family	genus	bitscore	num_spec_in_best_hit	all_spec_in_best_hit" > ${prefix}_${gene}_best_blast_hits.header
+cat ${prefix}_${gene}_best_blast_hits.header ${prefix}_${gene}_best_blast_hits.out > ${prefix}_${gene}_best_blast_hits.txt
+
+#clean up outfiles
+rm ${prefix}_${gene}_best_blast_hits.out*
