@@ -8,7 +8,7 @@ cd ${dir}
 
 module load pear
 
-ls *{pattern} > seqlist
+ls *${pattern} > seqlist
 num_seqs=$( cat seqlist | wc -l | awk '{print $1}')
 tot_per_file=$(( $num_seqs / $max_jobs ))
 
