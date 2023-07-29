@@ -162,8 +162,13 @@ cd ${dirr}/${gene}_out
 
  	echo "making your taxonomic assignment files and beginning to assign jobs."
 	tot_per_file=$(( $tot / $max_jobs ))
+ 	if [[ ${tot_per_file} -eq 0 ]]
+	then
+ 		 tot_per_file=1
+	fi
+echo "there were $num_seqs samples to pear and $tot_per_file sample(s) per job."
 	x=1
-	while [[ $x -lt ${max_jobs} ]]
+	while [[ $x -lt ${max_jobs} ]];
 	do
  		if [[ -s seqlist ]];
   		then
@@ -188,7 +193,7 @@ cd ${dirr}/${gene}_out
 	 chck=$($ck)
   	 check=$(echo $chck | grep "tax" | wc -l | awk '{print $1}')
 	 echo "waiting for jobs to run. There are $check jobs left"
-       	 if [ "$check" = "0" ];then
+       	 if [[ $check -eq 0 ]];then
         	 echo "no jobs left, continuing" 
          	 break
        	fi 
@@ -209,4 +214,4 @@ cd ${dirr}/${gene}_out
 		seq=$( grep -w -A1 ">${seqnum}" ${prefix}_${gene}_combined_ASVs.fasta | tail -n1 | awk '{print $1}')
 		echo "${seq}	${c}" >> ${prefix}_${gene}_best_blast_hits.txt
 	done < ${prefix}_${gene}_best_blast_hits.out.r
-	rm temp_sq ${prefix}_${gene}_best_blast_hits.out ${prefix}_${gene}_best_blast_hits.out.r
+	rm temp_sq ${prefix}_${gene}_best_blast_hits.out ${prefix}_${gene}_best_blast_hits.out.r ${prefix}_${gene}_best_blast_hits.out_* 
