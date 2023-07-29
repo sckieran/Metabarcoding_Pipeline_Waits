@@ -6,7 +6,7 @@
 #SBATCH --mem=14G
 
 dir=$PWD
-prefix=pipetest_boco
+prefix=
 rlib="~/Rpackages"
 genelist=$PWD/genelist
 taxlist=$PWD/taxlist
@@ -22,7 +22,7 @@ taxa_rra=0.005
 identity_cutoff=97
 minlen=70
 return_low=TRUE
-user=sblair
+user=
 
 
 echo "###"
