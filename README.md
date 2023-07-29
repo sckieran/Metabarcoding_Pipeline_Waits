@@ -57,14 +57,23 @@ You will need
 **To Install R Packages on the Cluster**
 ssh into zaphod, arthur, petunia, whale or another standalone server
 `cd ~`
+
 `mkdir Rpackages`
+
 `cd ~/Rpackages`
+
 `module load R/4.2.3`
+
 `R`
+
 When R is running, enter:
+
 `install.packages("optparse",lib="~/Rpackages/",dependencies=T)`
+
 `install.packages("lubridate",lib="~/Rpackages/",dependencies=T)`
+
 `install.packages("tidyverse",lib="~/Rpackages/",dependencies=T)`
+
 `install.packages("rentrez",lib="~/Rpackages/",dependencies=T)`
 
 Or follow [the tutorial here](https://www.hpc.uidaho.edu/compute/Applications/R.html)
