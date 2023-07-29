@@ -47,9 +47,9 @@ while read p;
 				id=$(cut -f3 temp_choose2_${x} | sort -nr |  head -n1 | awk '{print $1}')
 				grep "$id" temp_choose2_${x} > temp_choose_${x} ##pull all the matches with the top identity # for a sequence into a new file##
 				spec_number=$(cut -f5 temp_choose_${x} | sort | uniq | wc -l | awk '{print $1}') ##how many species are in the equally good hits? If one, pull that and call the hit. if more than one, then go to next.##
-				cut -f5 temp_choose_${x} | sort | uniq > temp_spec
-				sed -zi 's/\n/,/g' temp_spec
-				spec2=$( cat temp_spec | awk -F"\t" '{print $1}')
+				cut -f5 temp_choose_${x} | sort | uniq > temp_spec_${x}
+				sed -zi 's/\n/,/g' temp_spec_${x}
+				spec2=$( cat temp_spec_${x} | awk -F"\t" '{print $1}')
 				num_tx=${spec_number}
 				if [[ $spec_number -eq 1 ]]
 				then
