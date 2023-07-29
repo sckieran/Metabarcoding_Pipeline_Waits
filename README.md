@@ -56,6 +56,7 @@ You will need
 
 **To Install R Packages on the Cluster**
 ssh into zaphod, arthur, petunia, whale or another standalone server
+
 `cd ~`
 
 `mkdir Rpackages`
@@ -87,17 +88,29 @@ Currently, you must provide Step 1 with an NCBI API key. Getting an NCBI account
 **Recommended install on the cluster:**
 
 1. make a new directory called your_project
+
 `mkdir your_project`
+
 2. move all your data files into folders called gene1,gene2...geneN for each gene/primer set you want to analyze. Move these folders into the your_project directory:
+   
 `mv /gene1/ /path/to/your_project/gene1/`
+
 3. Navigate into your project directory:
+   
 `cd /path/to/your_project`
+
 4. load the git module
+   
 `module load git`
+
 5. clone this repository into your folder
+
 `git clone https://github.com/sckieran/Metabarcoding_Pipeline_Waits`
+
 6. move the scripts folder and the steps into the your_project directory
-`mv ./Metabarcoding_Pipeline_Waits/*.sh .
+   
+`mv ./Metabarcoding_Pipeline_Waits/*.sh .`
+
 `mv  ./Metabarcoding_Pipeline_Waits/scripts/ ./scripts/`
 
 
@@ -113,7 +126,9 @@ If you simply provide a project directory (folder) containing the step 1 input f
 
 # Usage and Tutorial: 
 ## SLURM 
-You **must** run the wrapper on the SLURM cluster, fortyfive.hpc.uidaho.edu. You must provide the script with your RCDS username (to check when jobs finish) and with a max_jobs value. For RCDS users, the max jobs you can submit is 500. However, running 500 simultaneous jobs, even short ones, can clog up the scheduler. We recommend setting max_jobs to between 50 and 250. The longest step, by far, is the classifier. Read pairing should take ~5 seconds per sample, and collapsing is even shorter. 
+You **must** run the wrapper on the SLURM cluster, fortyfive.hpc.uidaho.edu. You must provide the script with your RCDS username (to check when jobs finish) and with a max_jobs value. For RCDS users, the max jobs you can submit is 500. However, running 500 simultaneous jobs, even short ones, can clog up the scheduler. We recommend setting max_jobs to between 50 and 250. The longest step, by far, is the classifier. Read pairing should take ~5 seconds per sample, and collapsing is even shorter. Assigning taxonomy can take ~2-5 seconds per _sequence_, but this filter-free method may produce >500,000 sequences to assign. If you have 500,000 sequences and 250 jobs available, you can expect each jobfile to assign about 2,000 sequences, which should take about an hour. However, you are likely to have some of your jobs held in the queue so you don't consume all of the cluster resources, and can expect the entire process to take ~6 hours, depending on how busy the cluster is. Without this jobfile creation, the process would take about 4 days.
+
+Later functionality will add RRA filters into earlier steps of this process, but are recommended only for experienced users.
 
 ## The Wrapper 
 
