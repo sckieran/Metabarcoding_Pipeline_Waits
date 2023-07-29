@@ -55,7 +55,7 @@ rm ttb ${prefix}_${gene}_ttb_header ${prefix}_${gene}_taxatable.txt_* samplist_*
 
 echo "done with unfiltered analysis ${gene}. You can find taxa tables and raw ASV tables in your project directory/reports, and if you set filter to TRUE, the next step will filter your data at your read and identity cutoffs."
 rm temp*
-mkdir ${dirr}/${gene}_out/sample_seqfiles
+mkdir -p ${dirr}/${gene}_out/sample_seqfiles ${dirr}/results_tables
 mv *_seqs.txt ${dirr}/${gene}_out/sample_seqfiles
 cd ${dirr}
 cp ${dirr}/${gene}_out/*_taxatable.txt ${dirr}/results_tables/
