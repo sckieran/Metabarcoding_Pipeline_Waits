@@ -6,6 +6,8 @@ dirr=$3
 max_jobs=$4
 user=$5
 
+cd ${dirr}/${gene}_out
+
 echo "sample	sequence	reads	identity	taxa	taxid	phylum	class	order	family	genus	bitscore	tax_num	all_species_in_best_hit	seqnum" >  ${prefix}_${gene}_ttb_header
 ls *_seqs.txt > samplist
 num_seqs=$( cat samplist | wc -l | awk '{print $1}')
