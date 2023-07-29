@@ -42,8 +42,8 @@ rm pairedlist
 
 for fil in pairedlist_*;
 do
-  echo "doing pairedlist_${x}"
-  sbatch ${dir}/scripts/run_collapser.sh pairedlist_${x} ${dir}/${gene}
+  echo "doing $fil"
+  sbatch ${dir}/scripts/run_collapser.sh $fil ${dir}/${gene}
 done
 
 while true;
