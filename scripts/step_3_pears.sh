@@ -14,6 +14,10 @@ ls *${pattern} > seqlist
 num_seqs=$( cat seqlist | wc -l | awk '{print $1}')
 tot_per_file=$(( $num_seqs / $max_jobs ))
 echo "there were $num_seqs samples to pear and $tot_per_file samples per job."
+if [[ "${tot_per_file}" -eq 0 ]]
+then
+  tot_per_file=1
+fi
 
 x=1
 while [[ $x -lt ${max_jobs} ]]
