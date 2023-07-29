@@ -6,7 +6,7 @@ dir=$3
 
 cd ${dir}
 
-module load pears
+module load pear
 
 for fil in *_${pattern};
 do
