@@ -119,8 +119,6 @@ cd ${dirr}/${gene}_out
 	blastout=${prefix}_${gene}_raw_blast_out
 	sed -i '/^#/d' $blastout
 	echo "blast done, making outfiles"
-	#make your outfile
-	echo "seqnum	identity	species	taxid	phylum	class	order	family	genus	top_score	chosen_score	all_spec_in_best_hit" > ${prefix}_${gene}_best_blast_hits.out
 
 	#make a list of no-hits#
 	grep ">" ${prefix}_${gene}_combined_ASVs.fasta | awk -F">" '{print $2}' | sort > out1
@@ -203,14 +201,14 @@ echo "there were $tot samples to pear and $tot_per_file sample(s) per job."
  	cat ${prefix}_${gene}_best_blast_hits.out_* | sort -k1 > ${prefix}_${gene}_best_blast_hits.out
 	
  	echo "done with choosing best blast hits, now creating and formatting outfiles."
-	h1="head -n1 ${prefix}_${gene}_best_blast_hits.out"
-	head1=$($h1)
-	tail -n +2 ${prefix}_${gene}_best_blast_hits.out > ${prefix}_${gene}_best_blast_hits.out.r
-	echo "sequence	${head1}" > ${prefix}_${gene}_best_blast_hits.txt
+	
+	
+	echo "sequence	seqnum	identity	species	taxid	phylum	class	order	family	genus	bitscore	num_spec_in_best_hit	all_spec_in_best_hit" > ${prefix}_${gene}_best_blast_hits.txt
+ 	
 	while read c;
 	do
 		seqnum=$( echo ${c} | awk '{print $1}') 
 		seq=$( grep -w -A1 ">${seqnum}" ${prefix}_${gene}_combined_ASVs.fasta | tail -n1 | awk '{print $1}')
 		echo "${seq}	${c}" >> ${prefix}_${gene}_best_blast_hits.txt
-	done < ${prefix}_${gene}_best_blast_hits.out.r
-	rm temp_sq ${prefix}_${gene}_best_blast_hits.out ${prefix}_${gene}_best_blast_hits.out.r ${prefix}_${gene}_best_blast_hits.out_* 
+	done < ${prefix}_${gene}_best_blast_hits.out
+	rm ${prefix}_${gene}_best_blast_hits.out ${prefix}_${gene}_best_blast_hits.out.r ${prefix}_${gene}_best_blast_hits.out_* 
