@@ -165,14 +165,14 @@ cd ${dirr}/${gene}_out
 	then
  		 tot_per_file=1
 	fi
-echo "there were $num_seqs samples to pear and $tot_per_file sample(s) per job."
+echo "there were $tot samples to pear and $tot_per_file sample(s) per job."
 	x=1
 	while [[ $x -lt ${max_jobs} ]];
 	do
- 		if [[ -s seqlist ]];
+ 		if [[ -s temp_seqlist ]];
   		then
-   			head -n ${tot_per_file} seqlist > seqlist_${x}
-    			sed -i "1,${tot_per_file}d" seqlist
+   			head -n ${tot_per_file} temp_seqlist > seqlist_${x}
+    			sed -i "1,${tot_per_file}d" temp_seqlist
    			x=$(( $x + 1 ))
  		else
   			x=$max_jobs
@@ -180,7 +180,7 @@ echo "there were $num_seqs samples to pear and $tot_per_file sample(s) per job."
 	done
 	rm temp_seqlist
 
-	for fil in seqfile_*;
+	for fil in seqlist_*;
  	do
   		x=$( echo $fil | awk -F"_" '{print $2}')
     		sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi
