@@ -3,6 +3,7 @@
 pattern=$1
 r2_pattern=$2
 dir=$3
+max_jobs=$4
 
 cd ${dir}
 
