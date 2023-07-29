@@ -42,7 +42,7 @@ fi
 mkdir -p ${gene}_out 
 
 cd ${gene}_out
-cp ${dir}/${gene}/seqfiles/* .
+cp ${dirr}/${gene}/seqfiles/* .
  	
 echo "copied files. Beginning blast and taxtable."
 cat *_seqs.txt | cut -f1 | sort | uniq | awk -v m=$minlen '{ if (length($0) > m) print }' > temp_seqs
