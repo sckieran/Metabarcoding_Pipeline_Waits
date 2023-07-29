@@ -28,7 +28,7 @@ rm seqlist
 
 for fil in seqlist_*;
 do
-  sbatch ${dir}/scripts/pear.sh $fil
+  sbatch ${dir}/scripts/pear.sh $fil $pattern $r2_pattern $dir
 done
 
 
