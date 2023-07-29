@@ -7,14 +7,14 @@
 
 dir=$PWD
 prefix=
-rlib=~/Rpackages
+rlib="~/Rpackages"
 genelist=$PWD/genelist
 taxlist=$PWD/taxlist
 retmax=20
 db_dirr=reference_database
 key=
-R1_pattern=
-R2_pattern=
+R1_pattern="_R1.fastq"
+R2_pattern="_R2.fastq"
 max_jobs=
 extra_seqs=
 filter=TRUE
