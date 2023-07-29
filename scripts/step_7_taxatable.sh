@@ -32,12 +32,12 @@ rm samplist
 for fil in samplist_*
 do
 	echo "making taxtable, doing samplist_${x}"
-	sbatch ${dir}/scripts/run_ttb.sh samplist_${x} $dir $gene $prefix
+	sbatch ${dirr}/scripts/run_ttb.sh samplist_${x} $dirr $gene $prefix
 done
 
 while true;
 do
-        sleep 30s
+        sleep 10s
         ck="squeue -u ${user}"
         chck=$($ck)
         check=$(echo "$chck" | grep "ttb" | wc -l | awk '{print $1}')
