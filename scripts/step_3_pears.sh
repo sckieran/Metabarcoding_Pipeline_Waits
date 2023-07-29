@@ -5,8 +5,9 @@ r2_pattern=$2
 dir=$3
 max_jobs=$4
 user=$4
+gene=$5
 
-cd ${dir}
+cd ${dir}/${gene}
 
 module load pear
 
