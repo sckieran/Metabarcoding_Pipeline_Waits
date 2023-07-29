@@ -6,7 +6,7 @@
 #SBATCH --mem=14G
 
 dir=$PWD
-prefix=
+prefix=pipetest_boco
 rlib="~/Rpackages"
 genelist=$PWD/genelist
 taxlist=$PWD/taxlist
@@ -15,13 +15,14 @@ db_dirr=reference_database
 key=
 R1_pattern="_R1.fastq"
 R2_pattern="_R2.fastq"
-max_jobs=
+max_jobs=490
 extra_seqs=
 filter=TRUE
 taxa_rra=0.005
 identity_cutoff=97
 minlen=70
 return_low=TRUE
+user=sblair
 
 
 echo "###"
@@ -53,7 +54,7 @@ do
   echo "beginning pears F/R read mergers on 4 threads for gene $p"
   echo "###"
   
-  bash ${dir}/scripts/step_3_pears.sh ${R1_pattern} ${R2_pattern} ${dir}/${gene} ${max_jobs}
+  bash ${dir}/scripts/step_3_pears.sh ${R1_pattern} ${R2_pattern} ${dir}/${gene} ${max_jobs} ${user}
  
   echo "###"
   echo "###"
@@ -74,7 +75,7 @@ do
   echo "done making seqfiles. No RRA filtering was done, functionality coming soon. Beginning the local BLAST process"
   echo "###"
 
-  bash ${dir}/scripts/step_6_blast.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -r ${db_dirr} -c ${identity_cutoff} -t ${return_low}
+  bash ${dir}/scripts/step_6_blast.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -r ${db_dirr} -c ${identity_cutoff} -t ${return_low} -j ${max_jobs} -u ${user}
 
    echo "###"
    echo "###"
