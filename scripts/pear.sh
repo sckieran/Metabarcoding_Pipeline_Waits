@@ -7,6 +7,9 @@
 infil=$1
 pattern=$2
 r2_pattern=$3
+dir=$4
+
+cd ${dir}
 
 while read p;
 do
