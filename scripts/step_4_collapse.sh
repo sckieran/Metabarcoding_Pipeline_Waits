@@ -4,6 +4,9 @@ module load fastx
 dir=$1
 
 cd ${dir}
+mkdir -p unpaired paired collapsed seqfiles
+mv *${pattern} ./unpaired/
+mv *${r2_pattern} ./unpaired/
 
 for fil in *_paired.assembled.fastq
 do
