@@ -28,9 +28,7 @@ rm seqlist
 
 for fil in seqlist_*;
 do
-  sbatch pear.sh $fil
+  sbatch ${dir}/scripts/pear.sh $fil
 done
 
-mkdir -p unpaired paired collapsed seqfiles
-mv *${pattern} ./unpaired/
-mv *${r2_pattern} ./unpaired/
+
