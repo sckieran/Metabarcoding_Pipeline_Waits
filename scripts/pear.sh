@@ -10,8 +10,8 @@ r2_pattern=$3
 dir=$4
 
 cd ${dir}
-
-while read p;
+module load pear
+while read fil;
 do
   base=$(echo $fil | awk -F"$pattern" '{print $1}')
   pear -f ${fil} -r ${base}${r2_pattern} -o ${base}_paired -j 4
