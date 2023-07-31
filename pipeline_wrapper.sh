@@ -68,7 +68,7 @@ do
   echo "done collapsing samples into unique ASVs. Making per-sample ASV files."
   echo "###"
 
-  bash ${dir}/scripts/step_5_mk_seqfiles.sh ${dir}/${gene}
+  bash ${dir}/scripts/step_5_mk_seqfiles.sh ${dir}/${gene} $rlib $taxa_rra
 
   echo "###"
   echo "###"
