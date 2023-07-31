@@ -36,7 +36,7 @@ do
 	do
 		echo "making taxtable, doing $fil"
   		y=$( echo $ fil | awk -F"_" '{print $2}')
-		if [[ ! -f ${prefix}_${gene}_taxatable.txt_${y} ]] && [[ -s ${prefix}_${gene}_taxatable.txt_${y} ]] ;
+		if [[ ! -f ${prefix}_${gene}_taxatable.txt_${y} ]] | [[ ! -s ${prefix}_${gene}_taxatable.txt_${y} ]] ;
   		then
   			echo "outfile for $fil does not yet exist or is empty. Doing $fil."
      			sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix
