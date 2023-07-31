@@ -1,8 +1,11 @@
 #!/bin/bash
-
+module load R/4.2.3
 dir=$1
+rlib=$2
+cutoff=$3
+gene=$4
 
-cd ${dir}
+cd ${dir}/${gene}
 
 for fil in *_clustered.fasta
 do
@@ -10,7 +13,7 @@ do
   grep ">" $fil | awk -F"-" '{print $2}' > temp_reads_${base}
   grep -v ">" $fil > temp_seqs_${base}
   paste  temp_seqs_${base} temp_reads_${base}  > ${base}_seqs.txt
-  #Rscript filter_rra.R ${base}_seqs.txt
+  Rscript ${dir}/scripts/filter_rra.R $rlib ${dir}/${gene} ${base}_seqs.txt $base $cutoff
   rm temp_reads_${base} temp_seqs_${base}
 done
 
