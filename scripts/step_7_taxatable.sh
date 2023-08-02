@@ -63,10 +63,7 @@ do
  	while true;
 	do
        		sleep 2s
-       	 	ck="squeue -u ${user} | grep \"ttb\" | wc -l"
-        	chck=$($ck)
-       		check=$(echo "$chck" | awk '{print $1}')
-	 	echo "chck is $chck and check is $check"
+       		check=$( squeue -u $user | grep "ttb" | wc -l )
        		echo "there are $check jobs left"
 		if [[ $check -eq 0 ]];then
            		echo "done with jobs, checking all ran" 
