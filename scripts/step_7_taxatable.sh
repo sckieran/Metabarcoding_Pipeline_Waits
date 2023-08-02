@@ -35,30 +35,38 @@ ls samplist_* > outs_samps
 num_samps=$( wc -l outs_samps | awk '{print $1}')
 while [[ $num_outs -ne $num_samps ]];
 do
- 	for fil in samplist_*
+ 	echo "$num_outs and $num_samps are not equal, running job submission"
+  	for fil in samplist_*
 	do
 		echo "making taxtable, doing $fil"
   		y=$( echo $ fil | awk -F"_" '{print $2}')
 		if [[ ! -f ${prefix}_${gene}_taxatable.txt_${y} ]] | [[ ! -s ${prefix}_${gene}_taxatable.txt_${y} ]] ;
   		then
-  			echo "outfile for $fil does not yet exist or is empty. Doing $fil."
-     			res=$(sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix)
-			sleep 3s
-   			if [[ -f ttb.${res##* }.err ]];
-   			then
-   				echo "job ${res##* } for $fil submitted successfully."
-       			else 
-	  			echo "job ${res##* } did not submit. Trying again."
-      				#sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix
-			fi
+  			while true;
+     			do
+     				echo "outfile for $fil does not yet exist or is empty. Doing $fil."
+     				res=$(sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix)
+   				if squeue -u $user | grep -q "${res##* }"; 
+   				then
+   					echo "job ${res##* } for $fil submitted successfully."
+       					break
+       				elif [[ -f ttb.${res##* }.err ]];
+	  			then
+	  				echo "job ${res##* } for $fil submitted successfully."
+      					break
+      				else
+	  				echo "job ${res##* } did not submit. Trying again."
+				fi
+   			done
   		fi
 	done
  	while true;
 	do
        		sleep 2s
-       	 	ck="squeue -u ${user}"
+       	 	ck="squeue -u ${user} | grep "ttb" | wc -l"
         	chck=$($ck)
-       		check=$(echo "$chck" | grep "ttb" | wc -l | awk '{print $1}')
+       		check=$(echo "$chck" | awk '{print $1}')
+	 	echo "chck is $chck and check is $check"
        		echo "there are $check jobs left"
 		if [[ $check -eq 0 ]];then
            		echo "done with jobs, checking all ran" 
