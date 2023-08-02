@@ -19,7 +19,7 @@ mv *.unassembled*.fastq ./paired/unassembled/
 
 #make list of files to collapse#
 ls *_paired.assembled.fastq > pairedlist
-num_seqs=$( cat pairedlist | wc -l | awk '{print $1}')
+num_seqs=$( wc -l pairedlist | awk '{print $1}')
 tot_per_file=$( awk -v a1=$num_seqs -v a2=$max_jobs 'BEGIN { rounded = sprintf("%.0f", a1/a2); print rounded }')
 if [[ ${tot_per_file} -eq 0 ]];
 then
