@@ -12,7 +12,7 @@ cd ${dir}/${gene}
 
 ls *${pattern} > seqlist
 num_seqs=$( cat seqlist | wc -l | awk '{print $1}')
-tot_per_file=$(( $num_seqs / $max_jobs ))
+tot_per_file=$( awk -v a1=$num_seqs -v a2=$max_jobs 'BEGIN { rounded = sprintf("%.0f", a1/a2); print rounded }')
 echo "max_jobs is set to $max_jobs"
 if [[ ${tot_per_file} -eq 0 ]];
 then
