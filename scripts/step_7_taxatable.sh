@@ -43,11 +43,13 @@ do
   		then
   			echo "outfile for $fil does not yet exist or is empty. Doing $fil."
      			res=$(sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix)
-			if [[ -f ttb.${res##* }.err ]]
+			sleep 3s
+   			if [[ -f ttb.${res##* }.err ]];
+   			then
    				echo "job ${res##* } for $fil submitted successfully."
        			else 
 	  			echo "job ${res##* } did not submit. Trying again."
-      				sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix
+      				#sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix
 			fi
   		fi
 	done
