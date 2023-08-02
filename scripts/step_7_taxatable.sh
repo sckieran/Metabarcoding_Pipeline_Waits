@@ -39,7 +39,7 @@ do
   	for fil in samplist_*
 	do
 		echo "making taxtable, doing $fil"
-  		y=$( echo $ fil | awk -F"_" '{print $2}')
+  		y=$( echo $fil | awk -F"_" '{print $2}')
 		if [[ ! -f ${prefix}_${gene}_taxatable.txt_${y} ]] | [[ ! -s ${prefix}_${gene}_taxatable.txt_${y} ]] ;
   		then
   			while true;
@@ -81,7 +81,7 @@ done
 
 cat ${prefix}_${gene}_taxatable.txt_* > ttb
 cat ${prefix}_${gene}_ttb_header ttb > ${prefix}_${gene}_unfiltered_taxatable.txt
-#rm ttb ${prefix}_${gene}_ttb_header ${prefix}_${gene}_taxatable.txt_* samplist_*
+#rm ttb ${prefix}_${gene}_ttb_header ${prefix}_${gene}_taxatable.txt_* samplist_* ttb.*
 
 num_samp2=$( cut -f1 ${prefix}_${gene}_unfiltered_taxatable.txt | sort | uniq | wc -l | awk '{print $1}')
 if [[ $num_samp2 -eq $num_seqs ]]; then
