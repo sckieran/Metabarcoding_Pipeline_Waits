@@ -158,7 +158,7 @@ cd ${dirr}/${gene}_out
 	tot=$( wc -l temp_seqlist | awk '{print $1}')
 
  	echo "making your taxonomic assignment files and beginning to assign jobs."
-	tot_per_file=$(( $tot / $max_jobs ))
+	tot_per_file=$( awk -v a1=$num_seqs -v a2=$max_jobs 'BEGIN { rounded = sprintf("%.0f", a1/a2); print rounded }')
  	if [[ ${tot_per_file} -eq 0 ]]
 	then
  		 tot_per_file=1
