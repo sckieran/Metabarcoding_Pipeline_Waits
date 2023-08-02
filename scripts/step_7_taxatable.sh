@@ -63,7 +63,7 @@ do
  	while true;
 	do
        		sleep 2s
-       	 	ck="squeue -u ${user} | grep "ttb" | wc -l"
+       	 	ck="squeue -u ${user} | grep \"ttb\" | wc -l"
         	chck=$($ck)
        		check=$(echo "$chck" | awk '{print $1}')
 	 	echo "chck is $chck and check is $check"
