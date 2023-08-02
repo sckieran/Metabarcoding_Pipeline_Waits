@@ -30,9 +30,12 @@ do
   	fi
 done
 rm samplist 	
-while true;
+num_outs=1
+ls samplist_* > outs_samps
+num_samps=$( wc -l outs_samps | awk '{print $1}')
+while [[ $num_outs -ne $num_samps ]];
 do
-	for fil in samplist_*
+ 	for fil in samplist_*
 	do
 		echo "making taxtable, doing $fil"
   		y=$( echo $ fil | awk -F"_" '{print $2}')
@@ -56,11 +59,8 @@ do
 	done
   	ls *_taxatable.txt_* > outs_${gene}
    	num_outs=$( wc -l outs_${gene} | awk '{print $1}')
-    	ls samplist_* > outs_samps
-     	num_samps=$( wc -l outs_samps | awk '{print $1}')
-      	if [[ $num_outs -eq $num_samps ]]; then
-       		echo "all outfiles created and not empty."
-	 	break
+    	if [[ $num_outs -ne $num_samps ]]; then
+     		echo "number of outfiles is $num_outs, and is not equal to the number of input sample files, $num_samps. Checking outfiles and re-running jobs."
 	fi
 done
 
@@ -68,7 +68,7 @@ done
 
 cat ${prefix}_${gene}_taxatable.txt_* > ttb
 cat ${prefix}_${gene}_ttb_header ttb > ${prefix}_${gene}_unfiltered_taxatable.txt
-rm ttb ${prefix}_${gene}_ttb_header ${prefix}_${gene}_taxatable.txt_* samplist_*
+#rm ttb ${prefix}_${gene}_ttb_header ${prefix}_${gene}_taxatable.txt_* samplist_*
 
 num_samp2=$( cut -f1 ${prefix}_${gene}_unfiltered_taxatable.txt | sort | uniq | wc -l | awk '{print $1}')
 if [[ $num_samp2 -eq $num_seqs ]]; then
