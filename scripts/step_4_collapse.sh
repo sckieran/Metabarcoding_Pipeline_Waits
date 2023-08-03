@@ -41,11 +41,12 @@ do
   fi
 done
 rm pairedlist
-
-for fil in pairedlist_*;
+while [[ $num_seqs -ne $num_outs ]];
 do
-  echo "doing $fil"
-  sbatch ${dir}/scripts/run_collapser.sh $fil ${dir}/${gene}
+  for fil in pairedlist_*;
+  do
+    echo "doing $fil"
+    sbatch ${dir}/scripts/run_collapser.sh $fil ${dir}/${gene}
 done
 
 while true;
