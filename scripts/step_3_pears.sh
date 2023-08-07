@@ -45,7 +45,7 @@ do
     while read p;
     do
       base=$( echo $p | awk -F"${pattern}" '{print $1}')
-      if [[ ! -f ${base}_paired.assembled.fastq ]]
+      if [[ ! -f ${base}_paired.assembled.fastq ]];
       then 
         echo "$p" >> temp_$fil
       fi
