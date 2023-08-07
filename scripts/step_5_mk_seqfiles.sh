@@ -14,6 +14,7 @@ do
   grep -v ">" $fil > temp_seqs_${base}
   paste  temp_seqs_${base} temp_reads_${base}  > ${base}_seqs.txt
   Rscript ${dir}/scripts/filter_rra.R $rlib ${dir}/${gene} ${base}_seqs.txt $base $cutoff
+  mv ${base}_seqs.txt ./unfiltered_seqfiles/
   rm temp_reads_${base} temp_seqs_${base}
 done
 
