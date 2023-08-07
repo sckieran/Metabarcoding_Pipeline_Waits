@@ -50,7 +50,7 @@ do
     while read p;
     do
       base=$( echo $p | awk -F"_paired.assembled.fastq" '{print $1}')
-      if [[ ! -f ${base}_collapsed.fasta ]];
+      if [[ ! -f ${base}_clustered.fasta ]];
       then
         echo "$p" >> temp_$fil
       fi
@@ -89,7 +89,7 @@ do
            break
         fi 
   done
-  ls *_collapsed.fasta > outslist
+  ls *_clustered.fasta > outslist
   num_outs=$( wc -l outslist | awk '{print $1}')
 done
 
