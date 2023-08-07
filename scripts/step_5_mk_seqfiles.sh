@@ -43,7 +43,7 @@ do
       fi
     done < ${fil}
     mv temp_${fil} ${fil}
-    if [[ ! -s "$fil" ]];
+    if [[  -s "$fil" ]];
     then
       while true;
      	do
