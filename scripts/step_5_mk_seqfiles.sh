@@ -42,9 +42,9 @@ do
         echo "$p" >> temp_$fil
       fi
     done < ${fil}
-    mv temp_${fil} ${fil}
-    if [[  -s "$fil" ]];
+    if [[  -s temp_${fil} ]];
     then
+    mv temp_${fil} ${fil}
       while true;
      	do
      		echo "outfile for $fil does not yet exist or is empty. Doing $fil."
