@@ -9,7 +9,7 @@ cd ${dir}/${gene}
 
 ls *_clustered.fasta > collapselist
 num_seqs=$( wc -l collapselist | awk '{print $1}')
-tot_per_file=$( awk -v a1=$num_seqs -v a2=$max_jobs "BEGIN { x+=(a1/a2); printf('%.0f', (x == int(x)) ? x : int(x)+1) }")
+tot_per_file=$( awk -v a1=$num_seqs -v a2=$max_jobs 'BEGIN { x+=(a1/a2); printf("%.0f", (x == int(x)) ? x : int(x)+1) }')
 if [[ ${tot_per_file} -eq 0 ]];
 then
   tot_per_file=1
