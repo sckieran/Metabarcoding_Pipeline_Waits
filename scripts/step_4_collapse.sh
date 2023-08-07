@@ -62,17 +62,17 @@ do
      	do
      		echo "outfile for $fil does not yet exist or is empty. Doing $fil."
      		res=$(sbatch ${dir}/scripts/run_collapser.sh $fil ${dir}/${gene})
-   		   if squeue -u $user | grep -q "${res##* }"; 
-   		  then
-   			  echo "job ${res##* } for $fil submitted successfully."
+   		if squeue -u $user | grep -q "${res##* }"; 
+   		then
+   			echo "job ${res##* } for $fil submitted successfully."
     			break
      		elif [[ -f ttb.${res##* }.err ]];
-	  		then
-	  			echo "job ${res##* } for $fil submitted successfully."
+	  	then
+	  		echo "job ${res##* } for $fil submitted successfully."
      			break
     		else
-	 				echo "job ${res##* } did not submit. Trying again."
-			  fi
+	 		echo "job ${res##* } did not submit. Trying again."
+		fi
   	  done
     else
        echo "all samples for $fil completed already."
