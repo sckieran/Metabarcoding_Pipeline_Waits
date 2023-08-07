@@ -55,8 +55,8 @@ do
         echo "$p" >> temp_$fil
       fi
     done < ${fil}
+    if [[  -s temp_${fil} ]];
     mv temp_${fil} ${fil}
-    if [[  -s "$fil" ]];
     then
       while true;
      	do
