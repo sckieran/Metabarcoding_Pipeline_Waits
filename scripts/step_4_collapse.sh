@@ -58,9 +58,24 @@ do
     mv temp_${fil} ${fil}
     if [[ ! -s "$fil" ]];
     then
-      sbatch ${dir}/scripts/run_collapser.sh $fil ${dir}/${gene}
+      while true;
+     	do
+     		echo "outfile for $fil does not yet exist or is empty. Doing $fil."
+     		res=$(sbatch ${dir}/scripts/run_collapser.sh $fil ${dir}/${gene})
+   		   if squeue -u $user | grep -q "${res##* }"; 
+   		  then
+   			  echo "job ${res##* } for $fil submitted successfully."
+    			break
+     		elif [[ -f ttb.${res##* }.err ]];
+	  		then
+	  			echo "job ${res##* } for $fil submitted successfully."
+     			break
+    		else
+	 				echo "job ${res##* } did not submit. Trying again."
+			  fi
+  	  done
     else
-      echo "all samples for $fil completed already."
+       echo "all samples for $fil completed already."
     fi
   done
   while true;
@@ -78,7 +93,7 @@ do
   num_outs=$( wc -l outslist | awk '{print $1}')
 done
 
-echo "there are $num_seqs input samples and $num_outs output samples. Moving on."
+echo "there are $num_seqs input samples and $num_outs clustered output samples. Moving on."
 
 rm outslist
 rm pairedlist_*
