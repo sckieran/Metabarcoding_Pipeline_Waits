@@ -42,6 +42,7 @@ num_outs=1
 while [[ $num_outs -ne $num_seqs ]];
 do
   for fil in seqlist_*;
+  do  
     while read p;
     do
       base=$( echo $p | awk -F"${pattern}" '{print $1}')
