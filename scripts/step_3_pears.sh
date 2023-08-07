@@ -53,7 +53,22 @@ do
     mv temp_${fil} ${fil}
     if [[ ! -s "$fil" ]]
     then
-      sbatch ${dir}/scripts/pear.sh $fil $pattern $r2_pattern ${dir}/${gene}
+      while true;
+     			do
+     				echo "outfile for $fil does not yet exist or is empty. Doing $fil."
+     				res=$(sbatch ${dir}/scripts/pear.sh $fil $pattern $r2_pattern ${dir}/${gene})
+   			  	if squeue -u $user | grep -q "${res##* }"; 
+   	  			then
+     					echo "job ${res##* } for $fil submitted successfully."
+       				break
+       			elif [[ -f ttb.${res##* }.err ]];
+	  			  then
+	  			  	echo "job ${res##* } for $fil submitted successfully."
+      				break
+      			else
+	  				  echo "job ${res##* } did not submit. Trying again."
+				    fi
+   			done
     else
       echo "all files for $fil completed."
     fi
@@ -69,6 +84,6 @@ do
           break
        fi 
    done
-  ls *_paired.assembled.fasta > outslist
+  ls *_paired.assembled.fastq > outslist
   num_outs=$( wc -l outslist | awk '{print $1}')
 done
