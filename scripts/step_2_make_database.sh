@@ -36,7 +36,7 @@ do
 	sed -i 's/>//g' temp_lines
 	while read p; #for each sequence in each fasta, query NCBI's taxid lookup to get taxid, and attach it to the end of the sequence title.
 	do
- 		taxid=$( curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${p}&rettype=fasta&retmode=xml" | grep TSeq_taxid | cut -d '>' -f 2 | cut -d '<' -f 1 | tr -d "\n" | awk '{print $1}')
+ 		taxid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${p}&rettype=fasta&retmode=xml" | grep TSeq_taxid | cut -d '>' -f 2 | cut -d '<' -f 1 | tr -d "\n" | awk '{print $1}')
   		if [[ -z $taxid ]]
     		then
       			sed -i "/${p}/ s/$/\ttaxid=${taxid}/" $fil
