@@ -38,20 +38,37 @@ do
   fi
 done
 rm seqlist
-
-for fil in seqlist_*;
+num_outs=1
+while [[ $num_outs -ne $num_seqs ]];
 do
-  sbatch ${dir}/scripts/pear.sh $fil $pattern $r2_pattern ${dir}/${gene}
-done
-
-while true;
-do
-        sleep 5s
-        ck="squeue -u ${user}"
-        chck=$($ck)
-        check=$(echo "$chck" | grep "pear" | wc -l | awk '{print $1}')
-        if [[ $check -eq 0 ]];then
-           echo "done with pears" 
-           break
-        fi 
+  for fil in seqlist_*;
+    while read p;
+    do
+      base=$( echo $p | awk -F"${pattern}" '{print $1}')
+      if [[ ! -f ${base}_paired.assembled.fastq ]]
+      then 
+        echo "$p" >> temp_$fil
+      fi
+    done < ${fil}
+    mv temp_${fil} ${fil}
+    if [[ ! -s "$fil" ]]
+    then
+      sbatch ${dir}/scripts/pear.sh $fil $pattern $r2_pattern ${dir}/${gene}
+    else
+      echo "all files for $fil completed."
+    fi
+  done
+  while true;
+  do
+       sleep 3s
+       ck="squeue -u ${user}"
+       chck=$($ck)
+       check=$(echo "$chck" | grep "pear" | wc -l | awk '{print $1}')
+       if [[ $check -eq 0 ]];then
+          echo "done with pears" 
+          break
+       fi 
+   done
+  ls *_paired.assembled.fasta > outslist
+  num_outs=$( wc -l outslist | awk '{print $1}')
 done
