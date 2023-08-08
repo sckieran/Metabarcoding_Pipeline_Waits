@@ -104,89 +104,108 @@ else
 
 
 cd ${dirr}/${gene}_out
-	ncbi=$( ls ncbi*.csv | head -n1 | awk '{print $1}')
-	echo "now doing local blast search, this may take many hours. You have $n sequences to align. You can check your progress in the ${gene}_out folder with the command: tail ${prefix}_${gene}_raw_blast_out"
-	echo "localdat is $localdat, prefix is $prefix"
+ncbi=$( ls ncbi*.csv | head -n1 | awk '{print $1}')
+echo "now doing local blast search, this may take many hours. You have $n sequences to align. You can check your progress in the ${gene}_out folder with the command: tail ${prefix}_${gene}_raw_blast_out"
+echo "localdat is $localdat, prefix is $prefix"
 
- 	if [[ ${return_low} == "TRUE" ]]
-  	then
-		echo "you set return_low to TRUE, so BLAST will return the top bitscore matches regardless of percent identity."
-  		blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out
-	else
- 		echo "you set return_low to FALSE, or did not enter a valid TRUE/FALSE value, so BLAST will only return hits above %{cutoff} percent identity, regardless of score."
-		blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff}
-  	fi
-	blastout=${prefix}_${gene}_raw_blast_out
-	sed -i '/^#/d' $blastout
-	echo "blast done, making outfiles"
+if [[ ${return_low} == "TRUE" ]]
+then
+	echo "you set return_low to TRUE, so BLAST will return the top bitscore matches regardless of percent identity."
+  	blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out
+else
+ 	echo "you set return_low to FALSE, or did not enter a valid TRUE/FALSE value, so BLAST will only return hits above %{cutoff} percent identity, regardless of score."		blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff}
+  fi
+blastout=${prefix}_${gene}_raw_blast_out
+sed -i '/^#/d' $blastout
+echo "blast done, making outfiles"
 
-	#make a list of no-hits#
-	grep ">" ${prefix}_${gene}_combined_ASVs.fasta | awk -F">" '{print $2}' | sort > out1
-	cut -f1 ${prefix}_${gene}_raw_blast_out | sort | uniq > out2
-	comm -23 out1 out2 > list_of_no_hits
-	totalseqs=$( wc -l out1 | awk '{print $1}')
-	totalhits=$( wc -l out2 | awk '{print $1}')
-	nohits=$( wc -l list_of_no_hits | awk '{print $1}')
-	echo "there were ${totalhits} raw BLAST hits out of ${totalseqs} unique sequences, and ${nohits} raw BLAST no-hits. If this number seems too high, consider altering your filtering parameters, changing the blast parameters or adding taxa to your reference database."
+#make a list of no-hits#
+grep ">" ${prefix}_${gene}_combined_ASVs.fasta | awk -F">" '{print $2}' | sort > out1
+cut -f1 ${prefix}_${gene}_raw_blast_out | sort | uniq > out2
+comm -23 out1 out2 > list_of_no_hits
+totalseqs=$( wc -l out1 | awk '{print $1}')
+totalhits=$( wc -l out2 | awk '{print $1}')
+nohits=$( wc -l list_of_no_hits | awk '{print $1}')
+echo "there were ${totalhits} raw BLAST hits out of ${totalseqs} unique sequences, and ${nohits} raw BLAST no-hits. If this number seems too high, consider altering your filtering parameters, changing the blast parameters or adding taxa to your reference database."
 
- 	if [[ ${totalhits} -eq 0 ]]
-  	then
-   		echo "there were no blast hits. This is a problem. Exiting. Check your query fasta, ${prefix}_${gene}_combined_ASVs.fasta and your seqs.txt files for errors."
-     		exit;
-       fi
+if [[ ${totalhits} -eq 0 ]]
+then
+	echo "there were no blast hits. This is a problem. Exiting. Check your query fasta, ${prefix}_${gene}_combined_ASVs.fasta and your seqs.txt files for errors."
+     	exit;
+fi
        
-	#make a list of your unique sequences
-	cp out1 temp_seqlist
-	rm out1 out2
+#make a list of your unique sequences
+cp out1 temp_seqlist
+rm out1 out2
 
-	##add your species and taxid to your hits##
-	echo "adding species and taxid to your blast results"
-	cut -f5 $blastout | awk -F" " '{print $1,$2}' > temp_spec
-	cut -f5 $blastout | awk -F"taxid=" '{print $2}' | awk -F" " '{print $1}' > temp_taxids
-	cut -f6 $blastout > temp_scores
-	cut -f1-4 $blastout | paste - temp_spec temp_taxids temp_scores > ${blastout}_with_tax
-	rm temp_spec temp_taxids temp_scores
+##add your species and taxid to your hits##
+echo "adding species and taxid to your blast results"
+cut -f5 $blastout | awk -F" " '{print $1,$2}' > temp_spec
+cut -f5 $blastout | awk -F"taxid=" '{print $2}' | awk -F" " '{print $1}' > temp_taxids
+cut -f6 $blastout > temp_scores
+cut -f1-4 $blastout | paste - temp_spec temp_taxids temp_scores > ${blastout}_with_tax
+rm temp_spec temp_taxids temp_scores
 
-	##modify your ncbi tax file to contain only taxa within your reference database##
-	echo "now modifying your taxonomy file to limit your search space. This saves time."
-	cut -f6 ${blastout}_with_tax | sort | uniq > all_taxids
-	sed -i 's/$/,/g' all_taxids
-	sed -i 's/^/\^/g' all_taxids
-	grep -f all_taxids $ncbi | cut -f1,3,4,5,6,7,8 -d"," > ${ncbi}_r
-	sed -i 's/,/\t/g' ${ncbi}_r
-	rm all_taxids
-	tot=$( wc -l temp_seqlist | awk '{print $1}')
+##modify your ncbi tax file to contain only taxa within your reference database##
+echo "now modifying your taxonomy file to limit your search space. This saves time."
+cut -f6 ${blastout}_with_tax | sort | uniq > all_taxids
+sed -i 's/$/,/g' all_taxids
+sed -i 's/^/\^/g' all_taxids
+grep -f all_taxids $ncbi | cut -f1,3,4,5,6,7,8 -d"," > ${ncbi}_r
+sed -i 's/,/\t/g' ${ncbi}_r
+rm all_taxids
+tot=$( wc -l temp_seqlist | awk '{print $1}')
 
- 	echo "making your taxonomic assignment files and beginning to assign jobs."
-	tot_per_file=$( awk -v a1=$num_seqs -v a2=$max_jobs 'BEGIN { rounded = sprintf("%.0f", a1/a2); print rounded }')
- 	if [[ ${tot_per_file} -eq 0 ]]
+ echo "making your taxonomic assignment files and beginning to assign jobs."
+tot_per_file=$( awk -v a1=$tot -v a2=$max_jobs 'BEGIN { x+=(a1/a2); printf("%.0f", (x == int(x)) ? x : int(x)+1) }' )
+if [[ ${tot_per_file} -eq 0 ]]
 	then
  		 tot_per_file=1
 	fi
-echo "there were $tot samples to pear and $tot_per_file sample(s) per job."
-	x=1
-	while [[ $x -lt ${max_jobs} ]];
-	do
- 		if [[ -s temp_seqlist ]];
-  		then
-   			head -n ${tot_per_file} temp_seqlist > seqlist_${x}
-    			sed -i "1,${tot_per_file}d" temp_seqlist
-   			x=$(( $x + 1 ))
- 		else
-  			x=$max_jobs
-  		fi
-	done
-	rm temp_seqlist
-
+echo "there were $tot samples to assign taxonomy for and $tot_per_file sample(s) per job."
+x=1
+while [[ $x -le ${max_jobs} ]];
+do
+	if [[ -s temp_seqlist ]];
+  	then
+   		head -n ${tot_per_file} temp_seqlist > seqlist_${x}
+    		sed -i "1,${tot_per_file}d" temp_seqlist
+   		x=$(( $x + 1 ))
+ 	else
+  		x=$(( $max_jobs + 1 ))
+  	fi
+done
+rm temp_seqlist
+while [[ $num_outs -ne $tot ]];
+do
 	for fil in seqlist_*;
  	do
   		x=$( echo $fil | awk -F"_" '{print $2}')
-    		sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr
-       done
-
-       while true;
-	do
-       	 sleep 10s
+    		while true;
+     			do
+     				if [[ ! -s {prefix}_${gene}_best_blast_hits.out_${x} ]];
+	 			then
+	 				echo "outfile for $fil does not yet exist or is empty. Doing $fil."
+     					res=$(sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr)
+   					if squeue -u $user | grep -q "${res##* }"; 
+   					then
+   						echo "job ${res##* } for $fil submitted successfully."
+       						break
+       					elif [[ -f tax.${res##* }.err ]];
+	  				then
+	  					echo "job ${res##* } for $fil submitted successfully."
+      						break
+      					else
+	  					echo "job ${res##* } did not submit. Trying again."
+					fi
+     				else
+	 				echo "all samples from $fil already done."
+      				fi
+    			done
+       		done
+      	while true;
+     	do
+       	 sleep 5s
 	 ck="squeue -u ${user}"
 	 chck=$($ck)
   	 check=$(echo "$chck" | grep "tax" | wc -l | awk '{print $1}')
@@ -196,7 +215,10 @@ echo "there were $tot samples to pear and $tot_per_file sample(s) per job."
          	 break
        	fi 
 	done
-  
+  	ls *_best_blast_hits.out_* > outslist
+   	num_outs=$( wc -l outslist | awk '{print $1}')
+    done
+    
 #cat your files and make a header for the best hits table.
 
 cat ${prefix}_${gene}_best_blast_hits.out_* | sort -k1 > ${prefix}_${gene}_best_blast_hits.out
@@ -207,3 +229,5 @@ cat ${prefix}_${gene}_best_blast_hits.header ${prefix}_${gene}_best_blast_hits.o
 
 #clean up outfiles
 rm ${prefix}_${gene}_best_blast_hits.out*
+rm tax.*.err
+rm tax.*.out
