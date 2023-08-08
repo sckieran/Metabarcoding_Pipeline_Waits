@@ -31,7 +31,8 @@ do
 done
 rm samplist 	
 num_outs=1
-cat *_seqs.txt > all_outs
+cat *_seqs.txt | cut -f1 | awk -v m=$minlen '{ if (length($1) > m) print }' > all_outs
+sed -i '/^#/d' all_outs
 num_samps=$( wc -l all_outs | awk '{print $1}')
 while [[ $num_outs -ne $num_samps ]];
 do
