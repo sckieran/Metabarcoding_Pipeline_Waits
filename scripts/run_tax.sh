@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH -J tax
-#SBATCH -e tax.err
-#SBATCH -o tax.out
+#SBATCH -e tax.%j.err
+#SBATCH -o tax.%j.out
 
 x=$1
 prefix=$2
