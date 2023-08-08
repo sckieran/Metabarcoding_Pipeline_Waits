@@ -29,7 +29,12 @@ do
 			reads=$(echo $lin | awk  '{print $2}')
 			taxline=$(grep -w  -m1 "$seq" ${prefix}_${gene}_best_blast_hits.txt | awk -v OFS='\t' '{print $3,$4" "$5,$6,$7,$8,$9,$10,$11,$12,$13}')
    			sp2=$(grep -w  -m1 "$seq" ${prefix}_${gene}_best_blast_hits.txt | cut -f13)
-			echo "$base	$seq	$reads	$taxline	$sp2" >> ${prefix}_${gene}_taxatable.txt_${y}
+      			if cat ${prefix}_${gene}_taxatable.txt_${y} | grep -q -w "$base	$seq";
+	 		then
+    				echo "this seq already in taxatable for $base."
+			else
+				echo "$base	$seq	$reads	$taxline	$sp2" >> ${prefix}_${gene}_taxatable.txt_${y}
+    			fi
 			x=$(( $x + 1 ))
 	done
 done < $infil
