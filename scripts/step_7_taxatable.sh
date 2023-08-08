@@ -68,7 +68,8 @@ do
 	  			echo "$base has $num_s sequences but only $num_ttb were integrated into the outfile. Resubmitting."
 	 			if [[ $num_ttb -ne $num_s ]];
     				then
-       					echo "$p" >> temp_samplist_${y}
+       					echo "$base has $num_s sequences but only $num_ttb were integrated into the outfile. Resubmitting."
+	    				echo "$p" >> temp_samplist_${y}
 	   			fi
       			done < samplist_${y}
       			if [[ -s temp_samplist_${y} ]];
