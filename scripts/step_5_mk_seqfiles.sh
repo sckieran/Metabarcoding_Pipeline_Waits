@@ -82,6 +82,7 @@ do
   done
   ls *_filtered_seqs.txt > outslist
   num_outs=$( wc -l outslist | awk '{print $1}')
+  echo "there are $num_seqs sequences to make seqfiles for and $num_outs seqfiles. If these numbers don't match, will resubmit jobs as necessary. If these numbers do match, moving on to building a taxonomy table."
 done
 
 rm mksq.*.err
