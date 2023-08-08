@@ -82,6 +82,7 @@ do
   num_outs=$( wc -l outslist | awk '{print $1}')
 done
 
-
+rm mksq.*.err
+rm mksq.*.out
 mv *_clustered.fasta ./collapsed/
 mv *_filtered_seqs.txt ./seqfiles/
