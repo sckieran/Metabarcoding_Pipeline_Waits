@@ -72,7 +72,7 @@ do
         sleep 3s
         ck="squeue -u ${user}"
         chck=$($ck)
-        check=$(echo "$chck" | grep "fx_col" | wc -l | awk '{print $1}')
+        check=$(echo "$chck" | grep "mksq" | wc -l | awk '{print $1}')
         if [[ $check -eq 0 ]];then
            echo "done with collapsing ASVs" 
            break
