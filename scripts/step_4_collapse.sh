@@ -66,7 +66,7 @@ do
    		then
    			echo "job ${res##* } for $fil submitted successfully."
     			break
-     		elif [[ -f ttb.${res##* }.err ]];
+     		elif [[ -f fx_col.${res##* }.err ]];
 	  	then
 	  		echo "job ${res##* } for $fil submitted successfully."
      			break
@@ -98,3 +98,5 @@ echo "there are $num_seqs input samples and $num_outs clustered output samples. 
 rm outslist
 rm pairedlist_*
 mv *_paired.assembled.fastq ./paired/
+rm fx_col.*.err
+rm fx_col.*.out
