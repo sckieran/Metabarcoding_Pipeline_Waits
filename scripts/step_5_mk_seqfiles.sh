@@ -4,6 +4,7 @@ dir=$1
 rlib=$2
 cutoff=$3
 gene=$4
+max_jobs=$5
 
 cd ${dir}/${gene}
 
@@ -14,7 +15,7 @@ if [[ ${tot_per_file} -eq 0 ]];
 then
   tot_per_file=1
 fi
-echo "there were $num_seqs samples to pear and $tot_per_file sample(s) per job."
+echo "there were $num_seqs samples to make seqfiles for and $tot_per_file sample(s) per job."
 
 #cut into slurm jobs for faster processing#
 x=1
