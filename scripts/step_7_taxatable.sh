@@ -38,11 +38,10 @@ do
  	echo "$num_outs and $num_samps are not equal, running job submission"
   	for fil in samplist_*
 	do
-		echo "ready to submit job for $fil"
   		y=$( echo $fil | awk -F"_" '{print $2}')
 		if [[ ! -s ${prefix}_${gene}_taxatable.txt_${y} ]];
   		then
-  			while true;
+     			while true;
      			do
      				echo "outfile for $fil does not yet exist or is empty. Doing $fil."
      				res=$(sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix)
@@ -58,7 +57,39 @@ do
 	  				echo "job ${res##* } did not submit. Trying again."
 				fi
    			done
-  		fi
+  		else
+    			while read p;
+      			do
+				base=$( echo "$p" | awk -F"_filtered_seqs.txt" '{print $1}' )
+   				num_ttb=$( grep "${base}" ${prefix}_${gene}_taxatable.txt_${y} | wc -l | awk '{print $1}' )
+      				num_s=$( wc -l $p | awk '{print $1}' )
+	  			echo "$base has $num_s sequences but only $num_ttb were integrated into the outfile. Resubmitting."
+	 			if [[ $num_ttb -ne $num_s ]];
+    				then
+       					echo "$p" >> temp_samplist_${y}
+	   			fi
+      			done
+      			if [[ -s temp_samplist_${y} ]];
+			then
+  				lensl=$( wc -l temp_samplist_${y} | awk '{print $1}' )
+      				echo "There is an outfile for samplist_${y}, but it is incomplete. There are ${lensl} samples to integrate."
+      				mv temp_samplist_${y} samplist_${y}
+      				res=$(sbatch ${dirr}/scripts/run_ttb.sh samplist_${y} $dirr $gene $prefix)
+   				if squeue -u $user | grep -q "${res##* }"; 
+   				then
+   					echo "job ${res##* } for $fil submitted successfully."
+       					break
+       				elif [[ -f ttb.${res##* }.err ]];
+	  			then
+	  				echo "job ${res##* } for $fil submitted successfully."
+      					break
+      				else
+	  				echo "job ${res##* } did not submit. Trying again."
+				fi
+    			else
+       				echo "all sequences for samplist_${y} completed."
+       			fi
+       		fi
 	done
  	while true;
 	do
@@ -70,7 +101,8 @@ do
            		break
         	fi 
 	done
-  	cat *_taxatable.txt_* > outs_${gene}
+  	cat *_seqs.txt | cut -f1 | awk -v m=$minlen '{ if (length($0) > m) print }' > outs_${gene}
+   	sed -i '/^#/d' outs_${gene}
    	num_outs=$( wc -l outs_${gene} | awk '{print $1}')
     	if [[ $num_outs -ne $num_samps ]]; then
      		echo "number of outfiles is $num_outs, and is not equal to the number of input sequences, $num_samps. Checking outfiles and re-running jobs."
