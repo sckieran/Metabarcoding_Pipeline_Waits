@@ -68,11 +68,11 @@ do
   echo "done collapsing samples into unique ASVs. Making per-sample ASV files."
   echo "###"
 
-  bash ${dir}/scripts/step_5_mk_seqfiles.sh ${dir} $rlib $taxa_rra ${gene}
+  bash ${dir}/scripts/step_5_mk_seqfiles.sh ${dir} ${rlib} ${taxa_rra} ${gene} ${max_jobs}
 
   echo "###"
   echo "###"
-  echo "done making seqfiles. No RRA filtering was done, functionality coming soon. Beginning the local BLAST process"
+  echo "done making seqfiles. RRA filtering ASV/sample done at your filter level of ${taxa_rra}. Beginning the local BLAST process"
   echo "###"
 
   bash ${dir}/scripts/step_6_blast.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -r ${db_dirr} -c ${identity_cutoff} -t ${return_low} -j ${max_jobs} -u ${user}
