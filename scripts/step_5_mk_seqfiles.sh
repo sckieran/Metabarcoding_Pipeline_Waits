@@ -9,6 +9,7 @@ user=$6
 minlen=$7
 
 cd ${dir}/${gene}
+mkdir -p ./unfiltered_seqfiles
 
 ls *_clustered.fasta > collapselist
 num_seqs=$( wc -l collapselist | awk '{print $1}')
