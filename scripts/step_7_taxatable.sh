@@ -69,7 +69,7 @@ do
     				then
        					echo "$p" >> temp_samplist_${y}
 	   			fi
-      			done
+      			done < samplist_${y}
       			if [[ -s temp_samplist_${y} ]];
 			then
   				lensl=$( wc -l temp_samplist_${y} | awk '{print $1}' )
