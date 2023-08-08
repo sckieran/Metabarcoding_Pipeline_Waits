@@ -31,8 +31,8 @@ do
 done
 rm samplist 	
 num_outs=1
-ls samplist_* > outs_samps
-num_samps=$( wc -l outs_samps | awk '{print $1}')
+cat *_seqs.txt > all_outs
+num_samps=$( wc -l all_outs | awk '{print $1}')
 while [[ $num_outs -ne $num_samps ]];
 do
  	echo "$num_outs and $num_samps are not equal, running job submission"
@@ -64,16 +64,18 @@ do
 	do
        		sleep 2s
        		check=$( squeue -u $user | grep "ttb" | wc -l )
-       		echo "there are $check jobs left"
+       		echo "Waiting for jobs to finish. There are $check jobs left"
 		if [[ $check -eq 0 ]];then
            		echo "done with jobs, checking all ran" 
            		break
         	fi 
 	done
-  	ls *_taxatable.txt_* > outs_${gene}
+  	cat *_taxatable.txt_* > outs_${gene}
    	num_outs=$( wc -l outs_${gene} | awk '{print $1}')
     	if [[ $num_outs -ne $num_samps ]]; then
-     		echo "number of outfiles is $num_outs, and is not equal to the number of input sample files, $num_samps. Checking outfiles and re-running jobs."
+     		echo "number of outfiles is $num_outs, and is not equal to the number of input sequences, $num_samps. Checking outfiles and re-running jobs."
+       	else
+		echo "number of outfiles, $num_outs equals the number of input samples, $num_samps. Continuing."
 	fi
 done
 
