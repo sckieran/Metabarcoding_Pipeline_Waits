@@ -65,8 +65,7 @@ do
 				base=$( echo "$p" | awk -F"_filtered_seqs.txt" '{print $1}' )
    				num_ttb=$( grep "${base}" ${prefix}_${gene}_taxatable.txt_${y} | wc -l | awk '{print $1}' )
       				num_s=$( wc -l $p | awk '{print $1}' )
-	  			echo "$base has $num_s sequences but only $num_ttb were integrated into the outfile. Resubmitting."
-	 			if [[ $num_ttb -ne $num_s ]];
+	  			if [[ $num_ttb -ne $num_s ]];
     				then
        					echo "$base has $num_s sequences but only $num_ttb were integrated into the outfile. Resubmitting."
 	    				echo "$p" >> temp_samplist_${y}
