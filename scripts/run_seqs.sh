@@ -21,6 +21,7 @@ do
   grep -v ">" $fil | awk -v m=$minlen '{ if (length($1) > m) print }' > temp_seqs_${base}
   paste  temp_seqs_${base} temp_reads_${base}  > ${base}_seqs.txt
   Rscript ${dir}/scripts/filter_rra.R $rlib ${dir}/${gene} ${base}_seqs.txt $base $cutoff
+  mv ${base}_seqs.txt ./unfiltered_seqfiles/${base}_seqs.txt
   rm temp_reads_${base} temp_seqs_${base}
 done < ${inp}
 
