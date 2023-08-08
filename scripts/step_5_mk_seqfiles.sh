@@ -75,6 +75,7 @@ do
         ck="squeue -u ${user}"
         chck=$($ck)
         check=$(echo "$chck" | grep "mksq" | wc -l | awk '{print $1}')
+	echo "waiting for jobs to finish. There are $check jobs remaining."
         if [[ $check -eq 0 ]];then
            echo "done with collapsing ASVs" 
            break
