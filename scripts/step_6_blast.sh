@@ -218,7 +218,7 @@ do
 	done
   	cat *_best_blast_hits.out_* > outslist
    	num_outs=$( wc -l outslist | awk '{print $1}')
-    	echo "there are $num_seqs sequences to assign and $num_outs sequences successfully assigned. If these numbers match, moving on to taxonomy. If not, checking each sample and re-submitting jobs as needed."
+    	echo "there are $tot sequences to assign and $num_outs sequences successfully assigned. If these numbers match, moving on to taxonomy. If not, checking each sample and re-submitting jobs as needed."
     done
     
 #cat your files and make a header for the best hits table.
