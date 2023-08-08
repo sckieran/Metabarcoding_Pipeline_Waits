@@ -18,7 +18,7 @@ then
 fi
 echo "there were $num_seqs samples to do taxatables for and $tot_per_file sample(s) per job."
 x=1
-while [[ $x -lt ${max_jobs} ]];
+while [[ $x -le ${max_jobs} ]];
 do
 	if [[ -s samplist ]];
  	then
@@ -26,7 +26,7 @@ do
     		sed -i "1,${tot_per_file}d" samplist
       		x=$(( $x + 1 ))	
 	else
- 		x=$max_jobs
+ 		x=$(( $max_jobs + 1 ))
   	fi
 done
 rm samplist 	
