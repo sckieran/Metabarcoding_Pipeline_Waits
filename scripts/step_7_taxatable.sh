@@ -93,6 +93,7 @@ fi
 
 echo "done with unfiltered analysis ${gene}. You can find taxa tables and raw ASV tables in your project directory/reports, and if you set filter to TRUE, the next step will filter your data at your read and identity cutoffs."
 
+rm *_taxatable.txt_*
 rm temp* rm ttb*.err ttb*.out
 mkdir -p ${dirr}/${gene}_out/sample_seqfiles ${dirr}/results_tables
 mv *_seqs.txt ${dirr}/${gene}_out/sample_seqfiles
