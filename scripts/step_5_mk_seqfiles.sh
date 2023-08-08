@@ -6,6 +6,7 @@ cutoff=$3
 gene=$4
 max_jobs=$5
 user=$6
+minlen=$7
 
 cd ${dir}/${gene}
 
@@ -50,7 +51,7 @@ do
       while true;
      	do
      		echo "outfile for $fil does not yet exist or is empty. Doing $fil."
-     		res=$(sbatch ${dir}/scripts/run_seqs.sh $fil ${dir} ${gene} ${rlib} ${cutoff})
+     		res=$(sbatch ${dir}/scripts/run_seqs.sh $fil ${dir} ${gene} ${rlib} ${cutoff} ${minlen})
    		if squeue -u $user | grep -q "${res##* }"; 
    		then
    		  echo "job ${res##* } for $fil submitted successfully."
