@@ -100,3 +100,4 @@ rm pairedlist_*
 mv *_paired.assembled.fastq ./paired/
 rm fx_col.*.err
 rm fx_col.*.out
+rm collapselist_*
