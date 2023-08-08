@@ -55,7 +55,7 @@ do
    		then
    		  echo "job ${res##* } for $fil submitted successfully."
        			break
-     		elif [[ -f ttb.${res##* }.err ]];
+     		elif [[ -f mksq.${res##* }.err ]];
 	  	then
 	  		echo "job ${res##* } for $fil submitted successfully."
      			break
