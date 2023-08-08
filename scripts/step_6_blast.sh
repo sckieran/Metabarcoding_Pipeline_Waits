@@ -216,7 +216,7 @@ do
          	 break
        	fi 
 	done
-  	ls *_best_blast_hits.out_* > outslist
+  	cat *_best_blast_hits.out_* > outslist
    	num_outs=$( wc -l outslist | awk '{print $1}')
     done
     
