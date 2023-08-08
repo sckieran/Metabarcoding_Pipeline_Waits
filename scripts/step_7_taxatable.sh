@@ -59,7 +59,8 @@ do
 				fi
    			done
   		else
-    			while read p;
+    			touch temp_samplist_${y}
+       			while read p;
       			do
 				base=$( echo "$p" | awk -F"_filtered_seqs.txt" '{print $1}' )
    				num_ttb=$( grep "${base}" ${prefix}_${gene}_taxatable.txt_${y} | wc -l | awk '{print $1}' )
