@@ -113,7 +113,8 @@ then
 	echo "you set return_low to TRUE, so BLAST will return the top bitscore matches regardless of percent identity."
   	blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out
 else
- 	echo "you set return_low to FALSE, or did not enter a valid TRUE/FALSE value, so BLAST will only return hits above %{cutoff} percent identity, regardless of score."		blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff}
+ 	echo "you set return_low to FALSE, or did not enter a valid TRUE/FALSE value, so BLAST will only return hits above %{cutoff} percent identity, regardless of score."		
+  	blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff}
   fi
 blastout=${prefix}_${gene}_raw_blast_out
 sed -i '/^#/d' $blastout
