@@ -5,6 +5,7 @@ rlib=$2
 cutoff=$3
 gene=$4
 max_jobs=$5
+user=$6
 
 cd ${dir}/${gene}
 
