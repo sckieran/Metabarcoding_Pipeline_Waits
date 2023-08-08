@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SBATCH -J mksq
-SBATCH -e mksq.out
-SBATCH -o mksq.err
+#SBATCH -J mksq
+#SBATCH -e mksq.out
+#SBATCH -o mksq.err
 
 inp=$1
 dir=$2
