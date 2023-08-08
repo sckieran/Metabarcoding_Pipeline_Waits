@@ -40,7 +40,7 @@ do
 	do
 		echo "ready to submit job for $fil"
   		y=$( echo $fil | awk -F"_" '{print $2}')
-		if [[ ! -f ${prefix}_${gene}_taxatable.txt_${y} ]] | [[ ! -s ${prefix}_${gene}_taxatable.txt_${y} ]] ;
+		if [[ ! -s ${prefix}_${gene}_taxatable.txt_${y} ]];
   		then
   			while true;
      			do
