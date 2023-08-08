@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH -J fx_col
-#SBATCH -e fastx-collapse.err
-#SBATCH -o fastx-collapse.out
+#SBATCH -e fx_col.%j.err
+#SBATCH -o fx_col.%j.out
 
 module load fastx
 
