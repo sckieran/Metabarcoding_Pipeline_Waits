@@ -27,7 +27,7 @@ do
     sed -i "1,${tot_per_file}d" collapselist
     x=$(( $x + 1 ))
   else
-    x=$max_jobs
+    x=$(( $max_jobs + 1 ))
   fi
 done
 rm collapselist
