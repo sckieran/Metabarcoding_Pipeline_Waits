@@ -101,8 +101,7 @@ do
            		break
         	fi 
 	done
-  	cat *_seqs.txt | cut -f1 | awk -v m=$minlen '{ if (length($0) > m) print }' > outs_${gene}
-   	sed -i '/^#/d' outs_${gene}
+  	cat ${prefix}_${gene}_taxatable.txt_* > outs_${gene}
    	num_outs=$( wc -l outs_${gene} | awk '{print $1}')
     	if [[ $num_outs -ne $num_samps ]]; then
      		echo "number of outfiles is $num_outs, and is not equal to the number of input sequences, $num_samps. Checking outfiles and re-running jobs."
