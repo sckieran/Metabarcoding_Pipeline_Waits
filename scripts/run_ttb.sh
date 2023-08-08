@@ -19,7 +19,7 @@ touch ${prefix}_${gene}_taxatable.txt_${y}
 while read fil;
 do
   base=$(echo $fil | awk -F"_" '{print $1}')
-	x=2
+	x=1
 	n=$( wc -l $fil | awk '{print $1}')
 	while [[ $x -le $n ]]
 	do
