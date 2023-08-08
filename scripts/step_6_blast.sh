@@ -184,7 +184,7 @@ do
   		x=$( echo $fil | awk -F"_" '{print $2}')
     		while true;
      			do
-     				if [[ ! -s {prefix}_${gene}_best_blast_hits.out_${x} ]];
+     				if [[ ! -s ${prefix}_${gene}_best_blast_hits.out_${x} ]];
 	 			then
 	 				echo "outfile for $fil does not yet exist or is empty. Doing $fil."
      					res=$(sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr)
@@ -206,7 +206,7 @@ do
        		done
       	while true;
      	do
-       	 sleep 5s
+       	 sleep 3s
 	 ck="squeue -u ${user}"
 	 chck=$($ck)
   	 check=$(echo "$chck" | grep "tax" | wc -l | awk '{print $1}')
