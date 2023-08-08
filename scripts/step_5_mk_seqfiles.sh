@@ -19,7 +19,7 @@ echo "there were $num_seqs samples to make seqfiles for and $tot_per_file sample
 
 #cut into slurm jobs for faster processing#
 x=1
-while [[ $x -lt ${max_jobs} ]];
+while [[ $x -le ${max_jobs} ]];
 do
   if [[ -s collapselist ]];
   then
