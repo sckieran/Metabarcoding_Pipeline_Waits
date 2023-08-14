@@ -130,6 +130,6 @@ while read p;
 		fi	
   	fi
  done < seqlist_${x}
- rm temp_*_${x} seqlist_${x}
+ rm temp_*_${x}
  echo "job seqlist_${x} is done"
  
