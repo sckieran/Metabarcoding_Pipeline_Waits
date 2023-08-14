@@ -231,5 +231,6 @@ cat ${prefix}_${gene}_best_blast_hits.header ${prefix}_${gene}_best_blast_hits.o
 
 #clean up outfiles
 rm ${prefix}_${gene}_best_blast_hits.out*
+rm seqlist_*
 rm tax.*.err
 rm tax.*.out
