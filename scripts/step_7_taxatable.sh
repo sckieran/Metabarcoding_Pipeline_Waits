@@ -59,7 +59,7 @@ do
 				fi
    			done
   		else
-    			touch temp_samplist_${y}
+    			echo -n "" > temp_samplist_${y}
        			while read p;
       			do
 				base=$( echo "$p" | awk -F"_" '{print $1}' )
