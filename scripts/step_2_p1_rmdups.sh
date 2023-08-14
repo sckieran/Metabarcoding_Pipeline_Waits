@@ -25,7 +25,7 @@ y=1
 while [[ $y -lt $grno ]]
 do
         start_line=$(grep -m${y} "$acc" $line_file | awk -F":" '{print $1}' | tail -n1)
-        end1=$(grep -m${y} -A1 "$acc" $line_file | grep -v "$acc" |  awk -F":" '{print $1}' | tail -n1)
+        end1=$(grep -m${y} -A1 "$acc" $line_file | tail -n1 |  awk -F":" '{print $1}')
         end_line=$(( $end1 - 1 ))
         echo "start line is $start_line and end line is $end_line"
         sed -e "${start_line},${end_line}d" $filename > temp_file
