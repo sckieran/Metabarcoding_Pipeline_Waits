@@ -183,43 +183,44 @@ do
  	do
   		x=$( echo $fil | awk -F"_" '{print $2}')
     		while true;
-     			do
-     				if [[ ! -s ${prefix}_${gene}_best_blast_hits.out_${x} ]];
-	 			then
-	 				echo "outfile for $fil does not yet exist or is empty. Doing $fil."
-     					res=$(sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr)
-   					if squeue -u $user | grep -q "${res##* }"; 
-   					then
-   						echo "job ${res##* } for $fil submitted successfully."
-       						break
-       					elif [[ -f tax.${res##* }.err ]];
-	  				then
-	  					echo "job ${res##* } for $fil submitted successfully."
-      						break
-      					else
-	  					echo "job ${res##* } did not submit. Trying again."
-					fi
-     				else
-	 				echo "all samples from $fil already done."
-      				fi
-    			done
-       		done
-      	while true;
+     		do
+     			if [[ ! -s ${prefix}_${gene}_best_blast_hits.out_${x} ]];
+	 		then
+	 			echo "outfile for $fil does not yet exist or is empty. Doing $fil."
+     				res=$(sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr)
+   				if squeue -u $user | grep -q "${res##* }"; 
+   				then
+   					echo "job ${res##* } for $fil submitted successfully."
+       					break
+       				elif [[ -f tax.${res##* }.err ]];
+	  			then
+	  				echo "job ${res##* } for $fil submitted successfully."
+      					break
+      				else
+	  				echo "job ${res##* } did not submit. Trying again."
+				fi
+     			else
+	 			echo "all samples from $fil already done."
+      			fi
+    		done
+       	done	
+	while true;
      	do
-       	 sleep 3s
-	 ck="squeue -u ${user}"
-	 chck=$($ck)
-  	 check=$(echo "$chck" | grep "tax" | wc -l | awk '{print $1}')
-	 echo "waiting for jobs to run. There are $check jobs left"
-       	 if [[ $check -eq 0 ]];then
-        	 echo "no jobs left, checking that jobs ran successfully." 
-         	 break
-       	fi 
+       		sleep 3s
+	 	ck="squeue -u ${user}"
+		chck=$($ck)
+  		check=$(echo "$chck" | grep "tax" | wc -l | awk '{print $1}')
+		echo "waiting for jobs to run. There are $check jobs left"
+       		if [[ $check -eq 0 ]];
+	 	then
+        		echo "no jobs left, checking that jobs ran successfully." 
+         		break
+       		fi 
 	done
   	cat *_best_blast_hits.out_* > outslist
    	num_outs=$( wc -l outslist | awk '{print $1}')
     	echo "there are $tot sequences to assign and $num_outs sequences successfully assigned. If these numbers match, moving on to taxonomy. If not, checking each sample and re-submitting jobs as needed."
-    done
+done
     
 #cat your files and make a header for the best hits table.
 
