@@ -201,6 +201,7 @@ do
 				fi
      			else
 	 			echo "all samples from $fil already done."
+     				break
       			fi
     		done
        	done	
