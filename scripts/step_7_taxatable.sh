@@ -90,6 +90,7 @@ do
 				fi
     			else
        				echo "all sequences for samplist_${y} completed."
+	   			break
        			fi
        		fi
 	done
