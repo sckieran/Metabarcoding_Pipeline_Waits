@@ -89,3 +89,4 @@ rm mksq.*.err
 rm mksq.*.out
 mv *_clustered.fasta ./collapsed/
 mv *_filtered_seqs.txt ./seqfiles/
+rm collapselist_*
