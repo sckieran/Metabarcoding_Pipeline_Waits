@@ -77,20 +77,23 @@ do
       				echo "There is an outfile for samplist_${y}, but it is incomplete. There are ${lensl} samples to integrate."
       				mv temp_samplist_${y} samplist_${y}
       				res=$(sbatch ${dirr}/scripts/run_ttb.sh samplist_${y} $dirr $gene $prefix)
-   				if squeue -u $user | grep -q "${res##* }"; 
-   				then
-   					echo "job ${res##* } for $fil submitted successfully."
-       					break
-       				elif [[ -f ttb.${res##* }.err ]];
-	  			then
-	  				echo "job ${res##* } for $fil submitted successfully."
-      					break
-      				else
-	  				echo "job ${res##* } did not submit. Trying again."
-				fi
+   				while true;
+       				do
+	       				if squeue -u $user | grep -q "${res##* }"; 
+   					then
+   						echo "job ${res##* } for $fil submitted successfully."
+       						break
+  	     				elif [[ -f ttb.${res##* }.err ]];
+		  			then
+	  					echo "job ${res##* } for $fil submitted successfully."
+      						break
+	      				else
+		  				echo "job ${res##* } did not submit. Trying again."
+			
+     					fi
+	  			done
     			else
        				echo "all sequences for samplist_${y} completed."
-	   			break
        			fi
        		fi
 	done
