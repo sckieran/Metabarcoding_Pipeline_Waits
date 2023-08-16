@@ -86,7 +86,7 @@ for (i in 1:z) {
   rm(list = ls(pattern = paste0("_",colnames(genelist[y]),"$"))) ##clean up data
   rm(temp_gene_all)
 }
-if (length(genes) = 1 ) { 
+if (n = 1) { 
 write.table(paste0(colnames(genelist[1]),"_all"),file=paste0(prefix,"_database_taxa_summary.txt"), row.names=FALSE, col.names=TRUE, sep="\t",quote=FALSE,eol="\n")
 } else {
 list_of_all2 <-  mget(ls(pattern ="_all"))
