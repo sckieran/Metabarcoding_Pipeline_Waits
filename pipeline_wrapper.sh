@@ -6,13 +6,13 @@
 #SBATCH --mem=14G
 
 dir=$PWD
-prefix=
+prefix=your_project
 rlib="~/Rpackages"
 genelist=$PWD/genelist
 taxlist=$PWD/taxlist
 retmax=20
 db_dirr=reference_database
-key=
+key=your_ncbi_key
 R1_pattern="_R1.fastq"
 R2_pattern="_R2.fastq"
 max_jobs=490
@@ -21,8 +21,9 @@ filter=TRUE
 taxa_rra=0.005
 identity_cutoff=97
 minlen=70
+remote=FALSE
 return_low=TRUE
-user=
+user=your_slurm_username
 
 
 echo "###"
@@ -72,11 +73,16 @@ do
 
   echo "###"
   echo "###"
-  echo "done making seqfiles. RRA filtering ASV/sample done at your filter level of ${taxa_rra}. Beginning the local BLAST process"
+  echo "done making seqfiles. RRA filtering ASV/sample done at your filter level of ${taxa_rra}. Beginning the BLAST process"
   echo "###"
-
-  bash ${dir}/scripts/step_6_blast.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -r ${db_dirr} -c ${identity_cutoff} -t ${return_low} -j ${max_jobs} -u ${user}
-
+  if [[ $remote == "TRUE" ]]
+  then
+    echo "building input FASTA and performing remote BLAST."
+    bash ${dir}/scripts/step_6_blast_remote.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -c ${identity_cutoff} -t ${return_low} -j ${max_jobs} -u ${user}
+  else
+    echo "building input FASTA and performing local BLAST."
+    bash ${dir}/scripts/step_6_blast.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -r ${db_dirr} -c ${identity_cutoff} -t ${return_low} -j ${max_jobs} -u ${user}
+  fi
    echo "###"
    echo "###"
    echo "done with BLAST. Making raw (unfiltered) taxatable"
