@@ -110,10 +110,10 @@ echo "You set remote to TRUE, so now doing remote blast search, this may take ma
 if [[ ${return_low} == "TRUE" ]]
 then
 	echo "you set return_low to TRUE, so BLAST will return the top bitscore matches regardless of percent identity."
-  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 1 -out ${prefix}_${gene}_raw_blast_out -remote
+  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 1 -out ${prefix}_${gene}_raw_blast_out -remote
 else
  	echo "you set return_low to FALSE, or did not enter a valid TRUE/FALSE value, so BLAST will only return hits above %{cutoff} percent identity, regardless of score."		
-  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 1 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff} -remote
+  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 1 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff} -remote
   fi
 blastout=${prefix}_${gene}_raw_blast_out
 sed -i '/^#/d' $blastout
@@ -141,18 +141,18 @@ rm out1 out2
 ##add your species and taxid to your hits##
 echo "adding species and taxid to your blast results"
 cut -f5 $blastout | awk -F" " '{print $1,$2}' > temp_spec
-#cut -f5 $blastout | awk -F"taxid=" '{print $2}' | awk -F" " '{print $1}' > temp_taxids
-cut -f2 $blastout > temp_accs
-echo -n "" > temp_taxids
-num_accs=$( wc -l temp_accs | awk '{print $1}')
-hz=1
-while read p;
-do
-	echo "adding taxids to accession number $hz of ${num_accs}"
-	taxid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${p}&rettype=fasta&retmode=xml" | grep TSeq_taxid | cut -d '>' -f 2 | cut -d '<' -f 1 | tr -d "\n" | awk '{print $1}')
-	echo "$taxid" >> temp_taxids
-	hz=$(( $hz + 1 ))
-done < temp_accs
+cut -f7 $blastout > temp_taxids
+#cut -f2 $blastout > temp_accs
+#echo -n "" > temp_taxids
+#num_accs=$( wc -l temp_accs | awk '{print $1}')
+#hz=1
+#while read p;
+#do
+#	echo "adding taxids to accession number $hz of ${num_accs}"
+#	taxid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${p}&rettype=fasta&retmode=xml" | grep TSeq_taxid | cut -d '>' -f 2 | cut -d '<' -f 1 | tr -d "\n" | awk '{print $1}')
+#	echo "$taxid" >> temp_taxids
+#	hz=$(( $hz + 1 ))
+#done < temp_accs
 cut -f6 $blastout > temp_scores
 cut -f1-4 $blastout | paste - temp_spec temp_taxids temp_scores > ${blastout}_with_tax
 rm temp_spec temp_taxids temp_scores temp_accs
