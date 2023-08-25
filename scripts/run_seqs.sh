@@ -10,9 +10,10 @@ gene=$3
 rlib=$4
 cutoff=$5
 minlen=$6
+env_name=$7
 
 cd ${dir}/${gene}
-module load R/4.2.3
+
 
 while read fil;
 do
@@ -22,7 +23,9 @@ do
   paste  temp_seqs_${base} temp_reads_${base}  > ${base}_seqs.txt
   cat ${base}_seqs.txt | awk -v m=$minlen '{ if (length($1) > m) print }' > temp_${base}_seqs.txt
   mv temp_${base}_seqs.txt ${base}_seqs.txt
-  Rscript ${dir}/scripts/filter_rra.R $rlib ${dir}/${gene} ${base}_seqs.txt $base $cutoff
+  eval "$(conda shell.bash hook)"
+	conda activate $env_name
+  Rscript ${dir}/scripts/filter_rra.R ${dir}/${gene} ${base}_seqs.txt $base $cutoff
   mv ${base}_seqs.txt ./unfiltered_seqfiles/${base}_seqs.txt
   rm temp_reads_${base} temp_seqs_${base}
 done < ${inp}
