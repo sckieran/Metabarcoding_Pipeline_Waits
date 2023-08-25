@@ -123,10 +123,10 @@ echo "blast done, making outfiles"
 #make a list of no-hits#
 grep ">" ${prefix}_${gene}_combined_ASVs.fasta | awk -F">" '{print $2}' | sort > out1
 cut -f1 ${blastout}| sort | uniq > out2
-comm -23 out1 out2 > list_of_no_hits
+comm -23 out1 out2 > local_list_of_no_hits
 totalseqs=$( wc -l out1 | awk '{print $1}')
 totalhits=$( wc -l out2 | awk '{print $1}')
-nohits=$( wc -l list_of_no_hits | awk '{print $1}')
+nohits=$( wc -l local_list_of_no_hits | awk '{print $1}')
 echo "there were ${totalhits} raw BLAST hits out of ${totalseqs} unique sequences, and ${nohits} raw BLAST no-hits. If this number seems too high, consider altering your filtering parameters, changing the blast parameters or adding taxa to your reference database."
 
 if [[ ${totalhits} -eq 0 ]]
@@ -151,10 +151,10 @@ echo "blast done, making outfiles"
 
 #make a list of no-hits#
 cut -f1 ${remote_blastout}| sort | uniq > out2
-comm -23 out1 out2 > list_of_remote_no_hits
+comm -23 out1 out2 > remote_list_of_no_hits
 totalseqs=$( wc -l out1 | awk '{print $1}')
 totalhits=$( wc -l out2 | awk '{print $1}')
-nohits=$( wc -l list_of_no_hits | awk '{print $1}')
+nohits=$( wc -l remote_list_of_no_hits | awk '{print $1}')
 echo "there were ${totalhits} raw BLAST hits out of ${totalseqs} unique sequences, and ${nohits} remote BLAST no-hits. If this number seems too high, consider altering your filtering parameters, changing the blast parameters or adding taxa to your reference database."
 cp out1 temp_seqlist
 rm out1 out2
