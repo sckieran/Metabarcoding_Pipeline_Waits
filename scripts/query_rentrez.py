@@ -10,15 +10,16 @@ import pandas
 prefix = sys.argv[1]
 os.chdir(sys.argv[2])
 genelist = open(sys.argv[3], "r")
-genus_search = sys.argv[5]
-if not sys.argv[6]:
+genus_search = sys.argv[6]
+retmax = sys.argv[5]
+if not sys.argv[7]:
     print("WARNING: not providing a valid NCBI API key will slow this step down. Please register for a free account with NCBI and provide a key and the associated email.")
 else:
-    Entrez.api_key = sys.argv[6]
-if not sys.argv[7]:
+    Entrez.api_key = sys.argv[7]
+if not sys.argv[8]:
     print("WARNING: not providing an email address will cause this program to throw warnings, as NCBI requires an email address to use its e-Utilities.")
 else:
-    Entrez.email = sys.argv[7]
+    Entrez.email = sys.argv[8]
 col1 = genelist.readline()
 list_of_genes = col1.split()
 print(list_of_genes)
