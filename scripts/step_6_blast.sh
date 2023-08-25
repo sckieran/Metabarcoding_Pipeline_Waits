@@ -132,7 +132,7 @@ echo "there were ${totalhits} raw BLAST hits out of ${totalseqs} unique sequence
 if [[ ${totalhits} -eq 0 ]]
 then
 	echo "there were no blast hits. This is a problem. Exiting. Check your query fasta, ${prefix}_${gene}_combined_ASVs.fasta and your seqs.txt files for errors."
-     	exit;
+     	exit 1;
 fi
        
 #make a list of your unique sequences
