@@ -40,7 +40,7 @@ do
  	echo "checking for duplicate sequences in database fasta"
 	eval "$(conda shell.bash hook)"
 	conda activate $env_name
- 	python ${dirr}/scripts/step_2_p1_rmdups.py  ${prefix}_${p}_sequence_database.fasta $PWD    
+ 	python -u ${dirr}/scripts/step_2_p1_rmdups.py  ${prefix}_${p}_sequence_database.fasta $PWD    
  	mv temp_out ${prefix}_${p}_sequence_database.fasta
 	makeblastdb -dbtype nucl -in ${prefix}_${p}_sequence_database.fasta -out ${prefix}_${p}_reference  -parse_seqids -blastdb_version 5
         mv *_${p}_sequences.fasta ./${p}
