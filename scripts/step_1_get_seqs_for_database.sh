@@ -2,7 +2,7 @@
 #
 
 
-while getopts ":n:t:g:d:r:h:l:k:p:e:" opt; do
+while getopts ":n:t:g:d:r:h:l:k:p:e:s:" opt; do
   case $opt in
     n) prefix="$OPTARG"
     ;;
@@ -23,6 +23,8 @@ while getopts ":n:t:g:d:r:h:l:k:p:e:" opt; do
     p) env_name="$OPTARG"
     ;;
     e) email="$OPTARG"
+    ;;
+    s) genus_search="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1
@@ -47,6 +49,6 @@ cp $genelist ./${db_dirr}
 #module load ncbi-blast
 #run rentrez#
 conda activate $env_name
-python ${dirr}/scripts/query_rentrez.py $prefix ${PWD}/${db_dirr} $genelist $taxlist $retmax $key $email
+python ${dirr}/scripts/query_rentrez.py $prefix ${PWD}/${db_dirr} $genelist $taxlist $retmax $genus_search $key $email
 
 echo "done downloading reference sequences. If you have additional off-target sequences to add here, simply ensure that they are in this folder, that each file name ends *_gene1_sequences.fasta and that each sequence line begins with a '>' and a valid NCBI accession number to continue. You must have a different copy of these fastas for each gene1...geneN that you are building a database for, the program will only include fastas for a gene's reference if it ends *_gene1_sequences.fasta."
