@@ -136,7 +136,7 @@ do
    if [[ $filter == "TRUE" ]]
    then
      echo "Done making raw taxatable. You chose to filter your data by relative read abundance and percent identity. Now filtering per-sample taxa at your relative read abundance cutoff of ${taxa_rra} and your identity cutoff of ${identity_cutoff}."
-     bash ${dir}/scripts/step_8_filter_data.sh ${prefix} ${gene} ${taxa_rra} ${identity_cutoff} ${dir} ${rlib}
+     bash ${dir}/scripts/step_8_filter_data.sh ${prefix} ${gene} ${taxa_rra} ${identity_cutoff} ${dir} ${env_name}
      exit_status=$?
      if [ "${exit_status}" -ne 0 ];
      then
