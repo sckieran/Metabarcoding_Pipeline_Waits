@@ -216,8 +216,9 @@ do
      			if [[ ! -s ${prefix}_${gene}_best_blast_hits.out_${x} ]];
 	 		then
 	 			echo "outfile for $fil does not yet exist or is empty. Doing $fil."
-     				res=$(sbatch ${dirr}/scripts/run_tax_comp.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr $remote_blastout)
-   				if squeue -u $user | grep -q "${res##* }"; 
+     				res=$(sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr $remote_blastout)
+   				sbatch ${dirr}/scripts/run_tax_remote.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr
+       				if squeue -u $user | grep -q "${res##* }"; 
    				then
    					echo "job ${res##* } for $fil submitted successfully."
        					break
@@ -254,10 +255,19 @@ done
     
 #cat your files and make a header for the best hits table.
 
+for fil in ${prefix}_${gene}_best_blast_hits.out_*;
+do
+ 	cut -f3-13 remote_${fil} > temp_remote
+  	paste $fil temp_remote > temp_fil
+  	mv temp_fil $fil
+   	rm temp_fil temp_remote
+done
+
+
 cat ${prefix}_${gene}_best_blast_hits.out_* | sort -k1 > ${prefix}_${gene}_best_blast_hits.out
 echo "done with choosing best blast hits, now creating and formatting outfiles."
 	
-echo "sequence	seqnum	identity	species	taxid	phylum	class	order	family	genus	bitscore	num_spec_in_best_hit	all_spec_in_best_hit" > ${prefix}_${gene}_best_blast_hits.header
+echo "sequence	seqnum	local_identity	local_species	local_taxid	local_phylum	local_class	local_order	local_family	local_genus	local_bitscore	local_num_spec_in_best_hit	local_all_spec_in_best_hit	remote_identity	remote_species	remote_taxid	remote_phylum	remote_class	remote_order	remote_family	remote_genus	remote_bitscore	remote_num_spec_in_best_hit	remote_all_spec_in_best_hit" > ${prefix}_${gene}_best_blast_hits.header
 cat ${prefix}_${gene}_best_blast_hits.header ${prefix}_${gene}_best_blast_hits.out > ${prefix}_${gene}_best_blast_hits.txt
 
 #clean up outfiles
