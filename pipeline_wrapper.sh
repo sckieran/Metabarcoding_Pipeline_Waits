@@ -33,7 +33,7 @@ echo "###"
 echo "now doing step one - downloading sequences for your local reference database."
 echo "###"
 
-bash ${dir}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -t ${taxlist} -g ${genelist} -d ${dir} -r ${retmax} -h ${db_dirr} -l ${rlib} -s ${genus_search} -k ${key} -e ${email} 
+bash ${dir}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -t ${taxlist} -g ${genelist} -d ${dir} -r ${retmax} -h ${db_dirr} -l ${rlib} -s ${genus_search} -p ${env_name} -k ${key} -e ${email} 
 
 echo "###"
 echo "###"
