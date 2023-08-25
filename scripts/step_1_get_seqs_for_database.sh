@@ -51,7 +51,7 @@ cp $genelist ./${db_dirr}
 
 eval "$(conda shell.bash hook)"
 conda activate $env_name
-python ${dirr}/scripts/query_rentrez.py $prefix ${PWD}/${db_dirr} $genelist $taxlist $retmax $genus_search $key $email
+python -u ${dirr}/scripts/query_rentrez.py $prefix ${PWD}/${db_dirr} $genelist $taxlist $retmax $genus_search $key $email
 
 exit_status=$?
 if [ "${exit_status}" -ne 0 ];
