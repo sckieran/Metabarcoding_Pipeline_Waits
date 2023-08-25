@@ -10,9 +10,10 @@ prefix=your_project
 rlib="~/Rpackages"
 genelist=$PWD/genelist
 taxlist=$PWD/taxlist
-retmax=20
+genus_search=TRUE #do you want to search at the genus_sp. level for genera in your taxa list that have no species for a gene?
+retmax=20 #how many NCBI hits to return
 db_dirr=reference_database
-key=your_ncbi_key
+key=your_ncbi_key 
 R1_pattern="_R1.fastq"
 R2_pattern="_R2.fastq"
 max_jobs=490
@@ -24,14 +25,14 @@ minlen=70
 remote=FALSE
 return_low=TRUE
 user=your_slurm_username
-
+email=your_ncbi_email_address #technically optional, but NCBI throws warnings if you don't include
 
 echo "###"
 echo "###"
 echo "now doing step one - downloading sequences for your local reference database."
 echo "###"
 
-bash ${dir}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -t ${taxlist} -g ${genelist} -d ${dir} -r ${retmax} -h ${db_dirr} -l ${rlib} -k ${key} -e ${email}
+bash ${dir}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -t ${taxlist} -g ${genelist} -d ${dir} -r ${retmax} -h ${db_dirr} -l ${rlib} -s ${genus_search} -k ${key} -e ${email} 
 
 echo "###"
 echo "###"
