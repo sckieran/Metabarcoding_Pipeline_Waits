@@ -69,7 +69,7 @@ for gene in list_of_genes:
                 accession = record['Id']
                 taxids = int(record['TaxId'])
                 taxiddict.update({accession: taxids})
-            print(len(list(set(list(taxiddict.values())))))
+            #print(len(list(set(list(taxiddict.values())))))
             if len(list(set(list(taxiddict.values())))) == 1:
                 tid = int(records[0]['TaxId'])
                 ln2 = f"{taxname}\t{avail_seq}\t{num_avail}\t{tid}\n"
@@ -93,7 +93,7 @@ for gene in list_of_genes:
                 h4 = Entrez.esearch(db="taxonomy", term=tid_term)
                 r4 = Entrez.read(h4)
                 true_taxid = int(r4['IdList'][0])
-                print("taxid_num is",true_taxid)
+                #print("taxid_num is",true_taxid)
                 for id in taxiddict.keys():
                     id2=taxiddict[id]
                     print(id2)
@@ -105,10 +105,10 @@ for gene in list_of_genes:
                         taxgenus2 = str(r6[0]['Genus'])
                         taxspecies2 = str(r6[0]['Species'])
                         taxname2=f"{taxgenus2} {taxspecies2}"
-                        print(r6[0]['Rank'])
+                        #print(r6[0]['Rank'])
                         if r6[0]['Rank'] == "subspecies":
                             print("taxa's rank is subspecies. Checking if it is subspecies of correct species.")
-                            print(taxname2, "=", taxname)
+                            #print(taxname2, "=", taxname)
                             if taxname2 == taxname:
                                 new_ids.append(id)
                                 print("all taxa are a subspecies of species in taxlist, including in reference database.")
