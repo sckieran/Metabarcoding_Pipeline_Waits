@@ -45,7 +45,7 @@ do
      			while true;
      			do
      				echo "outfile for $fil does not yet exist or is empty. Doing $fil."
-     				res=$(sbatch ${dirr}/scripts/run_ttb.sh $fil $dirr $gene $prefix)
+     				res=$(sbatch ${dirr}/scripts/run_ttb_comp.sh $fil $dirr $gene $prefix)
    				if squeue -u $user | grep -q "${res##* }"; 
    				then
    					echo "job ${res##* } for $fil submitted successfully."
