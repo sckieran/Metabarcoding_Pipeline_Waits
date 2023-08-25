@@ -18,7 +18,8 @@ option_list <- list(make_option(c('-t','--taxfile'), action='store', type='chara
                     make_option(c('-n', '--name'), action='store', type='character', default='your_project', help='prefix for naming outfiles'),
                     make_option(c('-z','--rlib'), action='store', type='character', default="~/Rpackages", help='r library path'),
                     make_option(c('-k','--key'), action='store', type='character', default="416858084f0b7a195302d9a4cff9627e5308", help='your NCBI api key'),
-                    make_option(c('-r', '--retmax'), action='store', type='integer', default=10, help='how many matching fastas to return. Recommend <100')
+                    make_option(c('-r', '--retmax'), action='store', type='integer', default=10, help='how many matching fastas to return. Recommend <100'),
+                     make_option(c('-y', '--genus'), action='store', type='character', default="TRUE", help='should the script ensure that ANY member of each target genus is represented?')
 )
 opt <- parse_args(OptionParser(option_list = option_list))
 set_entrez_key(opt$key)
@@ -64,6 +65,7 @@ for (i in 1:z) {
     rm(summs)
     } else {
     newr <- entrez_search(db="taxonomy", term=taxlist$taxname[i], retmax=1)
+    taxname_no <- append(taxname_no,taxlist$taxname[i])
     if (length(newr$ids > 0)) {
       newsumms <- entrez_summary(db="taxonomy", id=newr$ids)
       taxid <- as.character(newsumms[7])
@@ -82,6 +84,73 @@ for (i in 1:z) {
   list_of_gene <-  mget(ls(pattern = paste0("_",colnames(genelist[y]))))
   temp_gene_all <- bind_rows(list_of_gene)
   temp_gene_all$gene <- colnames(genelist[y]) ##add a column with barcode ID
+  temp_gene_no <- temp_gene_all %>% filter(avail_seq == "no")
+  genus_yn <- opt$genus
+  if (genus_yn == "TRUE") {
+    genus_list <- unique(temp_gene_all$genus)
+    genus_rerun_list=data.frame("taxname"="NA")
+    for (g in 1:length(genus_list)) {
+    num_yes=length(which(temp_gene_all$avail_seq=="yes"))
+      if (num_yes = 0) {
+        genus_rerun_list$taxname[i]=genus_list$genus[i]
+      }
+    }
+    i=1
+    zz=length(genus_rerun_list$taxname
+    for (i in 1:zz) {
+      write(paste0("doing taxa ",i," out of ",z), stdout())
+      Sys.sleep(0.1) 
+      results <- entrez_search(db="nucleotide", term=paste0(genus_rerun_list$taxname[i],"[ORGN] AND (",gene_terms,")"),retmax=10) ##search the taxid and the barcode##
+      if (length(results$ids) > 0) { ##if there are any results##
+        avail_seq <- "yes"
+        num_avail <- results$count ##number of matching results##
+        Sys.sleep(0.1)
+        summs <- entrez_summary(db="nucleotide", id=results$ids) ##summary of first result (it's so slow to grab all, plus it's tough to do anything with that much data)
+        taxid <- unique(extract_from_esummary(summs, "taxid"))[1]
+        accession <- extract_from_esummary(summs, "caption")
+        Sys.sleep(0.1)
+        temp.fasta <- entrez_fetch(db="nucleotide", id=results$ids, rettype="fasta")
+      #temp.fasta <- sub("\n",paste0(" taxid=",taxid,"\n"),temp.fasta) #this adds the taxid to the first sequence. Useful later if you don't want to use taxid lookup to add id to seqs. But taxid lookup way is better and this causes weird behavior so for now i have commented it out#
+      temp.data <- data.frame("taxname" = genus_rerun_list$taxname$taxname[i], "taxid" = as.character(taxid), "avail_seq"=avail_seq, "num_records"=num_avail) ##build individual dataframe.
+      assign(paste0(genus_rerun_list$taxname[i],"_spp_",colnames(genelist[y])),temp.data)
+      genus=genus_rerun_list$taxname
+      species="spp"
+      write(temp.fasta,file=paste0(prefix,"_",genus,"_",species,"_",colnames(genelist[y]),"_sequences.fasta"))
+      rm(temp.data)
+      rm(temp.fasta)
+      rm(summs)
+      } else {
+      newr <- entrez_search(db="taxonomy", term=taxlist$taxname[i], retmax=1)
+      taxname_no <- append(taxname_no,taxlist$taxname[i])
+      if (length(newr$ids > 0)) {
+        newsumms <- entrez_summary(db="taxonomy", id=newr$ids)
+        taxid <- as.character(newsumms[7])
+      } else {
+        taxid <- "NA"
+      }
+      avail_seq <- "no"
+      accession <- "NA"
+      fasta_seq <- "NA"
+      temp.data <- data.frame("taxname" = genus_rerun_list$taxname[i], "taxid" = taxid, "avail_seq"=avail_seq, "num_records"=0)
+      assign(paste0(genus_rerun_list$taxname[i],"_",colnames(genelist[y])),temp.data)
+      rm(temp.data)
+      }
+    }
+    list_of_gene <-  mget(ls(pattern = paste0("_",colnames(genelist[y]))))
+    temp_gene_all <- bind_rows(list_of_gene)
+    temp_gene_all$gene <- colnames(genelist[y]) ##add a column with barcode ID
+    temp_gene_no <- temp_gene_all %>% filter(avail_seq == "no")
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  }
+
   assign(paste0(colnames(genelist[y]),"_all"),temp_gene_all)
   rm(list = ls(pattern = paste0("_",colnames(genelist[y]),"$"))) ##clean up data
   rm(temp_gene_all)
