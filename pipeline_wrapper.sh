@@ -8,6 +8,7 @@
 dir=$PWD
 prefix=your_project
 rlib="~/Rpackages"
+env_name=pipeline_env
 genelist=$PWD/genelist
 taxlist=$PWD/taxlist
 genus_search=TRUE #do you want to search at the genus_sp. level for genera in your taxa list that have no species for a gene?
