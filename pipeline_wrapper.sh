@@ -34,6 +34,12 @@ echo "now doing step one - downloading sequences for your local reference databa
 echo "###"
 
 bash ${dir}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -t ${taxlist} -g ${genelist} -d ${dir} -r ${retmax} -h ${db_dirr} -l ${rlib} -s ${genus_search} -p ${env_name} -k ${key} -e ${email} 
+exit_status=$?
+if [ "${exit_status}" -ne 0 ];
+then
+    echo "Step 1 failed. exit ${exit_status}"
+    exit 1
+fi
 
 echo "###"
 echo "###"
@@ -41,6 +47,12 @@ echo "moving on to step 2 - making your blast database from the downloaded NCBI 
 echo "###"
 
 bash ${dir}/scripts/step_2_make_database.sh -n ${prefix} -h ${db_dirr} -g ${genelist} -d ${dir} -e ${extra_seqs}
+exit_status=$?
+if [ "${exit_status}" -ne 0 ];
+then
+    echo "Step 2 failed. exit ${exit_status} and restart at step 2."
+    exit 1
+fi
 
 echo "###"
 echo "###"
@@ -58,6 +70,12 @@ do
   echo "###"
   
   bash ${dir}/scripts/step_3_pears.sh ${R1_pattern} ${R2_pattern} ${dir} ${max_jobs} ${user} ${gene}
+  exit_status=$?
+  if [ "${exit_status}" -ne 0 ];
+  then
+    echo "Step 3 failed. exit ${exit_status} and restart at step 3."
+    exit 1
+  fi
  
   echo "###"
   echo "###"
@@ -65,14 +83,24 @@ do
   echo "###"
   
   bash ${dir}/scripts/step_4_collapse.sh ${dir} ${R1_pattern} ${R2_pattern} ${max_jobs} ${user} ${gene}
-
+  exit_status=$?
+  if [ "${exit_status}" -ne 0 ];
+  then
+    echo "Step 4 failed. exit ${exit_status} and restart at step 4."
+    exit 1
+  fi
   echo "###"
   echo "###"
   echo "done collapsing samples into unique ASVs. Making per-sample ASV files."
   echo "###"
 
   bash ${dir}/scripts/step_5_mk_seqfiles.sh ${dir} ${rlib} ${taxa_rra} ${gene} ${max_jobs} ${user} ${minlen}
-
+  exit_status=$?
+  if [ "${exit_status}" -ne 0 ];
+  then
+    echo "Step 5 failed. exit ${exit_status} and restart at step 5."
+    exit 1
+  fi
   echo "###"
   echo "###"
   echo "done making seqfiles. RRA filtering ASV/sample done at your filter level of ${taxa_rra}. Beginning the BLAST process"
@@ -81,9 +109,21 @@ do
   then
     echo "building input FASTA and performing remote BLAST."
     bash ${dir}/scripts/step_6_blast_remote.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -c ${identity_cutoff} -t ${return_low} -j ${max_jobs} -u ${user}
+    exit_status=$?
+    if [ "${exit_status}" -ne 0 ];
+    then
+      echo "Step 5 failed. exit ${exit_status} and restart at step 5."
+      exit 1
+    fi
   else
     echo "building input FASTA and performing local BLAST."
     bash ${dir}/scripts/step_6_blast.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -r ${db_dirr} -c ${identity_cutoff} -t ${return_low} -j ${max_jobs} -u ${user}
+    exit_status=$?
+    if [ "${exit_status}" -ne 0 ];
+    then
+      echo "Step 5 failed. exit ${exit_status} and restart at step 5."
+      exit 1
+    fi
   fi
    echo "###"
    echo "###"
@@ -97,6 +137,12 @@ do
    then
      echo "Done making raw taxatable. You chose to filter your data by relative read abundance and percent identity. Now filtering per-sample taxa at your relative read abundance cutoff of ${taxa_rra} and your identity cutoff of ${identity_cutoff}."
      bash ${dir}/scripts/step_8_filter_data.sh ${prefix} ${gene} ${taxa_rra} ${identity_cutoff} ${dir} ${rlib}
+     exit_status=$?
+     if [ "${exit_status}" -ne 0 ];
+     then
+        echo "Step 5 failed. exit ${exit_status} and restart at step 5."
+        exit 1
+     fi
      echo "###"
      echo "all done with ${gene}. Moving on to next gene or exiting."
     fi
