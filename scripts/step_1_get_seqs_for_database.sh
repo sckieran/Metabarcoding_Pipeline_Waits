@@ -48,6 +48,8 @@ cp $genelist ./${db_dirr}
 #module load R/4.2.3
 #module load ncbi-blast
 #run rentrez#
+
+eval "$(conda shell.bash hook)"
 conda activate $env_name
 python ${dirr}/scripts/query_rentrez.py $prefix ${PWD}/${db_dirr} $genelist $taxlist $retmax $genus_search $key $email
 
