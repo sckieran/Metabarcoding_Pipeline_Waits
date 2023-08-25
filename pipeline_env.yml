@@ -1,0 +1,4 @@
+name: pipeline_env
+channels:
+  - defaults
+prefix: /Users/skb/miniconda/envs/pipeline_env
