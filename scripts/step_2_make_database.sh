@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts ":n:h:g:d:e:" opt; do
+while getopts ":n:h:g:d:e:f:" opt; do
   case $opt in
     n) prefix="$OPTARG"
     ;;
@@ -11,6 +11,8 @@ while getopts ":n:h:g:d:e:" opt; do
     d) dirr="$OPTARG"
     ;;
     e) extra="$OPTARG"
+    ;;
+    f) env_name="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1
@@ -26,10 +28,12 @@ fi
 module load ncbi-blast
 mkdir -p $db_dirr
 cp $genelist $db_dirr
-cp ${extra}*.fasta $db_dirr
+if [[ ! -z ${extra} ]]
+then
+	cp ${extra}*.fasta $db_dirr
+fi
 cd $db_dirr
 
-rm temp_lines
 echo "done processing fastas, building database."
 #loop over each gene in your genelist#
 head -n1 $genelist | sed "s:\t:\n:g" > list_of_genes.txt
