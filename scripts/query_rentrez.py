@@ -89,7 +89,7 @@ for gene in list_of_genes:
                 # taxid_dict = collections.Counter(taxiddict)
                 # true_taxid = taxid_dict.most_common()
                 new_ids = list()
-                tid_term = f"{taxname}[SCIN]"
+                tid_term = f"{taxname}"
                 h4 = Entrez.esearch(db="taxonomy", term=tid_term)
                 r4 = Entrez.read(h4)
                 true_taxid = int(r4['IdList'][0])
