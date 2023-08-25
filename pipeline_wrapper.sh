@@ -94,7 +94,7 @@ do
   echo "done collapsing samples into unique ASVs. Making per-sample ASV files."
   echo "###"
 
-  bash ${dir}/scripts/step_5_mk_seqfiles.sh ${dir} ${rlib} ${taxa_rra} ${gene} ${max_jobs} ${user} ${minlen}
+  bash ${dir}/scripts/step_5_mk_seqfiles.sh ${dir} ${taxa_rra} ${gene} ${max_jobs} ${user} ${minlen} ${env_name}
   exit_status=$?
   if [ "${exit_status}" -ne 0 ];
   then
