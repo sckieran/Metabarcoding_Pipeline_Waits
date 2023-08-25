@@ -96,7 +96,7 @@ for gene in list_of_genes:
                 #print("taxid_num is",true_taxid)
                 for id in taxiddict.keys():
                     id2=taxiddict[id]
-                    print(id2)
+                    #print(id2)
                     if id2 == true_taxid:
                         new_ids.append(id)
                     else:
