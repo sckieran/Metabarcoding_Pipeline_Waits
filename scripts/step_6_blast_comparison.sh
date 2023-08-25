@@ -216,7 +216,7 @@ do
      			if [[ ! -s ${prefix}_${gene}_best_blast_hits.out_${x} ]];
 	 		then
 	 			echo "outfile for $fil does not yet exist or is empty. Doing $fil."
-     				res=$(sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr $remote_blastout)
+     				res=$(sbatch ${dirr}/scripts/run_tax_comp.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr $remote_blastout)
    				if squeue -u $user | grep -q "${res##* }"; 
    				then
    					echo "job ${res##* } for $fil submitted successfully."
