@@ -47,7 +47,7 @@ echo "###"
 echo "moving on to step 2 - making your blast database from the downloaded NCBI sequences"
 echo "###"
 
-bash ${dir}/scripts/step_2_make_database.sh -n ${prefix} -h ${db_dirr} -g ${genelist} -d ${dir} -e ${extra_seqs} -f ${env_name}
+bash ${dir}/scripts/step_2_make_database.sh -n ${prefix} -h ${db_dirr} -g ${genelist} -d ${dir} -f ${env_name} -e ${extra_seqs}
 exit_status=$?
 if [ "${exit_status}" -ne 0 ];
 then
