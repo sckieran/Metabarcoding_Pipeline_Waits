@@ -138,17 +138,17 @@ for gene in list_of_genes:
                 "Because genus_search is set to TRUE, we will search for any species in this genus at this gene and include them in your reference database.")
             genus_newyes = list()
             for line in missing_genus:
-                taxname = line.strip()
+                taxnam = line.strip()
                 taxiddict = {accession: id for key, value in []}
-                term_search = f"{taxname}[ORGN] AND ({gene_terms})"
+                term_search = f"{taxnam}[ORGN] AND ({gene_terms})"
                 results = Entrez.esearch(db="nuccore", term=term_search, retmax=20)
                 result = Entrez.read(results)
-                print("genus is", genus, " sp. NCBI returns", len(result['IdList']), "result(s) for", gene)
+                print("genus is", taxnam, " sp. NCBI returns", len(result['IdList']), "result(s) for", gene)
                 if (int(result['Count'])) <= 0:
-                    ln2 = f"{taxname}\tno\t0\tNA\n"
+                    ln2 = f"{taxnam}\tno\t0\tNA\n"
                     out.write(ln2)
-                    genus_newyes.append(genus)
                 else:
+                    genus_newyes.append(genus)
                     avail_seq = "yes"
                     num_avail = int(result['Count'])
                     ids = result['IdList']
@@ -156,21 +156,25 @@ for gene in list_of_genes:
                     records = Entrez.read(handle)
                     # print(records)
                     tid = int(records[0]['TaxId'])
-                    ln2 = f"{taxname}\t{avail_seq}\t{num_avail}\t{tid}\n"
+                    ln2 = f"{taxnam}\t{avail_seq}\t{num_avail}\t{tid}\n"
                     out.write(ln2)
-                    fname = f"{prefix}_{gene}_{taxname}_sp._seqs.fasta"
+                    fname = f"{prefix}_{gene}_{taxnam}_sp._seqs.fasta"
                     fasta = open(fname, "w")
                     fres = Entrez.efetch(db="nuccore", id=ids, rettype="fasta")
                     for seq_record in SeqIO.parse(fres, "fasta"):
                         name1 = str(seq_record.id)
-                        headstring = f"{name1} {genus} {species} taxid={tid}"
+                        headstring = f"{name1} {taxnam} sp. taxid={tid}"
                         fasta_format_string = f">{headstring}\n%s\n" % seq_record.seq
                         fasta.write(fasta_format_string)
         genus_newyes2 = collections.Counter(genus_newyes)
         genus_stillmissing = list()
+        missing_genus_name = f"{prefix}_genera_with_no_seqs_{gene}.txt"
+        missing_fil = open(missing_genus_name,"w"
         for taxon in missing_genus:
             if genus_newyes2[taxon] == 0:
                 genus_stillmissing.append(taxon)
+        missing_fil.write(genus_stillmissing())
+        missing_fil.close()
         print("there are", len(genus_stillmissing), "genera that have no sequences for any species at", gene,
               ". They are:", genus_stillmissing)
     taxalist.close()
