@@ -40,7 +40,7 @@ head -n1 $genelist | sed "s:\t:\n:g" > list_of_genes.txt
 while read p; 
 do
         mkdir -p "$p"
-        cat *_${p}_seqs.fasta > ${prefix}_${p}_sequence_database.fasta
+        cat *_${p}_sequences.fasta > ${prefix}_${p}_sequence_database.fasta
  	echo "checking for duplicate sequences in database fasta"
 	eval "$(conda shell.bash hook)"
 	conda activate $env_name
