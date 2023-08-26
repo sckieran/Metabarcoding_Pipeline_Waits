@@ -27,8 +27,10 @@ list_of_genes = col1.split()
 print(list_of_genes)
 gldf = pandas.read_csv(sys.argv[3], sep='\t')
 for gene in list_of_genes:
-    taxalist = open(sys.argv[4], "r")
-    taxalist2 = open(sys.argv[4], "r")
+    tlname=sys.argv[4]
+    tlname2=f"{tlname}_{gene}"
+    taxalist = open(tlname2, "r")
+    taxalist2 = open(tlname2, "r")
     term_list = gldf[gene]
     term_list = term_list.dropna()
     gene_terms = ' OR '.join(term_list)
