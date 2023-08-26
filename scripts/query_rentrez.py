@@ -74,7 +74,7 @@ for gene in list_of_genes:
                 tid = int(records[0]['TaxId'])
                 ln2 = f"{taxname}\t{avail_seq}\t{num_avail}\t{tid}\n"
                 out.write(ln2)
-                fname = f"{prefix}_{gene}_{genus}_{species}_seqs.fasta"
+                fname = f"{prefix}_{genus}_{species}_{gene}_sequences.fasta"
                 fasta = open(fname, "w")
                 fres = Entrez.efetch(db="nuccore", id=ids, rettype="fasta")
                 for seq_record in SeqIO.parse(fres, "fasta"):
@@ -114,7 +114,7 @@ for gene in list_of_genes:
                                 print("all taxa are a subspecies of species in taxlist, including in reference database.")
                 ln2 = f"{taxname}\t{avail_seq}\t{num_avail}\t{true_taxid}\n"
                 out.write(ln2)
-                fname = f"{prefix}_{gene}_{genus}_{species}_seqs.fasta"
+                fname = f"{prefix}_{genus}_{species}_{gene}_sequences.fasta"
                 fasta = open(fname, "w")
                 fres = Entrez.efetch(db="nuccore", id=new_ids, rettype="fasta")
                 for seq_record in SeqIO.parse(fres, "fasta"):
