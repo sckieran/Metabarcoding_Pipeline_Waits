@@ -169,7 +169,7 @@ for gene in list_of_genes:
         genus_newyes2 = collections.Counter(genus_newyes)
         genus_stillmissing = list()
         missing_genus_name = f"{prefix}_genera_with_no_seqs_{gene}.txt"
-        missing_fil = open(missing_genus_name,"w"
+        missing_fil = open(missing_genus_name,"w")
         for taxon in missing_genus:
             if genus_newyes2[taxon] == 0:
                 genus_stillmissing.append(taxon)
