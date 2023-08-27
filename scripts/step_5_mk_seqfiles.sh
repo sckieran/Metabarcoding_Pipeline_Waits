@@ -1,12 +1,12 @@
 #!/bin/bash
 module load R/4.2.3
 dir=$1
-rlib=$2
-cutoff=$3
-gene=$4
-max_jobs=$5
-user=$6
-minlen=$7
+cutoff=$2
+gene=$3
+max_jobs=$4
+user=$5
+minlen=$6
+env_name=$7
 
 cd ${dir}/${gene}
 mkdir -p ./unfiltered_seqfiles
@@ -52,7 +52,7 @@ do
       while true;
      	do
      		echo "outfile for $fil does not yet exist or is empty. Doing $fil."
-     		res=$(sbatch ${dir}/scripts/run_seqs.sh $fil ${dir} ${gene} ${rlib} ${cutoff} ${minlen})
+     		res=$(sbatch ${dir}/scripts/run_seqs.sh $fil ${dir} ${gene} ${cutoff} ${minlen} ${env_name})
    		if squeue -u $user | grep -q "${res##* }"; 
    		then
    		  echo "job ${res##* } for $fil submitted successfully."
