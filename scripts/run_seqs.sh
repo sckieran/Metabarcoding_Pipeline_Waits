@@ -23,7 +23,7 @@ do
   cat ${base}_seqs.txt | awk -v m=$minlen '{ if (length($1) > m) print }' > temp_${base}_seqs.txt
   mv temp_${base}_seqs.txt ${base}_seqs.txt
   eval "$(conda shell.bash hook)"
-	conda activate $env_name
+  conda activate $env_name
   Rscript ${dir}/scripts/filter_rra.R ${dir}/${gene} ${base}_seqs.txt $base $cutoff
   mv ${base}_seqs.txt ./unfiltered_seqfiles/${base}_seqs.txt
   rm temp_reads_${base} temp_seqs_${base}
