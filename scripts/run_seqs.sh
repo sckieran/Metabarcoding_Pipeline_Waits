@@ -7,10 +7,9 @@
 inp=$1
 dir=$2
 gene=$3
-rlib=$4
-cutoff=$5
-minlen=$6
-env_name=$7
+cutoff=$4
+minlen=$5
+env_name=$6
 
 cd ${dir}/${gene}
 
