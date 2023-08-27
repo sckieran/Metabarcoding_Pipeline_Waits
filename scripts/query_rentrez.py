@@ -175,10 +175,11 @@ for gene in list_of_genes:
         for taxon in missing_genus:
             if genus_newyes2[taxon] == 0:
                 genus_stillmissing.append(taxon)
-        missing_fil.write(genus_stillmissing)
+        for item in genus_stillmissing:
+            missing_fil.write(item)
         missing_fil.close()
         print("there are", len(genus_stillmissing), "genera that have no sequences for any species at", gene,
-              ". They are:", genus_stillmissing)
+              ". They are:", genus_stillmissing,"this list has been exported for your perusal. See also the list of species excluded in the file your_project_gene_taxalist_results.txt")
     taxalist.close()
     taxalist2.close()
     out.close()
