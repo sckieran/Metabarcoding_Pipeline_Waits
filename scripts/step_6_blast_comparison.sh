@@ -45,7 +45,7 @@ cd ${gene}_out
 cp ${dirr}/${gene}/seqfiles/* .
  	
 echo "copied files. Beginning blast and taxtable."
-cat *_seqs.txt | cut -f1 | sort | uniq | awk -v m=$minlen '{ if (length($0) > m) print }' > temp_seqs
+cat *_seqs.txt | cut -f1 | sort | uniq > temp_seqs
 sed -i '/^$/d' temp_seqs
 
 	##make query fasta from seqlist#
