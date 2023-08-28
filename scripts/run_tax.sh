@@ -13,7 +13,7 @@ ncbi=$6
 dir=$7
 
 cd ${dir}/${gene}_out
-
+echo -n "" > ${prefix}_${gene}_best_blast_hits.out_${x}
 while read p;
 	do
 		sqy=$( grep -w -A1 "$p" ${prefix}_${gene}_combined_ASVs.fasta | tail -n1 | awk '{print $1}')
