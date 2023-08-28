@@ -27,7 +27,7 @@ do
 			lin=$($ln)
 			seq=$(echo $lin | awk  '{print $1}')
 			reads=$(echo $lin | awk  '{print $2}')
-			taxline=$(grep -w  -m1 "$seq" ${prefix}_${gene}_best_blast_hits.txt | awk -v OFS='\t' '{print $3,$4" "$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15" "$16,$17,$18,$19,$20,$21,$22,$23}')
+			taxline=$(grep -w  -m1 "$seq" ${prefix}_${gene}_best_blast_hits.txt | awk -v OFS='\t' '{print $3,$4" "$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16" "$17,$18,$19,$20,$21,$22,$23}')
    			sp2=$(grep -w  -m1 "$seq" ${prefix}_${gene}_best_blast_hits.txt | cut -f13)
       			if cat ${prefix}_${gene}_taxatable.txt_${y} | grep -q -w "$base	$seq";
 	 		then
