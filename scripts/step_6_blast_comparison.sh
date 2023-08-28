@@ -206,7 +206,8 @@ do
   	fi
 done
 rm temp_seqlist
-while [[ $num_outs -ne $tot ]];
+tot2=$(( $tot * 2 ))
+while [[ $num_outs -ne $tot2 ]];
 do
 	for fil in seqlist_*;
  	do
@@ -250,7 +251,11 @@ do
 	done
   	cat *_best_blast_hits.out_* > outslist
    	num_outs=$( wc -l outslist | awk '{print $1}')
-    	echo "there are $tot sequences to assign and $num_outs sequences successfully assigned. If these numbers match, moving on to taxonomy. If not, checking each sample and re-submitting jobs as needed."
+    	if [[ $num_outs -gt $tot2 ]]
+     	then
+      		num_outs=$tot2
+	fi
+    	echo "there are $tot2 sequences to assign and $num_outs sequences successfully assigned. If these numbers match, moving on to taxonomy. If not, checking each sample and re-submitting jobs as needed."
 done
     
 #cat your files and make a header for the best hits table.
