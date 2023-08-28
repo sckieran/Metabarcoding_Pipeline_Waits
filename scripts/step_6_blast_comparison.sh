@@ -218,8 +218,11 @@ do
 	 		then
 	 			echo "outfile for $fil does not yet exist or is empty. Doing $fil."
      				res=$(sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr $remote_blastout)
-   				sbatch ${dirr}/scripts/run_tax_remote.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr
-       				if squeue -u $user | grep -q "${res##* }"; 
+   				if [[ ! -s remote_${prefix}_${gene}_best_blast_hits.out_${x} ]];
+       				then
+       					sbatch ${dirr}/scripts/run_tax_remote.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr
+       				fi
+	   			if squeue -u $user | grep -q "${res##* }"; 
    				then
    					echo "job ${res##* } for $fil submitted successfully."
        					break
@@ -230,7 +233,10 @@ do
       				else
 	  				echo "job ${res##* } did not submit. Trying again."
 				fi
-     			else
+     			elif [[ ! -s remote_${prefix}_${gene}_best_blast_hits.out_${x} ]];
+			then
+   				sbatch ${dirr}/scripts/run_tax_remote.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr
+			else
 	 			echo "all samples from $fil already done."
      				break
       			fi
