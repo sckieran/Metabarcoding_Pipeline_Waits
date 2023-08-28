@@ -1,6 +1,6 @@
 
 args = commandArgs(trailingOnly=TRUE)
-library(tidyverse)
+library(tidyverse,lib=args[5])
 setwd(args[1])
 full <- read.delim(args[2])
 cutoff=as.numeric(args[4])
