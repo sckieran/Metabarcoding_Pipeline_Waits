@@ -20,7 +20,7 @@ while read p;
   		if cat list_of_no_hits | grep -w -q "${p}"
 		then
 			echo "no hit found by BLAST for ${p}".
-			echo "${sqy}	${p}	0	No Hit	NA	NA	NA	NA	NA	NA" >> ${prefix}_${gene}_best_blast_hits.out_${x}
+			echo "${sqy}	${p}	0	No Hit	NA	NA	NA	NA	NA	NA	0	0	NA" >> ${prefix}_${gene}_best_blast_hits.out_${x}
 		else
 			num=$(grep  -n "^${p}$" seqlist_${x} | awk -F":" '{print $1}')
 			echo "doing ${num} (${p}) of ${tot}"
