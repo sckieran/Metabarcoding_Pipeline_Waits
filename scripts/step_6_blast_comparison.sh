@@ -164,7 +164,7 @@ echo "adding species and taxid to your remote blast results"
 cut -f5 $remote_blastout | awk -F" " '{print $1,$2}' > temp_spec
 cut -f7 $remote_blastout > temp_taxids
 cut -f6 $remote_blastout > temp_scores
-cut -f1-4 $remote_blastout | paste - temp_spec temp_taxids temp_scores > remote_${blastout}_with_tax
+cut -f1-4 $remote_blastout | paste - temp_spec temp_taxids temp_scores > ${remote_blastout}_with_tax
 rm temp_spec temp_taxids temp_scores
 
 echo "adding species and taxid to your local blast results"
@@ -177,7 +177,7 @@ rm temp_spec temp_taxids temp_scores
 ##modify your ncbi tax file to contain only taxa within your reference database##
 echo "now modifying your taxonomy file to limit your search space. This saves time."
 cut -f6 ${blastout}_with_tax | sort | uniq > all_local_taxids
-cut -f6 remote_${blastout}_with_tax | sort | uniq > all_remote_taxids
+cut -f6 ${remote_blastout}_with_tax | sort | uniq > all_remote_taxids
 cat all_local_taxids all_remote_taxids | sort | uniq > all_taxids
 sed -i 's/$/,/g' all_taxids
 sed -i 's/^/\^/g' all_taxids
@@ -220,7 +220,7 @@ do
      				res=$(sbatch ${dirr}/scripts/run_tax.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr $remote_blastout)
    				if [[ ! -s remote_${prefix}_${gene}_best_blast_hits.out_${x} ]];
        				then
-       					sbatch ${dirr}/scripts/run_tax_remote.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr
+       					sbatch ${dirr}/scripts/run_tax_remote.sh $x $prefix $gene $tot_per_file $remote_blastout $ncbi $dirr
        				fi
 	   			if squeue -u $user | grep -q "${res##* }"; 
    				then
