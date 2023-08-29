@@ -8,5 +8,5 @@ df2=read.delim(args[3], header=FALSE)
 
 df3 <- inner_join(df1,df2,by=V2)
 
-fname=paste0(args[4],"_",args[5],"best_blast_hits.txt")
+fname=paste0(args[4],"_",args[5],"best_blast_hits.out2")
 write_delim(df3, fname, delim="\t",quote="none")
