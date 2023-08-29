@@ -286,7 +286,7 @@ Rscript ${dirr}/scripts/join.R ${pref}/lib/R/library ${prefix}_${gene}_best_blas
 echo "done with choosing best blast hits, now creating and formatting outfiles."
 	
 echo "sequence	seqnum	local_identity	local_species	local_taxid	local_phylum	local_class	local_order	local_family	local_genus	local_bitscore	local_num_spec_in_best_hit	local_all_spec_in_best_hit	remote_identity	remote_species	remote_taxid	remote_phylum	remote_class	remote_order	remote_family	remote_genus	remote_bitscore	remote_num_spec_in_best_hit	remote_all_spec_in_best_hit" > ${prefix}_${gene}_best_blast_hits.header
-cat ${prefix}_${gene}_best_blast_hits.header ${prefix}_${gene}_best_blast_hits.out > ${prefix}_${gene}_best_blast_hits.txt
+cat ${prefix}_${gene}_best_blast_hits.header ${prefix}_${gene}_best_blast_hits.out2 > ${prefix}_${gene}_best_blast_hits.txt
 
 #clean up outfiles
 rm *${prefix}_${gene}_best_blast_hits.out*
