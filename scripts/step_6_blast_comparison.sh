@@ -283,7 +283,7 @@ echo "sequence	seqnum	local_identity	local_species	local_taxid	local_phylum	loca
 cat ${prefix}_${gene}_best_blast_hits.header ${prefix}_${gene}_best_blast_hits.out > ${prefix}_${gene}_best_blast_hits.txt
 
 #clean up outfiles
-rm ${prefix}_${gene}_best_blast_hits.out*
+rm *${prefix}_${gene}_best_blast_hits.out*
 rm seqlist_*
 rm tax.*.err
 rm tax.*.out
