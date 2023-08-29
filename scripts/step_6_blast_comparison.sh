@@ -277,6 +277,12 @@ done
 
 
 cat ${prefix}_${gene}_best_blast_hits.out_* | sort -k1 > ${prefix}_${gene}_best_blast_hits.out
+cat remote_${prefix}_${gene}_best_blast_hits.out_* | sort -k1 > remote_${prefix}_${gene}_best_blast_hits.out
+eval "$(conda shell.bash hook)"
+conda activate $env_name
+pref=$CONDA_PREFIX
+Rscript ${dirr}/scripts/join.R ${pref}/lib/R/library ${prefix}_${gene}_best_blast_hits.out remote_${prefix}_${gene}_best_blast_hits.out ${prefix} ${gene} $PWD
+
 echo "done with choosing best blast hits, now creating and formatting outfiles."
 	
 echo "sequence	seqnum	local_identity	local_species	local_taxid	local_phylum	local_class	local_order	local_family	local_genus	local_bitscore	local_num_spec_in_best_hit	local_all_spec_in_best_hit	remote_identity	remote_species	remote_taxid	remote_phylum	remote_class	remote_order	remote_family	remote_genus	remote_bitscore	remote_num_spec_in_best_hit	remote_all_spec_in_best_hit" > ${prefix}_${gene}_best_blast_hits.header
