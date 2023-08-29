@@ -3,6 +3,7 @@
 #SBATCH -J tax
 #SBATCH -e tax.%j.err
 #SBATCH -o tax.%j.out
+#SBATCH -C "ceph"
 
 x=$1
 prefix=$2
