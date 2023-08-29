@@ -1,4 +1,4 @@
-args = 
+args=commandArgs(trailingOnly=TRUE)
 library(lubridate, lib=args[1])
 library(tidyverse, lib=args[1])
 
