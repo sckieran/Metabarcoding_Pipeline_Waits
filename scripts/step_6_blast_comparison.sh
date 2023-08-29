@@ -236,6 +236,7 @@ do
      			elif [[ ! -s remote_${prefix}_${gene}_best_blast_hits.out_${x} ]];
 			then
    				sbatch ${dirr}/scripts/run_tax_remote.sh $x $prefix $gene $tot_per_file $blastout $ncbi $dirr
+       				break
 			else
 	 			echo "all samples from $fil already done."
      				break
