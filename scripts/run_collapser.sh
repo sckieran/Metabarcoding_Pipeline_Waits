@@ -3,6 +3,7 @@
 #SBATCH -J fx_col
 #SBATCH -e fx_col.%j.err
 #SBATCH -o fx_col.%j.out
+#SBATCH -C "ceph"
 
 module load fastx
 
