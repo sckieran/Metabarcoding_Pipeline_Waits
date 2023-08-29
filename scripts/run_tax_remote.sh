@@ -24,7 +24,7 @@ while read p;
 		else
 			num=$(grep  -n "^${p}$" seqlist_${x} | awk -F":" '{print $1}')
 			echo "doing ${num} (${p}) of ${tot}"
-			grep -w "${p}" remote_${blastout}_with_tax | sort -k8 -nr > remote_temp_seq_${x} #get all the identities for the hits for a single sequence
+			grep -w "${p}" ${blastout}_with_tax | sort -k8 -nr > remote_temp_seq_${x} #get all the identities for the hits for a single sequence
 			n=$(cut -f7 remote_temp_seq_${x} | uniq -c | head -n1 | awk '{print $1}') ##how many of the top identity% are there? If one, pull that and call the hit. If more than one, then go to next.
 			top_score=$(cut -f7 remote_temp_seq_${x} | head -n1 | awk '{print $1}')
 			awk -v d=$top_score '( $8 >= d )'  remote_temp_seq_${x} | awk -v OFS='\t' '{print $1,$2,$3,$4,$5" "$6,$7,$8}'> remote_temp_choose2_${x}
