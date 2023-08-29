@@ -3,6 +3,7 @@
 #SBATCH -J ttb_j
 #SBATCH -e ttb.%j.err
 #SBATCH -o ttb.%j.out
+#SBATCH -C "ceph"
 
 
 infil=$1
