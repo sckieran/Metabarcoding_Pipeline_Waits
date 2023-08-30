@@ -150,7 +150,7 @@ for gene in list_of_genes:
                     ln2 = f"{taxnam}\tno\t0\tNA\n"
                     out.write(ln2)
                 else:
-                    genus_newyes.append(genus)
+                    genus_newyes.append(taxnam)
                     avail_seq = "yes"
                     num_avail = int(result['Count'])
                     ids = result['IdList']
@@ -176,7 +176,8 @@ for gene in list_of_genes:
             if genus_newyes2[taxon] == 0:
                 genus_stillmissing.append(taxon)
         for item in genus_stillmissing:
-            missing_fil.write(item)
+            wlin = f"item\n"
+            missing_fil.write(wlin)
         missing_fil.close()
         print("there are", len(genus_stillmissing), "genera that have no sequences for any species at", gene,
               ". They are:", genus_stillmissing,"this list has been exported for your perusal. See also the list of species excluded in the file your_project_gene_taxalist_results.txt")
