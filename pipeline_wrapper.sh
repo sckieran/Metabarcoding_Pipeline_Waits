@@ -129,7 +129,7 @@ do
 elif [[ $remote_comp == "TRUE" ]]
     then
     echo "performing both local and remote BLAST and comparing the two taxatables."
-    bash ${dir}/scripts/step_6_blast_comparison.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -r ${db_dirr} -c ${identity_cutoff} -t ${return_low} -j ${max_jobs} -u ${user}
+    bash ${dir}/scripts/step_6_blast_comparison.sh -n ${prefix} -g ${gene} -d ${dir} -m ${minlen} -r ${db_dirr} -c ${identity_cutoff} -t ${return_low} -j ${max_jobs} -u ${user} -e ${env_name}
     exit_status=$?
     if [ "${exit_status}" -ne 0 ];
     then
