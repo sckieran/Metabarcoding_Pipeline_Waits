@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts ":n:g:d:m:r:b:c:t:j:u:" opt; do
+while getopts ":n:g:d:m:r:b:c:t:j:u:e:" opt; do
   case $opt in
     n) prefix="$OPTARG"
     ;;
@@ -21,6 +21,8 @@ while getopts ":n:g:d:m:r:b:c:t:j:u:" opt; do
     j) max_jobs="$OPTARG"
     ;;
     u) user="$OPTARG"
+    ;;
+    e) env_name="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1
