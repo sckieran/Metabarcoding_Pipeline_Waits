@@ -8,7 +8,7 @@ user=$5
 
 cd ${dirr}/${gene}_out
 
-echo "sample	sequence	reads	identity	taxa	taxid	phylum	class	order	family	genus	bitscore	tax_num	all_species_in_best_hit  remote_identity	remote_taxa	remote_taxid	remote_phylum	remote_class	remote_order	remote_family	remote_genus	remote_bitscore	remote_tax_num	remote_all_species_in_best_hit" >  ${prefix}_${gene}_ttb_header
+echo "sample	sequence	reads	identity	taxa	taxid	phylum	class	order	family	genus	bitscore	tax_num	all_species_in_best_hit	remote_identity	remote_taxa	remote_taxid	remote_phylum	remote_class	remote_order	remote_family	remote_genus	remote_bitscore	remote_tax_num	remote_all_species_in_best_hit" >  ${prefix}_${gene}_ttb_header
 ls *_seqs.txt > samplist
 num_seqs=$( wc -l samplist | awk '{print $1}')
 tot_per_file=$( awk -v a1=$num_seqs -v a2=$max_jobs 'BEGIN { x+=(a1/a2); printf("%.0f", (x == int(x)) ? x : int(x)+1) }')
