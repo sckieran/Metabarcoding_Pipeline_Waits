@@ -10,5 +10,5 @@ colnames(df2) <- c("seqnum","remote_identity","remote_species","remote_taxid","r
 
 df3 <- inner_join(df1,df2,by="seqnum")
 
-fname=paste0(args[4],"_",args[5],"best_blast_hits.txt")
+fname=paste0(args[4],"_",args[5],"_best_blast_hits.txt")
 write_delim(df3, fname, delim="\t",quote="none")
