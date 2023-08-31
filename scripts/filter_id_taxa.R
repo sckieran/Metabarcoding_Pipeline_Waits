@@ -1,6 +1,6 @@
 args = commandArgs(trailingOnly=TRUE)
 
-library(tidyverse)
+library(tidyverse, lib=args[7])
 
 setwd(args[2])
 
