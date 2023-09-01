@@ -34,5 +34,6 @@ do
     echo "$fil is empty or does not exist. Omitting $fil to avoid downstream errors. Check infiles and error logs for step 3 and 4 for $fil."
     echo -n "" > ${base}_filtered_seqs.txt
     echo -n "" > ${base}_seqs.txt
+  fi
 done < ${inp}
 
