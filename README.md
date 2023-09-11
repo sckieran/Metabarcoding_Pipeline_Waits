@@ -9,23 +9,28 @@ This pipeline assumes reasonably good resolution of locus data and is designed a
 
 
 ## Glossary of terms
-- _taxid_ the NCBI-assigned taxonomic ID number that corresponds to a particular taxon. Every taxa at every rank that has ever had sequence information submitted to NCBI has a taxid.
-- _ASV_ Amplicon Sequence Variant. A **unique sequence** in a sample. IE, the list of all the merged reads in a sample with duplicates removed. In order to be included in the data, an ASV must be present in >1 read.
-- _RRA_ Relative Read Abundance. The proportion of reads in a sample that any particular ASV (or taxon) must reach to be included in the downstream analysis. Usual values run between 0.001 and 0.01, ie, between 0.1% and 1% of reads. So if a sample contains 100,000 reads total, and the RRA cutoff is 0.001, any ASV (or taxon) with less than 100 reads is excluded from downstream analysis. Taxon-level filtering, done in step 8, concatenates all the reads from any ASV that BLAST to the same taxon with a percent identity above your user-defined cutoff. ASV-level filtering, done in step 5, removes any ASV that does not reach the RRA threshold BEFORE performing BLAST. The benefit of the ASV-level filter in step 5 is that it considerably reduces noise produced by this naive collapsing of unique ASVs and allows for remote BLAST, which is impossible otherwise because of the large number of sequences produced by fastx-collapser. The drawback is that it may artificially reduce the number of reads belonging to taxa of interest, if there are many sequences at low read counts that all correspond to the same taxa, common with noisy or low-quality data, also seen commonly when you have very high overall read counts (>100K reads/sample). Try both methods and compare!
-- _percent identity_ An NCBI metric for comparing two sequences. Literally the hamming distance between two sequences, ie, how many changes are required before they are identical.
-- _bitscore_ An NCBI metric for assessing how good a BLAST hit is. Roughly, it is the log(2) normalized raw-score. Raw-score is the requred size of a database in order to for a match to occur by chance. 
+- _**taxid**_ the NCBI-assigned taxonomic ID number that corresponds to a particular taxon. Every taxa at every rank that has ever had sequence information submitted to NCBI has a taxid.
+- _**ASV**_ Amplicon Sequence Variant. A **unique sequence** in a sample. IE, the list of all the merged reads in a sample with duplicates removed. In order to be included in the data, an ASV must be present in >1 read.
+- _**RRA**_ Relative Read Abundance. The proportion of reads in a sample that any particular ASV (or taxon) must reach to be included in the downstream analysis. Usual values run between 0.001 and 0.01, ie, between 0.1% and 1% of reads. So if a sample contains 100,000 reads total, and the RRA cutoff is 0.001, any ASV (or taxon) with less than 100 reads is excluded from downstream analysis. Taxon-level filtering, done in step 8, concatenates all the reads from any ASV that BLAST to the same taxon with a percent identity above your user-defined cutoff. ASV-level filtering, done in step 5, removes any ASV that does not reach the RRA threshold BEFORE performing BLAST. The benefit of the ASV-level filter in step 5 is that it considerably reduces noise produced by this naive collapsing of unique ASVs and allows for remote BLAST, which is impossible otherwise because of the large number of sequences produced by fastx-collapser. The drawback is that it may artificially reduce the number of reads belonging to taxa of interest, if there are many sequences at low read counts that all correspond to the same taxa, common with noisy or low-quality data, also seen commonly when you have very high overall read counts (>100K reads/sample). Try both methods and compare!
+- _**percent identity**_ An NCBI metric for comparing two sequences. Literally the hamming distance between two sequences, ie, how many changes are required before they are identical.
+- _**bitscore**_ An NCBI metric for assessing how good a BLAST hit is. Roughly, it is the log(2) normalized raw-score. Raw-score is the requred size of a database in order to for a match to occur by chance. 
 
 ## Quickstart Guide for RCDS Cluster Users
 1. ssh into the zaphod cluster of RCDS (`ssh your_username@zaphod.hpc.uidaho.edu`)
 2. install miniconda for linux-64: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
 3. make a project directory (`mkdir your_project`) and add folders that contain your trimmed sequence files for each gene or primer set (ie ITS, 12S, trnL)
-4. cd into your project directory (`cd ./your_project`) and do all of steps 4-9 from that directory.
+4. cd into your project directory (`cd ./your_project`) and do all of steps 5-10 from that directory.
 5. set up the conda environment by typing the following:
    `module load git`
+   
    `git clone https://github.com/sckieran/Metabarcoding_Pipeline_Waits/`
+   
    `cp ./Metabarcoding_Pipeline_Waits/pipeline-env.txt .`
+   
    `conda env create -n pipeline --file pipeline-env.txt`
+   
    `conda activate pipeline` #just to check that it installed correctly
+   
 7. add a taxa list for each gene to your project directory. They should be identically named except for the gene name (taxlist_12S, taxlist_ITS, taxlist_fwh1). They can be identical, but don't have to be. Each entry in the taxa list must contain two words, genus and species, separated by a space. If you want to search a whole genus, put "genus sp." Do not include a header line.
 8. Add a list of gene terms to search for each gene/primer set. Scan NCBI for common variation on gene names. Each gene should be its own column. Columns do not have to be the same length. Each column should have a short header with no special characters or spaces, ie 12S/ITS. That header will not automatically be considered a search term, so add it to the column itself if you want it to be included. See example genelist.
 9. Copy the scripts and pipeline wrapper into your project directory: `cp -r ./Metabarcoding_Pipeline_Waits/scripts/ .` and `cp ./Metabarcoding_Pipeline_Waits/pipeline_wrapper.sh .`
