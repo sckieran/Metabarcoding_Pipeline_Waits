@@ -5,29 +5,29 @@
 #SBATCH -e metab_pipe.%j.err
 #SBATCH --mem=14G
 
-dir=$PWD
-prefix=your_project
-env_name=pipeline_env
-genelist=$PWD/genelist
-taxlist=$PWD/taxlist
-genus_search=TRUE #do you want to search at the genus_sp. level for genera in your taxa list that have no species for a gene?
-retmax=20 #how many NCBI hits to return
-db_dirr=reference_database
-key=your_ncbi_key 
-R1_pattern="_R1.fastq"
-R2_pattern="_R2.fastq"
-max_jobs=10
-extra_seqs="extra_seqs"
-filter=TRUE
-asv_rra=0.005
-taxa_rra=0.005
-identity_cutoff=97
-minlen=70
-remote=FALSE
-remote_comp=FALSE
-return_low=TRUE
-user=your_slurm_username
-email=your_ncbi_email_address #technically optional, but NCBI throws warnings if you don't include
+dir=$PWD ##you can leave this as $PWD if you will run your pipeline_wrapper.sh script from a containing folder that contains directories for each gene containing your sequence fastq files, a directory containing all the scripts from github for the pipeline, and your taxalists and genelist. That is all you need in the folder. Otherwise, give the absolute path for that directory.
+prefix=your_project #name of your project, all outfiles will start with this name. NO SPECIAL CHARACTERS ALLOWED, including "#$!*&()@^". NO SPACES ALLOWED
+env_name=pipeline #name of the conda environment used to run the pipeline, see github tutorial
+genelist=$PWD/genelist #name of your list of gene search terms, see example.
+taxlist=$PWD/taxlist  #name of your taxalist prefix, files should be called taxalist_[gene] for each gene. You must have one for each gene, even if they are identical.
+genus_search=TRUE #do you want to search at the genus level ("genus sp.") for genera in your taxa list that have no sequences for any of its species in your taxalist? 
+retmax=20 #how many NCBI hits to return, recommend <100
+db_dirr=reference_database  #desired name of reference database, default is "reference_database"
+key=your_ncbi_key #you MUST get an NCBI key by registering for an NCBI account. See github walkthrough for details. 
+R1_pattern="_R1.fastq"  #pattern that ends your forward reads. This should be consistent for all samples, [sample_name]_R1.fastq
+R2_pattern="_R2.fastq"  #pattern that ends your reverse reads. This should be consistent for alls amples, [sample_name]_R2.fastq
+max_jobs=10  #max number of jobs you want to submit to the cluster at one time. Unless you are comfortable with your job limits, I recomment this number is <=10.
+extra_seqs="extra_seqs" #extra sequences that wouldn't be found in a genbank search that you want to add to your local database. name should be "extra_seqs_[gene]_sequences.fasta"
+filter=FALSE #do you want to filter your data by taxa after taxatables are built? See walkthrough for help.
+asv_rra=0.005 #do you want to pre-filter your data by ASV relative read abundance? Required for comparing local and remote results. If you don't want to pre-filter, set this value to 0.
+taxa_rra=0.005 #RRA value to filter taxa by if you set filter=TRUE
+identity_cutoff=97  #percent identity cutoff for taxa RRA filtering or returning BLAST hits. Use the literature for your gene/primer set to figure this out, 97-99 is common.
+minlen=70 #set a minimum length for ASVs, base this value on the length of your amplicon after trimming. 
+remote=FALSE #Do you want to run a remote-only BLAST search of the NCBI database?
+remote_comp=FALSE #do you want to run BOTH a local and remote BLAST search?
+return_low=TRUE #do you want BLAST to return hits below your identity% threshold? If TRUE, all hits will be returned. If FALSE, BLAST does not return hits below your cutoff and they will be called as "No Hit".
+user=your_slurm_username #required. Usually the same as your cluster username.
+email=your_ncbi_email_address #technically optional, but NCBI throws warnings if you don't include an email address##
 
 echo "###"
 echo "###"
