@@ -86,9 +86,10 @@ Data is often demultiplexed by the sequencing service company at no (or minor) c
 Currently, you must provide Step 1 with an NCBI API key. Getting an NCBI account is free: [sign up here](https://account.ncbi.nlm.nih.gov/signup/). Once logged in, click your name in the upper right hand corner of the screen, click "Account Settings" and scroll down to the button that says "generate API key". Copy this key into the wrapper script and you'll be good to go.
 
 **A note on organizing your data**
-To maximize pipeline success, we recommend the following directory structure for your project, although there is flexibility:
+To maximize pipeline success, here is an example directory organization for a project that has one sample (sample_1) sequenced at COI and 16S:
 
-<img width="604" alt="Screen Shot 2023-06-30 at 12 19 09 PM" src="https://github.com/sckieran/Metabarcoding_Pipeline_Waits/assets/53580356/00ef8cab-b8d2-45c7-b2f5-19c08fac0cf7">
+
+![pipeline_directory_org](https://github.com/sckieran/Metabarcoding_Pipeline_Waits/assets/53580356/81b8f9a6-9251-4868-9509-a6348187704d)
 
 
 You should avoid spaces and special characters (^,$,%,@,#,!,*) in the names of your files/folders and check for hidden characters like carriage returns (sometimes displayed as ^M or \r) in your filenames. Taxlist is only required if you're building a ref database. genelist is required. You can name your genes/loci/primer sets anything (again, avoiding spaces and special characters), but must provide a single-line, tab-separated list of the terms in a file. If you're building the local reference database, the program will automatically pull these term from the header of your gene search terms list. Your data files must be separated by gene in folders that correspond to the terms in the "genelist" file. This is even true if you only have one marker.
