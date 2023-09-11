@@ -7,7 +7,6 @@
 
 dir=$PWD
 prefix=your_project
-rlib="~/Rpackages"
 env_name=pipeline_env
 genelist=$PWD/genelist
 taxlist=$PWD/taxlist
@@ -17,9 +16,10 @@ db_dirr=reference_database
 key=your_ncbi_key 
 R1_pattern="_R1.fastq"
 R2_pattern="_R2.fastq"
-max_jobs=490
-extra_seqs=
+max_jobs=10
+extra_seqs="extra_seqs"
 filter=TRUE
+asv_rra=0.005
 taxa_rra=0.005
 identity_cutoff=97
 minlen=70
@@ -34,7 +34,7 @@ echo "###"
 echo "now doing step one - downloading sequences for your local reference database."
 echo "###"
 
-bash ${dir}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -t ${taxlist} -g ${genelist} -d ${dir} -r ${retmax} -h ${db_dirr} -l ${rlib} -s ${genus_search} -p ${env_name} -k ${key} -e ${email} 
+bash ${dir}/scripts/step_1_get_seqs_for_database.sh -n ${prefix} -t ${taxlist} -g ${genelist} -d ${dir} -r ${retmax} -h ${db_dirr} -s ${genus_search} -p ${env_name} -k ${key} -e ${email} 
 exit_status=$?
 if [ "${exit_status}" -ne 0 ];
 then
@@ -95,7 +95,7 @@ do
   echo "done collapsing samples into unique ASVs. Making per-sample ASV files."
   echo "###"
 
-  bash ${dir}/scripts/step_5_mk_seqfiles.sh ${dir} ${taxa_rra} ${gene} ${max_jobs} ${user} ${minlen} ${env_name}
+  bash ${dir}/scripts/step_5_mk_seqfiles.sh ${dir} ${asv_rra} ${gene} ${max_jobs} ${user} ${minlen} ${env_name}
   exit_status=$?
   if [ "${exit_status}" -ne 0 ];
   then
