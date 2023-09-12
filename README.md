@@ -105,7 +105,7 @@ This pipeline is for limited-taxa reference databases or remote querying of NCBI
 
 **What if I have a few of my own in-house sequences I want to add to my database?**
 
-That's fine, but it will add some tedioius work upfront. First, check if the species you are including have taxIDS assigned in NCBI. All taxa with at least one sequence in the NCBI nucleotide or sra database have a taxid, and you can look it up here: [here](https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi). Put your homebrewed sequences in a file called extras_gene1_sequences.fasta with the header format ">[any unique non_NCBI accession] genus species taxid=unique_taxid" and put it in your reference_database directory. If your species has a taxID assigned in NCBI, use that as the taxid. Otherwise, you can assign one yourself, I recommend a series of letters and numbers separated by underscores. Do not use a strictly numeric value, you will almost definitely accidentally assign a real taxID to your species.  Next, also in your reference database directory, install and run ncbitax2lin. Then, unzip and modify the ncbitax2lin file. Add the unique_taxids you assigned to the end of the file and add taxonomic information for each species following the comma-separated format of the ncbitax2lin file (described in the header of the file). This is tedious to do by hand, so we really recommend submitting your homebrew sequences to NCBI if they're long enough!
+That's fine, but it will add some tedious work upfront. First, check if the species you are including have taxids assigned in NCBI. All taxa with at least one sequence in the NCBI nucleotide or sra database have a taxid, and you can look it up here: [here](https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi). Put your homebrewed sequences in a file called extras_gene1_sequences.fasta with the header format ">[any unique non_NCBI accession] genus species taxid=unique_taxid" and put it in your reference_database directory. If your species has a taxid assigned in NCBI, use that as the taxid. Otherwise, you can assign one yourself, I recommend a series of letters and numbers separated by underscores. Do not use a strictly numeric value, you will almost definitely accidentally assign a real taxid to your species.  Next, in your project directory, install and run ncbitax2lin. Then, unzip and modify the ncbitax2lin file. Add the unique_taxids you assigned to the end of the file and add taxonomic information for each species following the comma-separated format of the ncbitax2lin file (described in the header of the file). Then re-zip the ncbitax2lin file and you're readdy go fo. This is tedious to do by hand, so we really recommend submitting your homebrew sequences to NCBI if they're long enough!
 
 **What if I want to use remote BLAST to query all of NCBI?**
 Select "remote=TRUE" or "remote_comp=TRUE" in the parameters section of the pipeline_wrapper.sh script. But you cannot combine this with an asv_rra=0, because you will end up with many hundreds of thousands of sequences to BLAST, and remote BLAST is very slow and picky. NCBI will be _unhappy_ if you try to remote BLAST more than about 10K ASVs.
@@ -113,7 +113,8 @@ Select "remote=TRUE" or "remote_comp=TRUE" in the parameters section of the pipe
 **Why doesn't this pipeline use e-value instead of bitscore or pident?**
 E-values help asses likelihood of homology and are affected by database size. The conserved regions of metabarcoding primers almost guarantee homology above any standard e-value cutoff, and these databases are generally small, so e-values are high across the board.
 
-**I want to do 16S bacterial metagenomics. Is this pipeline right for me?** Probably not. There is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
+**I want to do 16S bacterial metagenomics. Is this pipeline right for me?**
+Probably not. There is an immense, incredibly well-maintained array of resources for 16S microbial amplicon sequencing, some commercial and some open source, that will be infinitely better than this pipeline.
 
 
 ## Walkthrough of Each Step
@@ -151,7 +152,7 @@ This step does the following, in order:
 2. Moves your "extra_seqs_gene1_sequences.fasta" files into your "reference_database" directory to be validated and incorporated into your database
 3.  Concatenates all taxa FASTAs for each gene into one large FASTA.
 4.  Checks for (and removes) duplicate sequences with the script step_2_p1_rmdups.sh. This is because sequences with identical headers cause makeblastdb to throw an error.
-7. Uses the `ncbi-blast` function `makeblastdb` with the following parameters: -db_type nucl (options are "nucl" and "prot") -in your_project_gene1_database_sequences.fasta -out your_project_gene1_reference -parse_seqids -blastdb_version 5
+7. Builds your NCBI-formatted reference database using the `ncbi-blast` function `makeblastdb` with the following parameters: -db_type nucl (options are "nucl" and "prot") -in your_project_gene1_database_sequences.fasta -out your_project_gene1_reference -parse_seqids -blastdb_version 5
 8. Moves all the extra taxa-specific FASTA files into folders to keep things tidy.
 
 End result is a set of reference database files (10 of them, created by makeblastdb) that NCBI blast can use as a reference, along with a fasta file for each gene, all in a folder called reference_database (or a name supplied by you) inside your project folder
@@ -170,7 +171,7 @@ This script does the following, in order:
 1. Parses arguments and create out directories for one gene at a time ("gene1" in this tutorial)
 3. Grabs all the files in your data directory that match the forward/reverse patterns you provide (default: _R1.fastq and _R2.fastq)
 4. Assesses the number of jobs it should create based on your max_jobs and the number of samples in your gene1 directory
-5. Makes N lists of samples. Each list contains X samples, where X=(num_samples / max_jobs)
+5. Makes N lists of samples. Each list contains X samples, where X=(num_samples / max_jobs) and N=max_jobs.
 6. Uses the software `pear` to merge your forward and reverse reads.
 7. Checks if your jobs are done, and when they are:
 8. Outputs the results of `pear`, one for each sample, to sample_paired.assembled.fastq
@@ -190,7 +191,7 @@ Step 4 does the following:
 1. Creates jobs as in step 3, based on your max_jobs and the number of samples found that match *_paired.assembled.fastq
 2. Cleans up your unpaired, unassembled and discarded fastqs
 3. Runs fastx-collapser on each sample, which functionally pulls the unique sequences out from each sample as a fasta file, naively and with no error correction, counting the number of reads per ASV.
-4. Removes singletons and doubletons. This prevents major ASV overflow issues later.
+4. Removes singletons. This prevents major ASV overflow issues later and helps control for sequencing errors.
 5. Checks if your jobs are done
 6. Cleans up your outfiles, collapsed outfiles have the name sample_collapsed.fasta
 
