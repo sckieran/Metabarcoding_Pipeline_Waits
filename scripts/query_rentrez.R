@@ -24,7 +24,7 @@ option_list <- list(make_option(c('-t','--taxfile'), action='store', type='chara
 opt <- parse_args(OptionParser(option_list = option_list))
 set_entrez_key(opt$key)
 Sys.getenv("ENTREZ_KEY")
-
+taxname_no <- list("no_hits")
 ##taxa format: taxid and taxname. Can use either one but need to update colnames to reflect data##
 setwd(opt$directory)
 prefix <- opt$name ##pick a name for your project. This name will be stuck on your filenames.
