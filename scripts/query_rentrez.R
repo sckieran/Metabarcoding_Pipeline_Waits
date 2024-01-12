@@ -96,7 +96,7 @@ for (i in 1:z) {
       }
     }
     i=1
-    zz=length(genus_rerun_list$taxname
+    zz=length(genus_rerun_list$taxname)
     for (i in 1:zz) {
       write(paste0("doing taxa ",i," out of ",z), stdout())
       Sys.sleep(0.1) 
