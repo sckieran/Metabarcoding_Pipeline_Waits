@@ -31,7 +31,7 @@ while getopts ":n:g:d:m:r:b:c:t:j:u:e:" opt; do
 done
 
 
-module load ncbi-blast
+module load ncbi-blast/2.10.1
 
 max_jobs=$(( $max_jobs / 2 )) #because we submit two jobs per set of samples, one local and one remote, we reduce the max_jobs by half so we don't go over the max. This is imperfect because of floating point, will fix later.
 
