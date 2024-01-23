@@ -120,10 +120,10 @@ echo "localdat is $localdat, prefix is $prefix"
 if [[ ${return_low} == "TRUE" ]]
 then
 	echo "you set return_low to TRUE, so BLAST will return the top bitscore matches regardless of percent identity."
-  	blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out
+  	blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 10 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out
 else
  	echo "you set return_low to FALSE, or did not enter a valid TRUE/FALSE value, so BLAST will only return hits above ${cutoff} percent identity, regardless of score."		
-  	blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 3 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff}
+  	blastn -db ${dirr}/${db_dirr}/${localdat} -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore" -culling_limit 10 -num_threads 4 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff}
 fi
 
 ##define your raw outfiles and remove empty lines which represent no-hits##
@@ -151,10 +151,10 @@ echo "done with local blast, now doing remote blast. There are ${n} sequences to
 if [[ ${return_low} == "TRUE" ]]
 then
 	echo "you set return_low to TRUE, so BLAST will return the top bitscore matches regardless of percent identity."
-  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 1 -out ${prefix}_${gene}_remote_raw_blast_out -remote
+  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 10 -out ${prefix}_${gene}_remote_raw_blast_out -remote
 else
  	echo "you set return_low to FALSE, or did not enter a valid TRUE/FALSE value, so BLAST will only return hits above ${cutoff} percent identity, regardless of score."		
-  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 1 -out ${prefix}_${gene}_remote_raw_blast_out -perc_identity ${cutoff} -remote
+  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 10 -out ${prefix}_${gene}_remote_raw_blast_out -perc_identity ${cutoff} -remote
   fi
 #make a list of your unique sequences
 
