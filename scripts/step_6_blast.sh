@@ -29,7 +29,7 @@ while getopts ":n:g:d:m:r:b:c:t:j:u:" opt; do
 done
 
 
-module load ncbi-blast
+module load ncbi-blast/2.10.1
 
 
 cd ${dirr}
