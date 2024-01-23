@@ -29,7 +29,7 @@ while getopts ":n:g:d:m:r:b:c:t:j:u:" opt; do
 done
 
 
-module load ncbi-blast
+module load ncbi-blast/2.10.1
 
 
 cd ${dirr}
@@ -110,10 +110,10 @@ echo "You set remote to TRUE, so now doing remote blast search, this may take ma
 if [[ ${return_low} == "TRUE" ]]
 then
 	echo "you set return_low to TRUE, so BLAST will return the top bitscore matches regardless of percent identity."
-  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 1 -out ${prefix}_${gene}_raw_blast_out -remote
+  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 10 -out ${prefix}_${gene}_raw_blast_out -remote
 else
  	echo "you set return_low to FALSE, or did not enter a valid TRUE/FALSE value, so BLAST will only return hits above ${cutoff} percent identity, regardless of score."		
-  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 1 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff} -remote
+  	blastn -db nt -query ${dirr}/${gene}_out/${prefix}_${gene}_combined_ASVs.fasta -outfmt "6 qseqid sacc pident length stitle bitscore staxids" -culling_limit 10 -out ${prefix}_${gene}_raw_blast_out -perc_identity ${cutoff} -remote
   fi
 blastout=${prefix}_${gene}_raw_blast_out
 sed -i '/^#/d' $blastout
