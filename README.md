@@ -17,27 +17,46 @@ This pipeline assumes reasonably good resolution of locus data and is designed a
 
 ## Quickstart Guide for RCDS Cluster Users
 1. ssh into the zaphod cluster of RCDS (`ssh your_username@zaphod.hpc.uidaho.edu`)
-2. install miniconda for linux-64: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
-3. make a project directory (`mkdir your_project`) and add folders that contain your trimmed sequence files for each gene or primer set (ie ITS, 12S, trnL)
-4. cd into your project directory (`cd ./your_project`) and do all of steps 5-10 from that directory.
-5. set up the conda environment by typing the following:
+2. install miniconda for linux-64 in your home directory (`cd ~`)
+
+`mkdir -p ~/miniconda3
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+rm -rf ~/miniconda3/miniconda.sh
+~/miniconda3/bin/conda init bash
+~/miniconda3/bin/conda init zsh`
+
+3. Exit the cluster and log in again. This finalizes the conda install. Next, add conda package channels and install the pipeline dependencies:
+
+`conda config --add channels defaults`
+
+`conda config --add channels bioconda`
+
+`conda config --add channels conda-forge`
+
+`conda config --set channel_priority strict`
+
+`conda create -n pipeline pandas biopython r-tidyverse`
+
+`conda activate pipeline` #just to check that it installed correctly
+
+4. make a project directory (`mkdir your_project`) and add folders that contain your trimmed sequence files for each gene or primer set (ie ITS, 12S, trnL)
+5. cd into your project directory (`cd ./your_project`) and do all of steps 5-9 from that directory.
+6. set up the scripts and conda environment by typing the following:
    `module load git`
    
    `git clone https://github.com/sckieran/Metabarcoding_Pipeline_Waits/`
    
-   `cp ./Metabarcoding_Pipeline_Waits/pipeline-env.txt .`
-   
-   `conda env create -n pipeline --file pipeline-env.txt`
-   
-   `conda activate pipeline` #just to check that it installed correctly
+   `cp -r ./Metabarcoding_Pipeline_Waits/scripts/ .` #to get the scripts into your project directory
+
+   `cp ./Metabarcoding_Pipeline_Waits/pipeline_wrapper.sh .` #to get the wrapper into your project directory
    
 7. add a taxa list for each gene to your project directory. They should be identically named except for the gene name (taxlist_12S, taxlist_ITS, taxlist_fwh1). They can be identical, but don't have to be. Each entry in the taxa list must contain two words, genus and species, separated by a space. If you want to search a whole genus, put "genus sp." Do not include a header line.
 8. Add a list of gene terms to search for each gene/primer set. Scan NCBI for common variation on gene names. Each gene should be its own column. Columns do not have to be the same length. Each column should have a short header with no special characters or spaces, ie 12S/ITS. That header will not automatically be considered a search term, so add it to the column itself if you want it to be included. See example genelist.
-9. Copy the scripts and pipeline wrapper into your project directory: `cp -r ./Metabarcoding_Pipeline_Waits/scripts/ .` and `cp ./Metabarcoding_Pipeline_Waits/pipeline_wrapper.sh .`
-10. Set your parameters by editing the pipeline_wrapper.sh script using a text editor like nano, vim or emacs (see "Parameter Setting" in this tutorial)
-11. Exit the zaphod cluster and ssh into the fortyfive (SLURM) cluster of RCDS (`ssh your_username@fortyfive.hpc.uidaho.edu`)
-12. cd into your project directory
-13. Run the program: `sbatch pipeline_wrapper.sh`
+9. Set your parameters by editing the pipeline_wrapper.sh script using a text editor like nano, vim or emacs (see "Parameter Setting" in this tutorial)
+10. Exit the zaphod cluster and ssh into the fortyfive (SLURM) cluster of RCDS (`ssh your_username@fortyfive.hpc.uidaho.edu`)
+11. cd into your project directory
+12. Run the program: `sbatch pipeline_wrapper.sh`
     
 ## Parameter Setting
 This pipeline contains a wrapper script with all the parameters you'll need to set to run it successfully. Here is a breakdown of those parameters:
