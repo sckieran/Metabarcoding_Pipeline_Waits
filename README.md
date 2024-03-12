@@ -19,17 +19,17 @@ This pipeline assumes reasonably good resolution of locus data and is designed a
 1. ssh into the zaphod cluster of RCDS (`ssh your_username@zaphod.hpc.uidaho.edu`)
 2. install miniconda for linux-64 in your home directory (`cd ~`)
 
-`mkdir -p ~/miniconda3
+`mkdir -p ~/miniconda3`
 
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+`wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh`
 
-bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+`bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3`
 
-rm -rf ~/miniconda3/miniconda.sh
+`rm -rf ~/miniconda3/miniconda.sh`
 
-~/miniconda3/bin/conda init bash
+`~/miniconda3/bin/conda init bash`
 
-~/miniconda3/bin/conda init zsh`
+`~/miniconda3/bin/conda init zsh`
 
 3. Exit the cluster and log in again. This finalizes the conda install. Next, add conda package channels and install the pipeline dependencies:
 
