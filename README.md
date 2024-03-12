@@ -20,10 +20,15 @@ This pipeline assumes reasonably good resolution of locus data and is designed a
 2. install miniconda for linux-64 in your home directory (`cd ~`)
 
 `mkdir -p ~/miniconda3
+
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+
 bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+
 rm -rf ~/miniconda3/miniconda.sh
+
 ~/miniconda3/bin/conda init bash
+
 ~/miniconda3/bin/conda init zsh`
 
 3. Exit the cluster and log in again. This finalizes the conda install. Next, add conda package channels and install the pipeline dependencies:
